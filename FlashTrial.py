@@ -21,7 +21,7 @@ class FlashTrial(Trial):
 
         this_instruction_string = 'Decide which circle flashes most often'
         self.instruction = visual.TextStim(self.screen, text=this_instruction_string, font='Helvetica Neue', pos=(0, 0),
-                                           italic=True, height=30, alignHoriz='center')
+                                           italic=True, height=30, alignHoriz='center', units='pix')
         self.instruction.setSize((1200, 50))
 
         self.run_time = 0.0
@@ -45,56 +45,54 @@ class FlashTrial(Trial):
 
     def event(self):
 
-        for i, ev in enumerate(event.getKeys()):
+        for i, (ev, ev_time) in enumerate(event.getKeys(timeStamped=True)):
             if len(ev) > 0:
                 if ev in ['esc', 'escape']:
-                    self.events.append([-99, self.session.clock.getTime(), 'escape: user killed session'])
+                    self.events.append([-99, ev_time, 'escape: user killed session'])
                     self.stopped = True
                     self.session.stopped = True
-                    from pprint import pprint
-                    pprint(self.session.outputDict)
                     print('Session stopped!')
 
                 elif ev == 'space':
-                    self.events.append([0, self.session.clock.getTime() - self.start_time])
+                    self.events.append([0, ev_time - self.start_time])
                     if self.phase == 0:
                         self.phase_forward()
                     else:
-                        self.events.append([-99, self.session.clock.getTime() - self.start_time])
+                        self.events.append([-99, ev_time - self.start_time])
                         self.stopped = True
                         print('Trial canceled by user')
 
                 elif ev in self.session.response_keys:
 
                     if self.phase == 1:
-                        self.events.append([ev, self.session.clock.getTime(), 'early keypress'])
+                        self.events.append([ev, ev_time, 'early keypress'])
 
                     elif self.phase == 2:
                         self.response = ev
 
                         if i == 0:  # First keypress
-                            self.response_time = self.session.clock.getTime() - self.stimulus_time
+                            self.response_time = ev_time - self.phase_time
 
                             if ev == self.correct_key:
-                                self.events.append([ev, self.session.clock.getTime(), 'first keypress', 'correct',
+                                self.events.append([ev, ev_time, 'first keypress', 'correct',
                                                     self.response_time])
                                 self.response_type = 1
                             else:
-                                self.events.append([ev, self.session.clock.getTime(), 'first keypress', 'incorrect',
+                                self.events.append([ev, ev_time, 'first keypress', 'incorrect',
                                                     self.response_time])
                                 self.response_type = 2
                             self.phase_forward()  # End stimulus presentation upon keypress
                         else:
-                            self.events.append([ev, self.session.clock.getTime(), 'late keypress (during stimulus)'])
+                            self.events.append([ev, ev_time, 'late keypress (during stimulus)'])
 
                     elif self.phase == 3:
-                        self.events.append([ev, self.session.clock.getTime(), 'late keypress (during feedback)'])
+                        self.events.append([ev, ev_time, 'late keypress (during feedback)'])
 
                     elif self.phase == 4:
-                        self.events.append([ev, self.session.clock.getTime(), 'late keypress (during ITI)'])
+                        self.events.append([ev, ev_time, 'late keypress (during ITI)'])
 
                 elif ev == 't':  # Scanner pulse
-                    self.events.append([99, self.session.clock.getTime(), 'pulse'])
+                    self.events.append([99, ev_time, 'pulse'])
 
     def phase_forward(self):
         """ Call the superclass phase_forward method first, and reset the current frame number to 0 """

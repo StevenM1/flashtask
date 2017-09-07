@@ -7,16 +7,16 @@ from warnings import warn
 
 from FlashTrial import FlashTrial
 
-
 class FlashSession(EyelinkSession):
 
     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
         super(FlashSession, self).__init__(subject_initials, index_number, sound_system)
 
         screen = self.create_screen(size=screen_res, full_screen=1, physical_screen_distance=159.0,
-                                    background_color=background_color, physical_screen_size=(70, 40))
-        event.Mouse(visible=False, win=screen)
+                                    background_color=background_color, physical_screen_size=(70, 40),
+                                    monitor=monitor_name)
         self.screen.monitor = monitors.Monitor(monitor_name)
+        event.Mouse(visible=False, win=screen)
 
         self.create_output_file_name()
         if tracker_on:
@@ -26,16 +26,29 @@ class FlashSession(EyelinkSession):
         else:
             self.create_tracker(tracker_on=False)
 
-        self.response_keys = np.array(response_keys)  # converting to np.array allows for fancy indexing
-        self.scanner = scanner
-        self.n_trials = n_trials    # specified in standard_parameters!
+        self.response_keys = np.array(response_keys)  # converting to np.array allows for fancy indexing, useful later
+
+        self.scanner = scanner      # either 'n' for no scanner, or a character with scanner pulse key, or 'simulate'
+        # if self.scanner == 'simulate':
+        #     from psychopy.hardware.emulator import launchScan
+        #     self.scanner = launchScan(win=self.screen,
+        #                               settings={'TR': 2.0, 'volumes': 100, 'sound': False, 'sync': 't'},
+        #                               globalClock=self.clock)
+
+        self.n_trials = n_trials    # specified in standard_parameters.py!
         self.standard_parameters = parameters
+
+        # Initialize a bunch of attributes
+        self.frame_rate = None
         self.correct_answers = None
         self.correct_keys = None
+        self.incorrect_answers = None
         self.incorrect_keys = None
         self.trial_arrays = None
+
+        # Initialize psychopy.visual objects attributes
+        self.feedback_text_objects = None
         self.fixation_cross = None
-        self.frame_rate = None
 
         self.prepare_trials()
 
@@ -43,16 +56,15 @@ class FlashSession(EyelinkSession):
 
         # Prepare fixation cross
         self.fixation_cross = visual.TextStim(win=self.screen, text='+', font='', pos=(0.0, 0.0),
-                                         depth=0, rgb=None, color=(1.0, 1.0, 1.0), colorSpace='rgb',
-                                         opacity=1.0, contrast=1.0, units='', ori=0.0)
+                                              depth=0, rgb=None, color=(1.0, 1.0, 1.0), colorSpace='rgb',
+                                              opacity=1.0, contrast=1.0, units='pix', ori=0.0, height=30)
 
         # Prepare feedback stimuli
         self.feedback_text_objects = [
-            visual.TextStim(win=self.screen, text='Too late!', color=(1, 100/255, 100/255)),
-            visual.TextStim(win=self.screen, text='Correct!', color=(1, 100/255, 100/255)),
-            visual.TextStim(win=self.screen, text='Wrong!', color=(1, 100/255, 100/255))
+            visual.TextStim(win=self.screen, text='Too late!', color=(1, 100/255, 100/255), units='cm'),
+            visual.TextStim(win=self.screen, text='Correct!', color=(100/255, 1, 100/255), units='cm'),
+            visual.TextStim(win=self.screen, text='Wrong!', color=(1, 100/255, 100/255), units='cm')
         ]
-
 
         # Some shortcuts
         n_flashers = self.standard_parameters['n_flashers']
@@ -64,7 +76,7 @@ class FlashSession(EyelinkSession):
         pause_length = increment_length - flash_length
 
         # Determine positions of flashers, simple trigonometry
-        if n_flashers == 2:  # start from 0*pi (== (0,1)) if there are only two flashers ('horizontal')
+        if n_flashers == 2:  # start from 0*pi (== (0,1)) if there are only two flashers (horizontal)
             t = 0
         else:                # else start from 0.5*pi (== (1,0))
             t = 0.5*np.pi
@@ -73,16 +85,15 @@ class FlashSession(EyelinkSession):
         pos_y = radius * np.sin(t + np.arange(1, n_flashers+1) * 2 * np.pi / n_flashers)
         self.flasher_positions = zip(pos_x, pos_y)
 
-
         # To calculate on which frames the flashers need to be (in)visible, first get frame rate of current monitor
         self.frame_rate = self.screen.getActualFrameRate()
         if self.frame_rate is None:
-            warn('Could not automatically detect framerate! Guessing it is 60...')
+            warn('Could not automatically detect frame rate! Guessing it is 60...')
             self.frame_rate = 60
         self.frame_rate = np.round(self.frame_rate)  # Rounding to nearest integer
 
         # How many increments can we show during the stimulus period, with the specified increment_length and current
-        # framerate?
+        # frame rate?
         n_increments = np.ceil(phase_durations[2] * self.frame_rate / increment_length).astype(int)
 
         # Knowing this, we can define an index mask to select all frames that correspond to the between-increment
@@ -136,3 +147,9 @@ class FlashSession(EyelinkSession):
             if self.stopped:
                 break
         self.close()
+
+    # def stop(self):
+    #     from pprint import pprint
+    #     pprint(self.session.outputDict)
+    #
+    #     super(FlashSession, self).stop()
