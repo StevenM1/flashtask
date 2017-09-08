@@ -78,9 +78,9 @@ class Trial(object):
         """feedback give the subject feedback on performance"""
         if setting != 0.0:
             if cmp(setting, 0) == answer:
-                self.session.play_sound( sound_index = 0 )
+                self.session.play_sound(sound_index=0)
             else:
-                self.session.play_sound( sound_index = 1 )
+                self.session.play_sound(sound_index=1)
 
     def draw(self):
         """draw function of the Trial superclass finishes drawing by clearing, drawing the viewport and swapping buffers"""
@@ -96,4 +96,3 @@ class Trial(object):
             self.tracker.log('trial ' + str(self.ID) + ' phase ' + str(self.phase) + ' started at ' +
                              str(self.phase_time))
             time_module.sleep(0.0005)
-

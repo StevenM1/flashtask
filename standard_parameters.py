@@ -12,12 +12,12 @@ response_keys = ['z', 'm']  # Order: left, right
 
 n_trials = 5
 
-phase_durations = [-.0001,  # instruction time
+phase_durations = [#-.0001,  # instruction time
                    0.5,  # fixation cross
                    1.5,  # stimulus maximum time
                    0.5,  # feedback
                    1]  # ITI
 background_color = (0.5, 0.5, 0.5)  # -0.75,-0.75,-0.75)
 
-screen_res = (1680, 1050)
-monitor_name = '2208WFP'
+screen_res = (2560, 1440)
+monitor_name = 'u2715h'

@@ -331,7 +331,7 @@ class EyelinkSession(Session):
             # we'll record the whole session continuously and parse the data afterward using the messages sent to the eyelink.
             self.tracker.start_recording()
             # for that, we'll need the pixel size and the like.
-            self.tracker.log('degrees per pixel ' + str(self.pixels_per_degree) )
+            self.tracker.log('degrees per pixel ' + str(self.pixels_per_degree))
             # now, we want to know how fast we're sampling, really
 #			self.eye_measured, self.sample_rate, self.CR_mode, self.file_sample_filter, self.link_sample_filter = self.tracker.getModeData()
             self.sample_rate = sample_rate
@@ -362,9 +362,9 @@ class EyelinkSession(Session):
             # 		return gaze_position[0],gaze_position[1] # self.screen.size[1]-
             # return 0,self.screen.size[1]-0
         else:
-            pygame.event.pump()
-            (x, y) = pygame.mouse.get_pos()
-            y = self.screen.size[1]-y
+#            pygame.event.pump()
+            (x, y) = self.mouse.getPos()  # with 0, 0 as center in pix
+#            y = self.screen.size[1]-y
             return x, y
 
     def detect_saccade(self, algorithm_type = 'velocity', threshold = 0.25, direction = None, fixation_position = None, max_time = 1.0 ):

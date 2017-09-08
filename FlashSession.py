@@ -6,7 +6,8 @@ import numpy as np
 from standard_parameters import *
 from warnings import warn
 
-from FlashTrial import FlashTrial
+from FlashTrial import *
+from FlashInstructions import FlashInstructions
 
 
 class FlashSession(EyelinkSession):
@@ -23,17 +24,17 @@ class FlashSession(EyelinkSession):
                                     background_color=background_color, physical_screen_size=(70, 40),
                                     monitor=monitor_name)
         self.screen.monitor = monitors.Monitor(monitor_name)
-        self.mouse = psychopy.event.Mouse(win=screen, visible=False)
+        self.mouse = event.Mouse(win=screen, visible=False)
 
         # For logging: set-up output file name
         self.create_output_file_name()
 
         # Set-up eye tracker OR dummy
         if tracker_on:
-            self.eye_track_session = True
             self.create_tracker(auto_trigger_calibration=1, calibration_type='HV9')
 
             if self.tracker_on:  # If it found an Eyelink tracker connected, set it up
+                self.dummy_tracker = False
                 self.tracker_setup()
             else:                # If no tracker is found, use mouse as dummy tracker
                 self.dummy_tracker = True
@@ -48,10 +49,10 @@ class FlashSession(EyelinkSession):
 
         # Initialize a bunch of attributes used in prepare_trials()
         self.frame_rate = None
-        self.correct_answers = None
-        self.correct_keys = None
+        self.correct_answers = None  # integer vector corresponding to the flasher number
+        self.correct_responses = None  # either a key ('z', 'm') or a direction ('left', 'right')
         self.incorrect_answers = None
-        self.incorrect_keys = None
+        self.incorrect_responses = None
         self.trial_arrays = None
         self.flasher_positions = None
 
@@ -59,16 +60,15 @@ class FlashSession(EyelinkSession):
         self.feedback_text_objects = None
         self.fixation_cross = None
 
-        print('Mouse visibility before prep_trials(): %s' % str(self.screen.mouseVisible))
-
         self.prepare_trials()
-        print('Mouse visibility after prep_trials(): %s' % str(self.screen.mouseVisible))
 
     def prepare_trials(self):
-        """ Prepares everything necessary to run trials:
+        """
+        Prepares everything necessary to run trials:
 
          - Fixation cross object (kept in FlashSession, not FlashTrial, for efficiency - no reinitalization for every trial)
          - Feedback text objects (idem)
+         - Determines the position on the screen that is recognized as a "response" in the saccadic response condition
          - Correct answers (integer), correct keys, incorrect answers, incorrect keys per trial
          - Positions of flashing circles
          - Evidence stream per flashing circle per trial
@@ -86,6 +86,9 @@ class FlashSession(EyelinkSession):
             visual.TextStim(win=self.screen, text='Correct!', color=(100/255, 1, 100/255), units='cm'),
             visual.TextStim(win=self.screen, text='Wrong!', color=(1, 100/255, 100/255), units='cm')
         ]
+
+        # Radius for eye movement detection: 3 cm? # ToDo: think about this
+        self.eye_travel_threshold = 3
 
         # Some shortcuts
         n_flashers = self.standard_parameters['n_flashers']
@@ -115,7 +118,7 @@ class FlashSession(EyelinkSession):
 
         # How many increments can we show during the stimulus period, with the specified increment_length and current
         # frame rate?
-        n_increments = np.ceil(phase_durations[2] * self.frame_rate / increment_length).astype(int)
+        n_increments = np.ceil(phase_durations[1] * self.frame_rate / increment_length).astype(int)
 
         # Knowing this, we can define an index mask to select all frames that correspond to the between-increment
         # pause period
@@ -127,9 +130,9 @@ class FlashSession(EyelinkSession):
         self.correct_answers = np.random.randint(low=0, high=n_flashers, size=n_trials)
         self.incorrect_answers = [np.delete(np.arange(n_flashers), i) for i in self.correct_answers]
 
-        # Which key responses correspond to these flashers?
-        self.correct_keys = np.array(self.response_keys)[self.correct_answers]
-        self.incorrect_keys = [self.response_keys[self.incorrect_answers[i]] for i in range(n_trials)]
+        # # Which responses (keys or saccades) correspond to these flashers?
+        # self.correct_responses = np.array(self.response_keys)[self.correct_answers]
+        # self.incorrect_responses = [self.response_keys[self.incorrect_answers[i]] for i in range(n_trials)]
 
         # Initialize 'increment arrays' for correct and incorrect. These are arrays filled with 0s and 1s, determining
         # for each 'increment' whether a piece of evidence is shown or not.
@@ -157,16 +160,22 @@ class FlashSession(EyelinkSession):
     def run(self):
         """ Run the trials that were prepared. The experimental design should be implemented here! """
 
-        print('Mouse visibility at the start of FlashSession.run(): %s' % str(self.screen.mouseVisible))
-        core.wait(3)
+        # Show instruction first
+        FlashInstructions(ID=-1, parameters={}, phase_durations=[100], session=self, screen=self.screen,
+                          tracker=self.tracker).run()
+
+        # Loop through trials
         for ID in range(self.n_trials):
-            FlashTrial(ID=ID, parameters={'n_flashers': self.standard_parameters['n_flashers'],
-                                          'flasher_size': self.standard_parameters['flasher_size'],
-                                          'positions': self.flasher_positions,
-                                          'trial_evidence_arrays': self.trial_arrays[ID],
-                                          'correct_key': self.correct_keys[ID],
-                                          'incorrect_keys': self.incorrect_keys[ID]},
-                       phase_durations=phase_durations, session=self, screen=self.screen, tracker=self.tracker).run()
+            FlashTrialSaccade(ID=ID, parameters={'n_flashers': self.standard_parameters['n_flashers'],
+                                                 'flasher_size': self.standard_parameters['flasher_size'],
+                                                 'positions': self.flasher_positions,
+                                                 'trial_evidence_arrays': self.trial_arrays[ID],
+                                                 'correct_answer': self.correct_answers[ID],
+                                                 'incorrect_answers': self.incorrect_answers[ID]},
+                              phase_durations=phase_durations,
+                              session=self,
+                              screen=self.screen,
+                              tracker=self.tracker).run()
 
             if self.stopped:
                 break
