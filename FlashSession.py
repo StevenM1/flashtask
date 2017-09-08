@@ -1,58 +1,79 @@
 from __future__ import division
 from exp_tools import EyelinkSession
-from psychopy import visual, event, monitors
+import pygaze
+from psychopy import visual, event, monitors, core
 import numpy as np
 from standard_parameters import *
 from warnings import warn
 
 from FlashTrial import FlashTrial
 
+
 class FlashSession(EyelinkSession):
+    """
+    Session of the "Flashing Circles" task with eye-tracking enabled.
+
+    """
 
     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
         super(FlashSession, self).__init__(subject_initials, index_number, sound_system)
 
+        # Set-up screen
         screen = self.create_screen(size=screen_res, full_screen=1, physical_screen_distance=159.0,
                                     background_color=background_color, physical_screen_size=(70, 40),
                                     monitor=monitor_name)
         self.screen.monitor = monitors.Monitor(monitor_name)
-        event.Mouse(visible=False, win=screen)
+        self.mouse = psychopy.event.Mouse(win=screen, visible=False)
 
+        # For logging: set-up output file name
         self.create_output_file_name()
+
+        # Set-up eye tracker OR dummy
         if tracker_on:
+            self.eye_track_session = True
             self.create_tracker(auto_trigger_calibration=1, calibration_type='HV9')
-            if self.tracker_on:
+
+            if self.tracker_on:  # If it found an Eyelink tracker connected, set it up
                 self.tracker_setup()
+            else:                # If no tracker is found, use mouse as dummy tracker
+                self.dummy_tracker = True
+                self.screen.setMouseVisible(True)
         else:
             self.create_tracker(tracker_on=False)
 
         self.response_keys = np.array(response_keys)  # converting to np.array allows for fancy indexing, useful later
-
-        self.scanner = scanner      # either 'n' for no scanner, or a character with scanner pulse key, or 'simulate'
-        # if self.scanner == 'simulate':
-        #     from psychopy.hardware.emulator import launchScan
-        #     self.scanner = launchScan(win=self.screen,
-        #                               settings={'TR': 2.0, 'volumes': 100, 'sound': False, 'sync': 't'},
-        #                               globalClock=self.clock)
-
+        self.scanner = scanner      # either 'n' for no scanner, or a character with scanner pulse key
         self.n_trials = n_trials    # specified in standard_parameters.py!
         self.standard_parameters = parameters
 
-        # Initialize a bunch of attributes
+        # Initialize a bunch of attributes used in prepare_trials()
         self.frame_rate = None
         self.correct_answers = None
         self.correct_keys = None
         self.incorrect_answers = None
         self.incorrect_keys = None
         self.trial_arrays = None
+        self.flasher_positions = None
 
         # Initialize psychopy.visual objects attributes
         self.feedback_text_objects = None
         self.fixation_cross = None
 
+        print('Mouse visibility before prep_trials(): %s' % str(self.screen.mouseVisible))
+
         self.prepare_trials()
+        print('Mouse visibility after prep_trials(): %s' % str(self.screen.mouseVisible))
 
     def prepare_trials(self):
+        """ Prepares everything necessary to run trials:
+
+         - Fixation cross object (kept in FlashSession, not FlashTrial, for efficiency - no reinitalization for every trial)
+         - Feedback text objects (idem)
+         - Correct answers (integer), correct keys, incorrect answers, incorrect keys per trial
+         - Positions of flashing circles
+         - Evidence stream per flashing circle per trial
+         - Opacity-per-frame for all flashing circles for all trials.
+         """
 
         # Prepare fixation cross
         self.fixation_cross = visual.TextStim(win=self.screen, text='+', font='', pos=(0.0, 0.0),
@@ -134,7 +155,10 @@ class FlashSession(EyelinkSession):
             self.trial_arrays.append(evidence_streams_this_trial)
 
     def run(self):
+        """ Run the trials that were prepared. The experimental design should be implemented here! """
 
+        print('Mouse visibility at the start of FlashSession.run(): %s' % str(self.screen.mouseVisible))
+        core.wait(3)
         for ID in range(self.n_trials):
             FlashTrial(ID=ID, parameters={'n_flashers': self.standard_parameters['n_flashers'],
                                           'flasher_size': self.standard_parameters['flasher_size'],
@@ -147,9 +171,3 @@ class FlashSession(EyelinkSession):
             if self.stopped:
                 break
         self.close()
-
-    # def stop(self):
-    #     from pprint import pprint
-    #     pprint(self.session.outputDict)
-    #
-    #     super(FlashSession, self).stop()

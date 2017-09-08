@@ -1,5 +1,6 @@
 from FlashSession import FlashSession
-from psychopy import hardware
+from psychopy.hardware.emulator import launchScan
+from psychopy import core
 
 # Kill all background processes (macOS only)
 try:
@@ -8,8 +9,11 @@ try:
 except:
     pass
 
-scanner = hardware.emulator.launchScan()
-sess = FlashSession(subject_initials='SM', index_number=1, scanner='n', tracker_on=False)
+sess = FlashSession(subject_initials='SM', index_number=1, scanner='n', tracker_on=True)
+sess.scanner = launchScan(win=sess.screen, settings={'TR': 2, 'volumes': 100, 'sync': 't'}, mode='Test')
+
+if sess.dummy_tracker:  # annoyingly, launchScan removes the mouse visibility - get it back for dummy tracking...
+    sess.screen.setMouseVisible(True)
 
 sess.run()
 
@@ -22,3 +26,7 @@ data_file = os.listdir('data')[-1]
 data = pickle.load(open(os.path.join('data', data_file), 'r'))
 pprint(data)
 pprint(data['eventArray'])
+
+
+# Quit PsychoPy processes
+core.quit()

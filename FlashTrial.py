@@ -1,5 +1,5 @@
 from exp_tools import Trial
-from psychopy import visual, event
+from psychopy import visual, event, core
 from FlashStim import FlashStim
 
 
@@ -11,19 +11,23 @@ class FlashTrial(Trial):
         self.ID = ID
         self.frame_n = -1
         self.response = None
+
         self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response
         self.correct_key = parameters['correct_key']
         self.incorrect_keys = parameters['incorrect_keys']
 
+        # Initialize flashing circles objects
         self.stimulus = FlashStim(screen=self.screen, n_flashers=parameters['n_flashers'],
                                   flasher_size=parameters['flasher_size'], positions=parameters['positions'],
                                   trial_evidence_arrays=parameters['trial_evidence_arrays'])
 
+        # Initialize instructions  # ToDo: Move to FlashSession?
         this_instruction_string = 'Decide which circle flashes most often'
         self.instruction = visual.TextStim(self.screen, text=this_instruction_string, font='Helvetica Neue', pos=(0, 0),
                                            italic=True, height=30, alignHoriz='center', units='pix')
         self.instruction.setSize((1200, 50))
 
+        # Set times
         self.run_time = 0.0
         self.instruct_time = self.t_time = self.fix_time = self.stimulus_time = self.post_stimulus_time = \
             self.response_time = 0.0
@@ -45,7 +49,9 @@ class FlashTrial(Trial):
 
     def event(self):
 
-        for i, (ev, ev_time) in enumerate(event.getKeys(timeStamped=True)):
+        for i, (ev, ev_time) in enumerate(event.getKeys(timeStamped=self.session.clock)):
+            # ev_time is the event timestamp relative to the Session Clock
+
             if len(ev) > 0:
                 if ev in ['esc', 'escape']:
                     self.events.append([-99, ev_time, 'escape: user killed session'])

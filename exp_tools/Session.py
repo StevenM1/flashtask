@@ -168,6 +168,8 @@ class Session(object):
         pickle.dump(self.outputDict,parsopf)
         parsopf.close()
 
+        return 0
+
     def play_sound(self, sound_index = '0'):
         """docstring for play_sound"""
         if type(sound_index) == int:
@@ -230,7 +232,11 @@ class EyelinkSession(Session):
             # create actual tracker
             try:
                 # self.tracker = EyeLink()
-                self.tracker = eyetracker.EyeTracker(self.display, trackertype='eyelink', resolution=self.display.dispsize, data_file=self.eyelink_temp_file, bgc=self.display.bgc)
+                self.tracker = eyetracker.EyeTracker(self.display,
+                                                     trackertype='eyelink',
+                                                     resolution=self.display.dispsize,
+                                                     data_file=self.eyelink_temp_file,
+                                                     bgc=self.display.bgc)
                 self.tracker_on = True
             except:
                 print '\ncould not connect to tracker'
@@ -257,10 +263,10 @@ class EyelinkSession(Session):
         self.tracker.send_command("link_event_filter = LEFT,RIGHT,FIXATION,FIXUPDATE,SACCADE,BLINK")
         self.tracker.send_command("link_sample_data = GAZE,GAZERES,AREA,HREF,PUPIL,STATUS")
         self.tracker.send_command("link_event_data = GAZE,GAZERES,AREA,HREF,VELOCITY,FIXAVG,STATUS")
-        # set furtheinfo
-        self.tracker.send_command("screen_pixel_coords =  0 0 %d %d" %self.screen_pix_size)
-        self.tracker.send_command("pupil_size_diameter = %s"%('YES'));
-        self.tracker.send_command("heuristic_filter %d %d"%([1, 0][sensitivity_class], 1))
+        # set further info
+        self.tracker.send_command("screen_pixel_coords =  0 0 %d %d" % self.screen_pix_size)
+        self.tracker.send_command("pupil_size_diameter = %s" % ('YES'))
+        self.tracker.send_command("heuristic_filter %d %d" % ([1, 0][sensitivity_class], 1))
         self.tracker.send_command("sample_rate = %d" % sample_rate)
 
         # settings tt address saccade sensitivity - to be set with sensitivity_class parameter. 0 is cognitive style, 1 is pursuit/neurological style
@@ -268,8 +274,11 @@ class EyelinkSession(Session):
         self.tracker.send_command("saccade_acceleration_threshold = %d" %[9500, 5000][sensitivity_class])
         self.tracker.send_command("saccade_motion_threshold = %d" %[0.15, 0][sensitivity_class])
 
-#		self.tracker.send_command("file_sample_control = 1,0,0")
-        self.tracker.send_command("screen_phys_coords = %d %d %d %d" %(-self.physical_screen_size[0] / 2.0, self.physical_screen_size[1] / 2.0, self.physical_screen_size[0] / 2.0, -self.physical_screen_size[1] / 2.0))
+        # self.tracker.send_command("file_sample_control = 1,0,0")
+        self.tracker.send_command("screen_phys_coords = %d %d %d %d" % (-self.physical_screen_size[0] / 2.0,
+                                                                        self.physical_screen_size[1] / 2.0,
+                                                                        self.physical_screen_size[0] / 2.0,
+                                                                        -self.physical_screen_size[1] / 2.0))
         self.tracker.send_command("simulation_screen_distance = " + str(self.physical_screen_distance))
 
         if auto_trigger_calibration:
@@ -293,6 +302,7 @@ class EyelinkSession(Session):
         #	;;	 4 1 5
         #	;;	 12 13
         #	;;	 8 3 9
+
         if split_screen:
             self.tracker.send_command("calibration_type = HV9")
             self.tracker.send_command("generate_default_targets = NO")
@@ -329,19 +339,19 @@ class EyelinkSession(Session):
     def drift_correct(self, position = None):
         """docstring for drift_correct"""
         if self.tracker.connected():
-            if position == None:	# standard is of course centered on the screen.
+            if position is None:  # standard is of course centered on the screen.
                 position = [self.screen.size[0]/2,self.screen.size[1]/2]
             while 1:
                 # Does drift correction and handles the re-do camera setup situations
                 error = self.tracker.doDriftCorrect(position[0],position[1],1,1)
                 if error != 27:
-                    break;
+                    break
                 else:
                     self.tracker_setup()
 
     def eye_pos(self):
         if self.tracker:
-            return self.tracker.sample() # check for new sample update
+            return self.tracker.sample()  # check for new sample update
             # if(dt != None):
             # 	# Gets the gaze position of the latest sample,
             # 	if dt.isRightSample():
@@ -353,9 +363,9 @@ class EyelinkSession(Session):
             # return 0,self.screen.size[1]-0
         else:
             pygame.event.pump()
-            (x,y) = pygame.mouse.get_pos()
+            (x, y) = pygame.mouse.get_pos()
             y = self.screen.size[1]-y
-            return x,y
+            return x, y
 
     def detect_saccade(self, algorithm_type = 'velocity', threshold = 0.25, direction = None, fixation_position = None, max_time = 1.0 ):
         """
@@ -420,9 +430,8 @@ class EyelinkSession(Session):
 
         return saccade_polling_time
 
-
     def close(self):
-        if self.tracker:
+        if self.tracker is not None:
             if self.tracker.connected():
                 self.tracker.stop_recording()
             # inject local file name into pygaze tracker and then close.
