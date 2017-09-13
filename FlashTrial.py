@@ -21,8 +21,9 @@ class FlashTrial(Trial):
         self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response
 
         # Initialize flashing circles objects
-        self.stimulus = FlashStim(screen=self.screen, n_flashers=parameters['n_flashers'],
-                                  flasher_size=parameters['flasher_size'], positions=parameters['positions'],
+        self.stimulus = FlashStim(screen=self.screen, n_flashers=self.session.n_flashers,
+                                  flasher_size=self.session.flasher_size,
+                                  positions=self.session.flasher_positions,
                                   trial_evidence_arrays=parameters['trial_evidence_arrays'])
 
         # Initialize cue

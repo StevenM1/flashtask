@@ -56,6 +56,11 @@ class FlashSession(EyelinkSession):
         self.trial_arrays = None
         self.flasher_positions = None
 
+        # Get session information about flashers
+        self.n_flashers = self.standard_parameters['n_flashers']
+        self.radius = self.standard_parameters['radius']
+        self.flasher_size = self.standard_parameters['flasher_size']
+
         # Initialize psychopy.visual objects attributes
         self.feedback_text_objects = None
         self.fixation_cross = None
@@ -91,8 +96,6 @@ class FlashSession(EyelinkSession):
         self.eye_travel_threshold = 3
 
         # Some shortcuts
-        n_flashers = self.standard_parameters['n_flashers']
-        radius = self.standard_parameters['radius']
         prop_correct = self.standard_parameters['prop_correct']
         prop_incorrect = self.standard_parameters['prop_incorrect']
         increment_length = self.standard_parameters['increment_length']
@@ -100,13 +103,13 @@ class FlashSession(EyelinkSession):
         pause_length = increment_length - flash_length
 
         # Determine positions of flashers, simple trigonometry
-        if n_flashers == 2:  # start from 0*pi (== (0,1)) if there are only two flashers (horizontal)
+        if self.n_flashers == 2:  # start from 0*pi (== (0,1)) if there are only two flashers (horizontal)
             t = 0
         else:                # else start from 0.5*pi (== (1,0))
             t = 0.5*np.pi
 
-        pos_x = radius * np.cos(t + np.arange(1, n_flashers+1) * 2 * np.pi / n_flashers)
-        pos_y = radius * np.sin(t + np.arange(1, n_flashers+1) * 2 * np.pi / n_flashers)
+        pos_x = self.radius * np.cos(t + np.arange(1, self.n_flashers+1) * 2 * np.pi / self.n_flashers)
+        pos_y = self.radius * np.sin(t + np.arange(1, self.n_flashers+1) * 2 * np.pi / self.n_flashers)
         self.flasher_positions = zip(pos_x, pos_y)
 
         # To calculate on which frames the flashers need to be (in)visible, first get frame rate of current monitor
@@ -130,7 +133,7 @@ class FlashSession(EyelinkSession):
         if self.correct_answers is None:  # It might already be set by a subclass
             self.correct_answers = np.repeat([0, 1], repeats=n_trials/2)   # np.random.randint(low=0, high=n_flashers, size=n_trials)
             np.random.shuffle(self.correct_answers)
-        self.incorrect_answers = [np.delete(np.arange(n_flashers), i) for i in self.correct_answers]
+        self.incorrect_answers = [np.delete(np.arange(self.n_flashers), i) for i in self.correct_answers]
 
         # # Which responses (keys or saccades) correspond to these flashers?
         # self.correct_responses = np.array(self.response_keys)[self.correct_answers]
@@ -143,7 +146,7 @@ class FlashSession(EyelinkSession):
         for trial_n in range(self.n_trials):
 
             evidence_streams_this_trial = []
-            for i in range(n_flashers):
+            for i in range(self.n_flashers):
 
                 # First, create initial evidence stream
                 if i == self.correct_answers[trial_n]:
@@ -168,10 +171,7 @@ class FlashSession(EyelinkSession):
 
         # Loop through trials
         for ID in range(self.n_trials):
-            FlashTrialKeyboard(ID=ID, parameters={'n_flashers': self.standard_parameters['n_flashers'],
-                                                  'flasher_size': self.standard_parameters['flasher_size'],
-                                                  'positions': self.flasher_positions,
-                                                  'trial_evidence_arrays': self.trial_arrays[ID],
+            FlashTrialKeyboard(ID=ID, parameters={'trial_evidence_arrays': self.trial_arrays[ID],
                                                   'correct_answer': self.correct_answers[ID],
                                                   'incorrect_answers': self.incorrect_answers[ID]},
                                phase_durations=phase_durations,
@@ -185,10 +185,10 @@ class FlashSession(EyelinkSession):
         self.close()
 
 
-class FlashSessionBias(FlashSession):
+class FlashSessionProbBias(FlashSession):
 
     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
-        super(FlashSessionBias, self).__init__(subject_initials, index_number, scanner, tracker_on, sound_system=False)
+        super(FlashSessionProbBias, self).__init__(subject_initials, index_number, scanner, tracker_on, sound_system=False)
 
         self.trial_conditions = None
         self.cue_by_trial = None
@@ -226,7 +226,7 @@ class FlashSessionBias(FlashSession):
         #                            'trial_condition': self.trial_conditions})
         # trial_data.to_csv('/users/steven/Desktop/trial_conditions.csv')
 
-        super(FlashSessionBias, self).prepare_trials()
+        super(FlashSessionProbBias, self).prepare_trials()
 
     def run(self):
 
@@ -236,10 +236,7 @@ class FlashSessionBias(FlashSession):
 
         # Loop through trials
         for ID in range(self.n_trials):
-            FlashTrialKeyboard(ID=ID, parameters={'n_flashers': self.standard_parameters['n_flashers'],
-                                                  'flasher_size': self.standard_parameters['flasher_size'],
-                                                  'positions': self.flasher_positions,
-                                                  'trial_evidence_arrays': self.trial_arrays[ID],
+            FlashTrialKeyboard(ID=ID, parameters={'trial_evidence_arrays': self.trial_arrays[ID],
                                                   'correct_answer': self.correct_answers[ID],
                                                   'incorrect_answers': self.incorrect_answers[ID],
                                                   'cue': self.cue_by_trial[ID]},

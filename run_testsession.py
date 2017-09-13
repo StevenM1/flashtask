@@ -1,4 +1,4 @@
-from FlashSession import FlashSession, FlashSessionBias
+from FlashSession import FlashSession, FlashSessionProbBias
 from psychopy.hardware.emulator import launchScan
 from psychopy import core
 import os
@@ -28,7 +28,7 @@ if sysErr:
 # ToDo: Trial organization (phases) differently for design optimization? Maybe fixation cross during ITI,
 # wait for pulse on first trial.... But how to sync during other trials?
 
-sess = FlashSessionBias(subject_initials='SM', index_number=1, scanner='n', tracker_on=True)
+sess = FlashSessionProbBias(subject_initials='SM', index_number=1, scanner='n', tracker_on=True)
 sess.scanner = launchScan(win=sess.screen, settings={'TR': 2, 'volumes': 100, 'sync': 't'}, mode='Test')
 
 if sess.dummy_tracker:  # annoyingly, launchScan sets mouseVisible to False - set it back to True for dummy tracking...
