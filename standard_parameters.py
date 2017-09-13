@@ -10,14 +10,18 @@ parameters = {
 
 response_keys = ['z', 'm']  # Order: left, right
 
-n_trials = 5
+n_trials = 100
 
 phase_durations = [#-.0001,  # instruction time
                    0.5,  # fixation cross
+                   0.5,  # Cue time
+                   0.5,  # fix cross again
                    1.5,  # stimulus maximum time
                    0.5,  # feedback
-                   1]  # ITI
+                   1]    # ITI
 background_color = (0.5, 0.5, 0.5)  # -0.75,-0.75,-0.75)
 
 screen_res = (2560, 1440)
 monitor_name = 'u2715h'
+# screen_res = (1280, 800)
+# monitor_name = 'laptop'

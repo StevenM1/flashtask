@@ -87,7 +87,7 @@ class FlashSession(EyelinkSession):
             visual.TextStim(win=self.screen, text='Wrong!', color=(1, 100/255, 100/255), units='cm')
         ]
 
-        # Radius for eye movement detection: 3 cm? # ToDo: think about this
+        # Radius for eye movement detection: 3 cm? # ToDo: think about this: where to place this?
         self.eye_travel_threshold = 3
 
         # Some shortcuts
@@ -118,7 +118,7 @@ class FlashSession(EyelinkSession):
 
         # How many increments can we show during the stimulus period, with the specified increment_length and current
         # frame rate?
-        n_increments = np.ceil(phase_durations[1] * self.frame_rate / increment_length).astype(int)
+        n_increments = np.ceil(phase_durations[3] * self.frame_rate / increment_length).astype(int)
 
         # Knowing this, we can define an index mask to select all frames that correspond to the between-increment
         # pause period
@@ -127,7 +127,9 @@ class FlashSession(EyelinkSession):
                            n_increments).astype(bool)
 
         # Define which flashing circle is correct in all n_trials
-        self.correct_answers = np.random.randint(low=0, high=n_flashers, size=n_trials)
+        if self.correct_answers is None:  # It might already be set by a subclass
+            self.correct_answers = np.repeat([0, 1], repeats=n_trials/2)   # np.random.randint(low=0, high=n_flashers, size=n_trials)
+            np.random.shuffle(self.correct_answers)
         self.incorrect_answers = [np.delete(np.arange(n_flashers), i) for i in self.correct_answers]
 
         # # Which responses (keys or saccades) correspond to these flashers?
@@ -166,17 +168,88 @@ class FlashSession(EyelinkSession):
 
         # Loop through trials
         for ID in range(self.n_trials):
-            FlashTrialSaccade(ID=ID, parameters={'n_flashers': self.standard_parameters['n_flashers'],
-                                                 'flasher_size': self.standard_parameters['flasher_size'],
-                                                 'positions': self.flasher_positions,
-                                                 'trial_evidence_arrays': self.trial_arrays[ID],
-                                                 'correct_answer': self.correct_answers[ID],
-                                                 'incorrect_answers': self.incorrect_answers[ID]},
-                              phase_durations=phase_durations,
-                              session=self,
-                              screen=self.screen,
-                              tracker=self.tracker).run()
+            FlashTrialKeyboard(ID=ID, parameters={'n_flashers': self.standard_parameters['n_flashers'],
+                                                  'flasher_size': self.standard_parameters['flasher_size'],
+                                                  'positions': self.flasher_positions,
+                                                  'trial_evidence_arrays': self.trial_arrays[ID],
+                                                  'correct_answer': self.correct_answers[ID],
+                                                  'incorrect_answers': self.incorrect_answers[ID]},
+                               phase_durations=phase_durations,
+                               session=self,
+                               screen=self.screen,
+                               tracker=self.tracker).run()
 
             if self.stopped:
                 break
+
         self.close()
+
+
+class FlashSessionBias(FlashSession):
+
+    def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
+        super(FlashSessionBias, self).__init__(subject_initials, index_number, scanner, tracker_on, sound_system=False)
+
+        self.trial_conditions = None
+        self.cue_by_trial = None
+        self.prepare_trials()
+
+    def prepare_trials(self):
+
+        self.trial_conditions = np.hstack((np.repeat([0, 1], repeats=n_trials/4),  # Neutral trials, left/right corr
+                                           np.repeat([2, 3], repeats=(n_trials/4)*.8),  # Bias left/right: correct
+                                           np.repeat([4, 5], repeats=(n_trials/4)*.2)))  # Bias left/right: incorrect
+        np.random.shuffle(self.trial_conditions)
+
+        if self.trial_conditions.shape[0] != n_trials:
+            raise(ValueError('The provided n_trials (%d) could not be split into the correct number of trial types. '
+                             'Closest option is %d trials' % (n_trials, self.trial_conditions.shape[0])))
+
+        self.cue_by_trial = np.zeros(n_trials, dtype='<U5')
+        self.correct_answers = np.zeros(n_trials, dtype=np.int)
+
+        self.cue_by_trial[(self.trial_conditions == 0) | (self.trial_conditions == 1)] = 'NEU'
+        self.cue_by_trial[(self.trial_conditions == 2) | (self.trial_conditions == 4)] = 'LEFT'
+        self.cue_by_trial[(self.trial_conditions == 3) | (self.trial_conditions == 5)] = 'RIGHT'
+
+        self.correct_answers[(self.trial_conditions == 0) |
+                             (self.trial_conditions == 2) |
+                             (self.trial_conditions == 5)] = 0
+        self.correct_answers[(self.trial_conditions == 1) |
+                             (self.trial_conditions == 3) |
+                             (self.trial_conditions == 4)] = 1
+
+        # tmp: exported trial types to check whether everything went ok
+        # import pandas as pd
+        # trial_data = pd.DataFrame({'correct_answer': self.correct_answers,
+        #                            'cue': self.cue_by_trial,
+        #                            'trial_condition': self.trial_conditions})
+        # trial_data.to_csv('/users/steven/Desktop/trial_conditions.csv')
+
+        super(FlashSessionBias, self).prepare_trials()
+
+    def run(self):
+
+        # Show instruction first
+        FlashInstructions(ID=-1, parameters={}, phase_durations=[100], session=self, screen=self.screen,
+                          tracker=self.tracker).run()
+
+        # Loop through trials
+        for ID in range(self.n_trials):
+            FlashTrialKeyboard(ID=ID, parameters={'n_flashers': self.standard_parameters['n_flashers'],
+                                                  'flasher_size': self.standard_parameters['flasher_size'],
+                                                  'positions': self.flasher_positions,
+                                                  'trial_evidence_arrays': self.trial_arrays[ID],
+                                                  'correct_answer': self.correct_answers[ID],
+                                                  'incorrect_answers': self.incorrect_answers[ID],
+                                                  'cue': self.cue_by_trial[ID]},
+                               phase_durations=phase_durations,
+                               session=self,
+                               screen=self.screen,
+                               tracker=self.tracker).run()
+
+            if self.stopped:
+                break
+
+        self.close()
+

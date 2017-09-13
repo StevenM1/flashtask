@@ -84,6 +84,7 @@ class Trial(object):
 
     def draw(self):
         """draw function of the Trial superclass finishes drawing by clearing, drawing the viewport and swapping buffers"""
+
         self.screen.flip()
 
     def phase_forward(self):
