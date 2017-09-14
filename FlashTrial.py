@@ -1,6 +1,7 @@
+#!/usr/bin/env python
+# encoding: utf-8
 from exp_tools import Trial
-from psychopy import visual, event, core, logging
-from FlashStim import FlashStim
+from psychopy import visual, event, logging
 import numpy as np
 
 
@@ -19,24 +20,22 @@ class FlashTrial(Trial):
         self.response = None
 
         self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response
-
-        # Initialize flashing circles objects
-        self.stimulus = FlashStim(screen=self.screen, n_flashers=self.session.n_flashers,
-                                  flasher_size=self.session.flasher_size,
-                                  positions=self.session.flasher_positions,
-                                  trial_evidence_arrays=parameters['trial_evidence_arrays'])
+        self.stimulus = self.session.stimulus
+        self.stimulus.trial_evidence_arrays = parameters['trial_evidence_arrays']
+        self.evidence_shown = np.repeat([0], self.session.n_flashers)
 
         # Initialize cue
         if 'cue' in parameters.keys():
             cuetext = parameters['cue']
         else:
-            cuetext = 'Cue here'
-        self.cue = visual.TextStim(win=self.screen, text=cuetext)
+            cuetext = 'Warning! No cue passed to trial!'
+        self.session.cue_object.text = cuetext
 
         # Initialize times
         self.run_time = 0.0
-        self.t_time = self.fix1_time = self.cue_time = self.fix2_time = self.stimulus_time = self.feedback_time = \
-            self.response_time = 0.0
+        self.t_time = self.fix1_time = self.cue_time = self.fix2_time = self.stimulus_time = self.post_stimulus_time = \
+          self.feedback_time = self.ITI_time = 0.0
+        self.response_time = None
 
     def draw(self):
         """ Draws the current frame """
@@ -44,15 +43,17 @@ class FlashTrial(Trial):
         if self.phase == 0:
             self.session.fixation_cross.draw()
         elif self.phase == 1:
-            self.cue.draw()
+            self.session.cue_object.draw()
         elif self.phase == 2:
             self.session.fixation_cross.draw()
         elif self.phase == 3:
-            self.stimulus.draw(frame_n=self.frame_n)
+            shown_opacities = self.stimulus.draw(frame_n=self.frame_n)
+            self.evidence_shown = self.evidence_shown + shown_opacities
         elif self.phase == 4:
+            self.stimulus.draw(frame_n=self.frame_n, continuous=True)  # Continuous creates constant streams of flashes
+        elif self.phase == 5:
             self.session.feedback_text_objects[self.response_type].draw()
 
-        self.session.screen.logOnFlip(msg='frame=%i' % self.frame_n, level=logging.EXP)
         super(FlashTrial, self).draw()
 
     def event(self):
@@ -72,11 +73,14 @@ class FlashTrial(Trial):
             self.frame_n += 1
             self.run_time = self.session.clock.getTime() - self.start_time
 
-            # Fixation cross
+            # Fixation cross: waits for scanner pulse!
             if self.phase == 0:
                 self.fix1_time = self.session.clock.getTime()
-                if (self.fix1_time - self.start_time) > self.phase_durations[0]:
+                if self.session.scanner == 'n':
                     self.phase_forward()
+
+                # # if (self.fix1_time - self.start_time) > self.phase_durations[0]:
+                #     self.phase_forward()
 
             # In phase 1, we show the cue
             if self.phase == 1:
@@ -90,16 +94,30 @@ class FlashTrial(Trial):
                 if (self.fix2_time - self.cue_time) > self.phase_durations[2]:
                     self.phase_forward()
 
-            # In phase 3, the stimulus is presented
+            # In phase 3, the stimulus is presented and the participant can respond
             if self.phase == 3:
                 self.stimulus_time = self.session.clock.getTime()
                 if (self.stimulus_time - self.fix2_time) > self.phase_durations[3]:
                     self.phase_forward()
 
-            # Phase 4 reflects the ITI
+            # In phase 4, the stimulus is presented, participant has responded
             if self.phase == 4:
+                self.post_stimulus_time = self.session.clock.getTime()
+                if self.session.scanner == 'n':  # Outside the scanner we can just move on
+                    self.phase_forward()
+                else:
+                    if (self.post_stimulus_time - self.fix2_time) > self.phase_durations[3]:
+                        self.phase_forward()
+
+            # Phase 5 reflects feedback
+            if self.phase == 5:
                 self.feedback_time = self.session.clock.getTime()
-                if (self.feedback_time - self.stimulus_time) > self.phase_durations[4]:
+                if (self.feedback_time - self.post_stimulus_time) > self.phase_durations[4]:
+                    self.phase_forward()
+
+            if self.phase == 6:
+                self.ITI_time = self.session.clock.getTime()
+                if (self.ITI_time - self.feedback_time) > self.phase_durations[5]:
                     self.stopped = True
 
             # events and draw
@@ -109,6 +127,7 @@ class FlashTrial(Trial):
         self.stop()
 
 
+# The next two classes handle reponses via keyboard or saccades
 class FlashTrialSaccade(FlashTrial):
     """
     FlashTrial on which participants respond by eye movements
@@ -118,7 +137,7 @@ class FlashTrialSaccade(FlashTrial):
 
     def __init__(self, ID, parameters={}, phase_durations=[], session=None, screen=None, tracker=None):
         super(FlashTrialSaccade, self).__init__(ID, parameters=parameters, phase_durations=phase_durations,
-                                                 session=session, screen=screen, tracker=tracker)
+                                                session=session, screen=screen, tracker=tracker)
 
         self.correct_direction = parameters['correct_answer']
         self.directions_verbose = ['left saccade', 'right saccade']
@@ -156,13 +175,28 @@ class FlashTrialSaccade(FlashTrial):
                     self.events.append([saccade_direction_verbose, eyepos_time, 'during fixation cross 2'])
 
                 elif self.phase == 3:
-                    if saccade_direction == self.correct_direction:
-                        self.response_type = 1
-                        self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade', 'correct'])
+                    self.response = saccade_direction_verbose
+
+                    # Check for early response
+                    if (eyepos_time - self.fix2_time) < 0.150:  # (seconds)
+                        self.response_type = 3
+
+                        if saccade_direction == self.correct_direction:
+                            self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response', 'correct'])
+                        else:
+                            self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response',
+                                                'incorrect'])
                     else:
-                        self.response_type = 2
-                        self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade', 'incorrect'])
-                    self.phase_forward()  # End stimulus presentation when saccade is detected
+                        if saccade_direction == self.correct_direction:
+                            self.response_type = 1
+                            self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
+                                                'correct'])
+                        else:
+                            self.response_type = 2
+                            self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
+                                                'incorrect'])
+
+                    self.phase_forward()  # End stimulus presentation when saccade is detected (this will be removed)
 
                 elif self.phase == 4:
                     self.events.append([saccade_direction_verbose, eyepos_time, 'during feedback'])  # This will
@@ -189,6 +223,9 @@ class FlashTrialSaccade(FlashTrial):
 
                 elif ev == 't':  # Scanner pulse
                     self.events.append([99, ev_time, 'pulse'])
+
+                    if self.phase == 0:
+                        self.phase_forward()
 
     def phase_forward(self):
         """ Do everything the superclass does, but also reset current phase eye movement detection """
@@ -238,19 +275,29 @@ class FlashTrialKeyboard(FlashTrial):
                         self.events.append([ev, ev_time, 'early keypress during fix cross 2'])
 
                     elif self.phase == 3:
-                        self.response = ev
 
                         if i == 0:  # First keypress
+                            self.response = ev
                             self.response_time = ev_time - self.fix2_time
 
-                            if ev == self.correct_key:
-                                self.events.append([ev, ev_time, 'first keypress', 'correct',
-                                                    self.response_time])
-                                self.response_type = 1
+                            if self.response_time < 0.150:
+                                self.response_type = 3  # Too early
+
+                                if ev == self.correct_key:
+                                    self.events.append([ev, ev_time, 'too fast response', 'correct',
+                                                        self.response_time])
+                                else:
+                                    self.events.append([ev, ev_time, 'too fast response', 'incorrect',
+                                                        self.response_time])
                             else:
-                                self.events.append([ev, ev_time, 'first keypress', 'incorrect',
-                                                    self.response_time])
-                                self.response_type = 2
+                                if ev == self.correct_key:
+                                    self.events.append([ev, ev_time, 'first keypress', 'correct',
+                                                        self.response_time])
+                                    self.response_type = 1
+                                else:
+                                    self.events.append([ev, ev_time, 'first keypress', 'incorrect',
+                                                        self.response_time])
+                                    self.response_type = 2
                             self.phase_forward()  # End stimulus presentation upon keypress
                         else:
                             self.events.append([ev, ev_time, 'late keypress (during stimulus)'])
@@ -263,3 +310,6 @@ class FlashTrialKeyboard(FlashTrial):
 
                 elif ev == 't':  # Scanner pulse
                     self.events.append([99, ev_time, 'pulse'])
+
+                    if self.phase == 0:
+                        self.phase_forward()

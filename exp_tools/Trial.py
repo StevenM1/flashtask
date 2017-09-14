@@ -8,25 +8,7 @@ Copyright (c) 2009 TK. All rights reserved.
 """
 
 
-import os, sys, datetime
-import subprocess, logging
-import pickle, datetime
 import time as time_module
-
-import scipy as sp
-import numpy as np
-# import matplotlib.pylab as pl
-from math import *
-
-# import VisionEgg
-# VisionEgg.start_default_logging(); VisionEgg.watch_exceptions()
-
-# from VisionEgg.Core import *
-import pygame
-from pygame.locals import *
-
-from psychopy import visual, core, event, misc
-
 from Session import *
 
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# encoding: utf-8
 from exp_tools import Trial
 from psychopy import visual, event
 
