@@ -14,10 +14,10 @@ parameters = {
 
 # Trial phase timing
 phase_durations = [0.5,  # fixation cross
-                   0.5,  # Cue time
-                   0.5,  # fix cross again
+                   4.8,  # Cue time
+                   5,  # fix cross again 0-500ms jittered
                    1.5,  # stimulus maximum time
-                   0.5,  # feedback
+                   0.35,  # feedback
                    1]    # ITI
 
 # Information about the screen
@@ -27,6 +27,8 @@ monitor_name = 'u2715h'
 # screen_res = (1280, 800)
 # monitor_name = 'laptop'
 
+# Design path
+design_path = '/users/steven/Documents/Syncthing/PhDprojects/subcortex/designs'
 
 # Manipulation type
 session_type = 'cognitive'  # one of {'motor', 'limbic', 'cognitive'}

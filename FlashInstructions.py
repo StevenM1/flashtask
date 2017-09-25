@@ -11,18 +11,17 @@ class FlashInstructions(Trial):
                                                 session=session, screen=screen, tracker=tracker)
 
         self.ID = ID
-        self.create_stimuli()
-
-    def create_stimuli(self):
-        # Initialize instructions
-        this_instruction_string = 'Decide which circle flashes most often'
-        self.instruction = visual.TextStim(self.screen, text=this_instruction_string, font='Helvetica Neue', pos=(0, 0),
-                                           italic=True, height=30, alignHoriz='center', units='pix')
-        self.instruction.setSize((1200, 50))
+    #     self.create_stimuli()
+    #
+    # def create_stimuli(self):
+    #     # Initialize instructions
+    #     this_instruction_string = 'Decide which circle flashes most often'
+    #     self.instruction = visual.TextStim(self.screen, text=this_instruction_string, )
+    #     self.instruction.setSize((1200, 50))
 
     def draw(self):
 
-        self.instruction.draw()
+        self.session.current_instruction.draw()
         super(FlashInstructions, self).draw()
 
     def event(self):
