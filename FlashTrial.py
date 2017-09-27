@@ -67,7 +67,7 @@ class FlashTrial(Trial):
             shown_opacities = self.stimulus.draw(frame_n=self.frame_n)
             self.evidence_shown = self.evidence_shown + shown_opacities
         elif self.phase == 5:  # post-stimulus fill time
-            self.stimulus.draw(frame_n=self.frame_n, continuous=True)  # Continuous creates constant streams of flashes
+            self.stimulus.draw(frame_n=self.frame_n, continuous=False)  # Continuous creates constant streams of flashes
         elif self.phase == 6:  # feedback
             self.session.feedback_text_objects[self.response_type].draw()
 
@@ -133,6 +133,7 @@ class FlashTrial(Trial):
             if self.phase == 6:
                 self.feedback_time = self.session.clock.getTime()
                 if (self.feedback_time - self.post_stimulus_time) > self.phase_durations[6]:
+                    self.phase_forward()  # keep track of timing
                     self.stopped = True
 
             # # Finally, we show ITI

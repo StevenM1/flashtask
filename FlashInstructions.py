@@ -11,6 +11,7 @@ class FlashInstructions(Trial):
                                                 session=session, screen=screen, tracker=tracker)
 
         self.ID = ID
+        self.phase_durations = phase_durations
     #     self.create_stimuli()
     #
     # def create_stimuli(self):
@@ -18,6 +19,7 @@ class FlashInstructions(Trial):
     #     this_instruction_string = 'Decide which circle flashes most often'
     #     self.instruction = visual.TextStim(self.screen, text=this_instruction_string, )
     #     self.instruction.setSize((1200, 50))
+        self.start_time = self.end_time = 0
 
     def draw(self):
 
@@ -49,7 +51,13 @@ class FlashInstructions(Trial):
     def run(self):
         super(FlashInstructions, self).run()
 
+        self.start_time = self.session.clock.getTime()
+
         while not self.stopped:
+            self.end_time = self.session.clock.getTime()
+            if self.end_time - self.start_time >= self.phase_durations[0]:
+                self.stopped = True
+
             # check for keyboard (events) and draw
             self.event()
             self.draw()

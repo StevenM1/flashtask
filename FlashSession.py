@@ -15,6 +15,7 @@ from FlashTrial import *
 from FlashInstructions import FlashInstructions
 from FlashStim import FlashStim
 from LocalizerTrial import *
+from FixationCross import *
 
 
 class FlashSession(EyelinkSession):
@@ -44,17 +45,23 @@ class FlashSession(EyelinkSession):
         # Ensure that relative paths start from the same directory as this script
         _thisDir = os.path.dirname(os.path.abspath(__file__)).decode(sys.getfilesystemencoding())
         self.exp_handler = data.ExperimentHandler(name='flashtask',
-                                                  version='0.1.0',
+                                                  version='0.2.0',
                                                   extraInfo={'subject_initials': subject_initials,
                                                              'index_number': index_number,
                                                              'scanner': scanner,
-                                                             'tracker_on': tracker_on,
-                                                             'manipulation': session_type},
+                                                             'tracker_on': tracker_on},
                                                   runtimeInfo=info.RunTimeInfo,
                                                   dataFileName=os.path.join(_thisDir, self.output_file),
                                                   autoLog=True)
         self.trial_handlers = []
         self.participant_scores = []
+
+        # If we're running in debug mode, only show the instruction screens for 1 sec each.
+        if self.subject_initials == 'DEBUG':
+            self.instructions_durations = [1]
+        else:
+            # Otherwise show them for maximum 10 minutes (the user should skip screens).
+            self.instructions_durations = [600]
 
         # Set-up eye tracker OR dummy
         if tracker_on:
@@ -70,10 +77,11 @@ class FlashSession(EyelinkSession):
             self.create_tracker(tracker_on=False)
 
         self.scanner = scanner      # either 'n' for no scanner, or a character with scanner pulse key
-        self.n_trials = n_trials    # specified in standard_parameters.py!
         self.standard_parameters = parameters
 
         # Initialize a bunch of attributes used in load_design() or prepare_trials()
+        self.n_trials = None
+        self.stim_max_time = None
         self.frame_rate = None
         self.design = None
         self.correct_answers = None  # integer vector corresponding to the flasher number
@@ -123,6 +131,10 @@ class FlashSession(EyelinkSession):
         self.design = pd.read_csv(os.path.join(design_path, 'pp_%s_trial_types_full.csv' %
                                                str(self.index_number).zfill(3)))
 
+        # Get the number of trials from the design; this is the the number of rows in the DataFrame.
+        self.n_trials = self.design.shape[0]
+        self.stim_max_time = self.design['phase_4'].max()  # Also get the maximum duration a stimulus is shown
+
         # Make sure the correct_answers are extracted from the design
         self.correct_answers = self.design['correct_answer'].values
 
@@ -157,9 +169,7 @@ class FlashSession(EyelinkSession):
         """
 
         # Prepare fixation cross
-        self.fixation_cross = visual.TextStim(win=self.screen, text='+', font='', pos=(0.0, 0.0),
-                                              depth=0, rgb=None, color=(1.0, 1.0, 1.0), colorSpace='rgb',
-                                              opacity=1.0, contrast=1.0, units='pix', ori=0.0, height=30)
+        self.fixation_cross = FixationCross(win=self.screen, rad=0.3, bg=background_color)
 
         # Prepare cue
         self.cue_object = visual.TextStim(win=self.screen, text='Cue here', units='cm')
@@ -176,15 +186,15 @@ class FlashSession(EyelinkSession):
         arrow_right_vertices = [(-0.2, 0.05), (-0.2, -0.05), (-.0, -0.05), (0, -0.1), (0.2, 0), (0, 0.1), (0, 0.05)]
         arrow_left_vertices = [(0.2, 0.05), (0.2, -0.05), (0.0, -0.05), (0, -0.1), (-0.2, 0), (0, 0.1), (0, 0.05)]
         arrow_neutral_vertices = [(0.3, 0.0),  # Right point
-                      (0.1, 0.1),  # Towards up, left
-                      (0.1, 0.05),  # Down
-                      (-0.1, 0.05),  # Left
-                      (-0.1, 0.1),  # Up
-                      (-0.3, 0.0),  # Left point
-                      (-0.1, -0.1),  # Down, right
-                      (-0.1, -0.05),  # Up
-                      (0.1, -0.05),  # Right
-                      (0.1, -0.1)]  # Down
+                                  (0.1, 0.1),  # Towards up, left
+                                  (0.1, 0.05),  # Down
+                                  (-0.1, 0.05),  # Left
+                                  (-0.1, 0.1),  # Up
+                                  (-0.3, 0.0),  # Left point
+                                  (-0.1, -0.1),  # Down, right
+                                  (-0.1, -0.05),  # Up
+                                  (0.1, -0.05),  # Right
+                                  (0.1, -0.1)]  # Down
 
         self.arrow_stimuli = [
             visual.ShapeStim(win=self.screen, vertices=arrow_left_vertices, fillColor='lightgray', size=.25,
@@ -200,6 +210,11 @@ class FlashSession(EyelinkSession):
                                               text='Waiting for scanner...',
                                               units='pix', font='Helvetica Neue', pos=(0, 0),
                                               italic=False, height=30, alignHoriz='center',)
+
+        # Keep debug screen at hand
+        self.debug_screen = visual.TextStim(win=self.screen,
+                                            text='DEBUG MODE. DO NOT RUN AN ACTUAL EXPERIMENT',
+                                            color='darkred', height=1, units='cm')
 
         # Prepare welcome screen
         self.welcome_screen = visual.TextStim(win=self.screen,
@@ -232,7 +247,7 @@ class FlashSession(EyelinkSession):
                                                   'flashes most often, look towards the right side of the screen.\n\n'
                                                   'Before each trial, you receive a cue that tells you either to '
                                                   'respond as fast as possible (SPD), or as accurate as possible ('
-                                                  'ACC). \n\nPress a button to continue',
+                                                  'ACC). \n\nPress a button to continue to next screen',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
             visual.TextStim(win=self.screen, text='Remember to respond with your eyes!\n\nPress a button to start',
@@ -247,7 +262,7 @@ class FlashSession(EyelinkSession):
                                                   'flashes most often, press the button in your right hand.\n\n'
                                                   'Before each trial, you receive a cue that tells you either to '
                                                   'respond as fast as possible (SPD), or as accurate as possible ('
-                                                  'ACC). \n\nPress a button to continue',
+                                                  'ACC). \n\nPress a button to continue to next screen',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
             visual.TextStim(win=self.screen, text='Remember to respond with your hands!\n\nPress a button to start',
@@ -260,14 +275,14 @@ class FlashSession(EyelinkSession):
                                                   'circles flashes most often. If the left circle flashes most often, '
                                                   'look towards the left side of the screen. If the right circle '
                                                   'flashes most often, look towards the right side of the screen.\n\n'
-                                                  'Press a button to continue',
+                                                  'Press a button to continue to next screen',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
             visual.TextStim(win=self.screen, text='You earn points by answering correctly. At the end of the '
                                                   'experiment, you will receive a monetary reward depending on how '
                                                   'many points you earn. For each correct answer, '
                                                   'you receive either 0, 2, or 8 points, depending on the cue at the '
-                                                  'start of the trial.\n\nPress a button to continue',
+                                                  'start of the trial.\n\nPress a button to continue to next screen',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
             visual.TextStim(win=self.screen, text='The cue-arrow indicates for which answer (left or right) you get 8 '
@@ -275,12 +290,13 @@ class FlashSession(EyelinkSession):
                                                   'points to the left, and you correctly answer left, '
                                                   'you get 8 points. However, if the cue-arrow points to the left, '
                                                   'and the correct answer is right, you get 2 points if you answer '
-                                                  'right - you never get points for wrong answers!\n\nIf the cue is '
-                                                  'neutral, you will not receive points, but you must still answer '
-                                                  'correctly.\n\nPress a button to continue',
+                                                  'right - you never get points for wrong answers!\n\nIf the cue '
+                                                  'points in both directions, you will not receive points, '
+                                                  'but you must still answer correctly.\n\nPress a button to '
+                                                  'continue to next screen',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='After each correct answer, you will see how many points you '
+            visual.TextStim(win=self.screen, text='Every time you earn points, you will see how many points you '
                                                   'earned, and how many points you earned in total for this block.\n\n'
                                                   'Remember to respond with your eyes!\n\nPress a button to start',
                             font='Helvetica Neue', pos=(0, 0),
@@ -292,14 +308,14 @@ class FlashSession(EyelinkSession):
                                                   'circles flashes most often. If the left circle flashes most often, '
                                                   'press the button in your left hand. If the right circle '
                                                   'flashes most often, press the button in your right hand.\n\n'
-                                                  'Press a button to continue',
+                                                  'Press a button to continue to next screen',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
             visual.TextStim(win=self.screen, text='You earn points by answering correctly. At the end of the '
                                                   'experiment, you will receive a monetary reward depending on how '
                                                   'many points you earn. For each correct answer, '
                                                   'you receive either 2 or 8 points, depending on the cue at the '
-                                                  'start of the trial.\n\nPress a button to continue',
+                                                  'start of the trial.\n\nPress a button to continue to next screen',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
             visual.TextStim(win=self.screen, text='The cue-arrow indicates for which answer (left or right) you get 8 '
@@ -307,12 +323,13 @@ class FlashSession(EyelinkSession):
                                                   'points to the left, and you correctly answer left, '
                                                   'you get 8 points. However, if the cue-arrow points to the left, '
                                                   'and the correct answer is right, you get 2 points if you answer '
-                                                  'right - you never get points for wrong answers!\n\nIf the cue is '
-                                                  'neutral, you will not receive points, but you must still answer '
-                                                  'correctly.\n\nPress a button to continue',
+                                                  'right - you never get points for wrong answers!\n\nIf the cue '
+                                                  'points in both directions, you will not receive points, '
+                                                  'but you must still answer correctly.\n\nPress a button to '
+                                                  'continue to next screen',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='After each correct answer, you will see how many points you '
+            visual.TextStim(win=self.screen, text='Every time you earn points, you will see how many points you '
                                                   'earned, and how many points you earned in total for this block.\n\n'
                                                   'Remember to respond with your hands!\n\nPress a button to start',
                             font='Helvetica Neue', pos=(0, 0),
@@ -362,7 +379,8 @@ class FlashSession(EyelinkSession):
 
         # How many increments can we show during the stimulus period, with the specified increment_length and current
         # frame rate?
-        n_increments = np.ceil(phase_durations[3] * self.frame_rate / increment_length).astype(int)
+        n_increments = np.ceil(self.stim_max_time * self.frame_rate / increment_length).astype(int)
+        n_increments += 1  # 1 extra, in case we're dropping frames
 
         # Knowing this, we can define an index mask to select all frames that correspond to the between-increment
         # pause period
@@ -371,9 +389,8 @@ class FlashSession(EyelinkSession):
                            n_increments).astype(bool)
 
         # Define which flashing circle is correct in all n_trials
-        if self.correct_answers is None:  # It might already be set by a subclass
-            self.correct_answers = np.repeat([0, 1], repeats=n_trials/2)
-            np.random.shuffle(self.correct_answers)
+        if self.correct_answers is None:
+            raise(ValueError('Correct answers not yet set upon calling prepare_trials(). Is the design loaded?'))
         self.incorrect_answers = [np.delete(np.arange(self.n_flashers), i) for i in self.correct_answers]
 
         # # Which responses (keys or saccades) correspond to these flashers?
@@ -409,22 +426,36 @@ class FlashSession(EyelinkSession):
         self.first_frame_idx = np.arange(0, mask_idx.shape[0], increment_length)
 
     def run(self):
-        """ Run the trials that were prepared. The experimental design should be implemented here! """
+        """ Run the trials that were prepared. The experimental design must be loaded. """
 
+        # Initialize variable to keep track of the number of instruction screens shown
         # Instruction screen IDs are negative. The first shown is -1, the second -2, etc.
         n_instruction_screens_shown = -1
+
+        # Show DEBUG screen first, if we're in debug mode.
+        if self.subject_initials == 'DEBUG':
+            self.current_instruction = self.debug_screen
+            FlashInstructions(ID=-99, parameters={}, phase_durations=[100],
+                              session=self,
+                              screen=self.screen,
+                              tracker=self.tracker).run()
+
+        # Show welcome screen
         self.current_instruction = self.welcome_screen
-        FlashInstructions(ID=n_instruction_screens_shown, parameters={}, phase_durations=[100], session=self, screen=self.screen,
+        FlashInstructions(ID=n_instruction_screens_shown, parameters={}, phase_durations=self.instructions_durations,
+                          session=self,
+                          screen=self.screen,
                           tracker=self.tracker).run()
         n_instruction_screens_shown -= 1  # Update instruction screen counter
 
         # Loop through blocks
         for block_n in range(5):
 
+            # The first block is always the localizer
             if block_n == 0:
                 self.current_instructions = self.localizer_instructions
             else:
-                # Get current block type
+                # Get current block type, in order to find the corresponding instruction screens to show
                 block_type = self.design.loc[self.design['block'] == block_n, 'block_type'].values[0]
 
                 if block_type == 'cognitive_hand':
@@ -438,18 +469,24 @@ class FlashSession(EyelinkSession):
 
             # Loop through instruction screens
             for instruction_screen_n in range(len(self.current_instructions)):
+
                 # Set the current instruction correctly
                 self.current_instruction = self.current_instructions[instruction_screen_n]
 
-                # And "play".
-                FlashInstructions(ID=n_instruction_screens_shown, parameters={}, phase_durations=[100], session=self,
-                                  screen=self.screen, tracker=self.tracker).run()
+                # And "play"
+                FlashInstructions(ID=n_instruction_screens_shown, parameters={},
+                                  phase_durations=self.instructions_durations,
+                                  session=self, screen=self.screen, tracker=self.tracker).run()
                 n_instruction_screens_shown -= 1  # Update instruction screen counter
+
+                # Check for stop signal during instruction screen
+                if self.stopped:
+                    self.close()
 
             # After instructions, set participant score for this block to 0
             self.participant_scores.append(0)
 
-            # Point to trial handler for the current block
+            # Get the trial handler of the current block
             trial_handler = self.trial_handlers[block_n]
 
             # Loop over block trials
@@ -472,7 +509,7 @@ class FlashSession(EyelinkSession):
                                trial.phase_6)  # feedback time
 
                 # Get trial type: LocalizerTrial or FlashTrial; plus, what kind of response should we expect?
-                if block_n == 0:
+                if block_n == 0:  # First block is always the localizer
                     # LocalizerTrial, but what subclass?
                     if this_response_modality == 'hand':
                         trial_pointer = LocalizerTrialKeyboard
@@ -495,7 +532,7 @@ class FlashSession(EyelinkSession):
                                                                                            this_ID,
                                                                                            block_n)))
 
-                # In case of a limbic block, make sure feedback is prepared properly
+                # In case the current block is a limbic block, make sure feedback is prepared properly
                 if 'limbic' in trial.block_type:
                     if this_trial_type in [0, 1]:  # Neutral condition
                         self.feedback_text_objects[1].text = 'Correct!'
@@ -507,30 +544,32 @@ class FlashSession(EyelinkSession):
                             self.participant_scores[block_n] + 2)
 
                 # Initialize and run trial
-                trial = trial_pointer(ID=this_ID,
-                                      block_trial_ID=this_block_trial_ID,
-                                      parameters={'trial_evidence_arrays': this_trial_evidence_array,
-                                                  'correct_answer': this_correct_answer,
-                                                  'cue': this_cue,
-                                                  'trial_type': this_trial_type},
-                                      phase_durations=this_phases,
-                                      session=self,
-                                      screen=self.screen,
-                                      tracker=self.tracker)
-                trial.run()
+                # Note that we're always passing trial_evidence_arrays, even if we're in a localizer block. This is a
+                #  bit ugly but allows us to use exactly the same method call here.
+                trial_obj = trial_pointer(ID=this_ID,
+                                          block_trial_ID=this_block_trial_ID,
+                                          parameters={'trial_evidence_arrays': this_trial_evidence_array,
+                                                      'correct_answer': this_correct_answer,
+                                                      'cue': this_cue,
+                                                      'trial_type': this_trial_type},
+                                          phase_durations=this_phases,
+                                          session=self,
+                                          screen=self.screen,
+                                          tracker=self.tracker)
+                trial_obj.run()
 
                 # If the response given is correct, update scores
-                if trial.response_type == 1:
+                if 'limbic' in trial.block_type and trial_obj.response_type == 1:
                     if this_trial_type in [2, 5]:
                         self.participant_scores[block_n] += 8
                     elif this_trial_type in [3, 4]:
                         self.participant_scores[block_n] += 2
 
                 # Save all data
-                trial_handler.addData('rt', trial.response_time)
-                trial_handler.addData('response', trial.response)
-                trial_handler.addData('correct', trial.response_type == 1)
-                trial_handler.addData('feedback', self.feedback_text_objects[trial.response_type].text)
+                trial_handler.addData('rt', trial_obj.response_time)
+                trial_handler.addData('response', trial_obj.response)
+                trial_handler.addData('correct', trial_obj.response_type == 1)
+                trial_handler.addData('feedback', self.feedback_text_objects[trial_obj.response_type].text)
 
                 # For non-localizer blocks, also save the evidence arrays
                 if block_n > 0:
@@ -538,7 +577,7 @@ class FlashSession(EyelinkSession):
                         trial_handler.addData('evidence stream ' + str(flasher),
                                               this_trial_evidence_array[flasher][self.first_frame_idx])
                     trial_handler.addData('evidence shown at rt',
-                                          trial.evidence_shown / self.standard_parameters['flash_length'])
+                                          trial_obj.evidence_shown / self.standard_parameters['flash_length'])
 
                 # Trial finished, so on to the next entry
                 self.exp_handler.nextEntry()
@@ -552,23 +591,9 @@ class FlashSession(EyelinkSession):
                 break
 
         self.close()
-        #
-        #
-        # # Loop through trials
-        # for ID in range(self.n_trials):
-        #     trial = self.trial_pointer(ID=ID, parameters={'trial_evidence_arrays': self.trial_arrays[ID],
-        #                                                   'correct_answer': self.correct_answers[ID],
-        #                                                   'incorrect_answers': self.incorrect_answers[ID]},
-        #                                phase_durations=phase_durations,
-        #                                session=self,
-        #                                screen=self.screen,
-        #                                tracker=self.tracker)
-        #     trial.run()
-        #
-        #     if self.stopped:
-        #         break
 
     def close(self):
+        """ Saves stuff and closes """
         self.exp_handler.saveAsPickle(self.exp_handler.dataFileName)
         self.exp_handler.saveAsWideText(self.exp_handler.dataFileName + '.csv')
 
