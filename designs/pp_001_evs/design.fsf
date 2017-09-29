@@ -969,7 +969,7 @@ set fmri(ortho7.20) 0
 set fmri(ortho7.21) 0
 
 # EV 8 title
-set fmri(evtitle8) "stim_left_acc"
+set fmri(evtitle8) "stim_right_hand"
 
 # Basic waveform shape (EV 8)
 # 0 : Square
@@ -1000,7 +1000,7 @@ set fmri(tempfilt_yn8) 1
 set fmri(deriv_yn8) 0
 
 # Custom EV file (EV 8)
-set fmri(custom8) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_ACC.txt"
+set fmri(custom8) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_HAND.txt"
 
 # Orthogonalise EV 8 wrt EV 0
 set fmri(ortho8.0) 0
@@ -1069,7 +1069,7 @@ set fmri(ortho8.20) 0
 set fmri(ortho8.21) 0
 
 # EV 9 title
-set fmri(evtitle9) "stim_left_eye"
+set fmri(evtitle9) "stim_right_eye"
 
 # Basic waveform shape (EV 9)
 # 0 : Square
@@ -1100,7 +1100,7 @@ set fmri(tempfilt_yn9) 1
 set fmri(deriv_yn9) 0
 
 # Custom EV file (EV 9)
-set fmri(custom9) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_EYE.txt"
+set fmri(custom9) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_EYE.txt"
 
 # Orthogonalise EV 9 wrt EV 0
 set fmri(ortho9.0) 0
@@ -1169,7 +1169,7 @@ set fmri(ortho9.20) 0
 set fmri(ortho9.21) 0
 
 # EV 10 title
-set fmri(evtitle10) "stim_left_hand"
+set fmri(evtitle10) "stim_right_acc"
 
 # Basic waveform shape (EV 10)
 # 0 : Square
@@ -1200,7 +1200,7 @@ set fmri(tempfilt_yn10) 1
 set fmri(deriv_yn10) 0
 
 # Custom EV file (EV 10)
-set fmri(custom10) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_HAND.txt"
+set fmri(custom10) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_ACC.txt"
 
 # Orthogonalise EV 10 wrt EV 0
 set fmri(ortho10.0) 0
@@ -1269,7 +1269,7 @@ set fmri(ortho10.20) 0
 set fmri(ortho10.21) 0
 
 # EV 11 title
-set fmri(evtitle11) "stim_left_left"
+set fmri(evtitle11) "stim_right_spd"
 
 # Basic waveform shape (EV 11)
 # 0 : Square
@@ -1300,7 +1300,7 @@ set fmri(tempfilt_yn11) 1
 set fmri(deriv_yn11) 0
 
 # Custom EV file (EV 11)
-set fmri(custom11) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_LEFT.txt"
+set fmri(custom11) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_SPD.txt"
 
 # Orthogonalise EV 11 wrt EV 0
 set fmri(ortho11.0) 0
@@ -1369,7 +1369,7 @@ set fmri(ortho11.20) 0
 set fmri(ortho11.21) 0
 
 # EV 12 title
-set fmri(evtitle12) "stim_left_neu"
+set fmri(evtitle12) "stim_right_neu"
 
 # Basic waveform shape (EV 12)
 # 0 : Square
@@ -1400,7 +1400,7 @@ set fmri(tempfilt_yn12) 1
 set fmri(deriv_yn12) 0
 
 # Custom EV file (EV 12)
-set fmri(custom12) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_NEU.txt"
+set fmri(custom12) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_NEU.txt"
 
 # Orthogonalise EV 12 wrt EV 0
 set fmri(ortho12.0) 0
@@ -1469,7 +1469,7 @@ set fmri(ortho12.20) 0
 set fmri(ortho12.21) 0
 
 # EV 13 title
-set fmri(evtitle13) "stim_left_right"
+set fmri(evtitle13) "stim_right_right"
 
 # Basic waveform shape (EV 13)
 # 0 : Square
@@ -1500,7 +1500,7 @@ set fmri(tempfilt_yn13) 1
 set fmri(deriv_yn13) 0
 
 # Custom EV file (EV 13)
-set fmri(custom13) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_RIGHT.txt"
+set fmri(custom13) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_RIGHT.txt"
 
 # Orthogonalise EV 13 wrt EV 0
 set fmri(ortho13.0) 0
@@ -1569,7 +1569,7 @@ set fmri(ortho13.20) 0
 set fmri(ortho13.21) 0
 
 # EV 14 title
-set fmri(evtitle14) "stim_left_spd"
+set fmri(evtitle14) "stim_right_left"
 
 # Basic waveform shape (EV 14)
 # 0 : Square
@@ -1600,7 +1600,7 @@ set fmri(tempfilt_yn14) 1
 set fmri(deriv_yn14) 0
 
 # Custom EV file (EV 14)
-set fmri(custom14) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_SPD.txt"
+set fmri(custom14) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_LEFT.txt"
 
 # Orthogonalise EV 14 wrt EV 0
 set fmri(ortho14.0) 0
@@ -1669,7 +1669,7 @@ set fmri(ortho14.20) 0
 set fmri(ortho14.21) 0
 
 # EV 15 title
-set fmri(evtitle15) "stim_right_acc"
+set fmri(evtitle15) "stim_left_hand"
 
 # Basic waveform shape (EV 15)
 # 0 : Square
@@ -1700,7 +1700,7 @@ set fmri(tempfilt_yn15) 1
 set fmri(deriv_yn15) 0
 
 # Custom EV file (EV 15)
-set fmri(custom15) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_ACC.txt"
+set fmri(custom15) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_HAND.txt"
 
 # Orthogonalise EV 15 wrt EV 0
 set fmri(ortho15.0) 0
@@ -1769,7 +1769,7 @@ set fmri(ortho15.20) 0
 set fmri(ortho15.21) 0
 
 # EV 16 title
-set fmri(evtitle16) "stim_right_eye"
+set fmri(evtitle16) "stim_left_eye"
 
 # Basic waveform shape (EV 16)
 # 0 : Square
@@ -1800,7 +1800,7 @@ set fmri(tempfilt_yn16) 1
 set fmri(deriv_yn16) 0
 
 # Custom EV file (EV 16)
-set fmri(custom16) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_EYE.txt"
+set fmri(custom16) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_EYE.txt"
 
 # Orthogonalise EV 16 wrt EV 0
 set fmri(ortho16.0) 0
@@ -1869,7 +1869,7 @@ set fmri(ortho16.20) 0
 set fmri(ortho16.21) 0
 
 # EV 17 title
-set fmri(evtitle17) "stim_right_hand"
+set fmri(evtitle17) "stim_left_acc"
 
 # Basic waveform shape (EV 17)
 # 0 : Square
@@ -1900,7 +1900,7 @@ set fmri(tempfilt_yn17) 1
 set fmri(deriv_yn17) 0
 
 # Custom EV file (EV 17)
-set fmri(custom17) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_HAND.txt"
+set fmri(custom17) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_ACC.txt"
 
 # Orthogonalise EV 17 wrt EV 0
 set fmri(ortho17.0) 0
@@ -1969,7 +1969,7 @@ set fmri(ortho17.20) 0
 set fmri(ortho17.21) 0
 
 # EV 18 title
-set fmri(evtitle18) "stim_right_left"
+set fmri(evtitle18) "stim_left_spd"
 
 # Basic waveform shape (EV 18)
 # 0 : Square
@@ -2000,7 +2000,7 @@ set fmri(tempfilt_yn18) 1
 set fmri(deriv_yn18) 0
 
 # Custom EV file (EV 18)
-set fmri(custom18) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_LEFT.txt"
+set fmri(custom18) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_SPD.txt"
 
 # Orthogonalise EV 18 wrt EV 0
 set fmri(ortho18.0) 0
@@ -2069,7 +2069,7 @@ set fmri(ortho18.20) 0
 set fmri(ortho18.21) 0
 
 # EV 19 title
-set fmri(evtitle19) "stim_right_neu"
+set fmri(evtitle19) "stim_left_neu"
 
 # Basic waveform shape (EV 19)
 # 0 : Square
@@ -2100,7 +2100,7 @@ set fmri(tempfilt_yn19) 1
 set fmri(deriv_yn19) 0
 
 # Custom EV file (EV 19)
-set fmri(custom19) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_NEU.txt"
+set fmri(custom19) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_NEU.txt"
 
 # Orthogonalise EV 19 wrt EV 0
 set fmri(ortho19.0) 0
@@ -2169,7 +2169,7 @@ set fmri(ortho19.20) 0
 set fmri(ortho19.21) 0
 
 # EV 20 title
-set fmri(evtitle20) "stim_right_right"
+set fmri(evtitle20) "stim_left_right"
 
 # Basic waveform shape (EV 20)
 # 0 : Square
@@ -2200,7 +2200,7 @@ set fmri(tempfilt_yn20) 1
 set fmri(deriv_yn20) 0
 
 # Custom EV file (EV 20)
-set fmri(custom20) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_RIGHT.txt"
+set fmri(custom20) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_RIGHT.txt"
 
 # Orthogonalise EV 20 wrt EV 0
 set fmri(ortho20.0) 0
@@ -2269,7 +2269,7 @@ set fmri(ortho20.20) 0
 set fmri(ortho20.21) 0
 
 # EV 21 title
-set fmri(evtitle21) "stim_right_spd"
+set fmri(evtitle21) "stim_left_left"
 
 # Basic waveform shape (EV 21)
 # 0 : Square
@@ -2300,7 +2300,7 @@ set fmri(tempfilt_yn21) 1
 set fmri(deriv_yn21) 0
 
 # Custom EV file (EV 21)
-set fmri(custom21) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_1_SPD.txt"
+set fmri(custom21) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_001_evs/ev_stimulus_0_LEFT.txt"
 
 # Orthogonalise EV 21 wrt EV 0
 set fmri(ortho21.0) 0

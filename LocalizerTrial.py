@@ -126,9 +126,10 @@ class LocalizerTrial(Trial):
             #     if (self.ITI_time - self.feedback_time) > self.phase_durations[6]:
             #         self.stopped = True
 
-            # events and draw
-            self.event()
-            self.draw()
+            # events and draw, but only if we haven't stopped yet
+            if not self.stopped:
+                self.event()
+                self.draw()
 
         self.stop()
 

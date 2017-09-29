@@ -111,7 +111,7 @@ class FlashSession(EyelinkSession):
         self.limbic_hand_instructions = None
         self.welcome_screen = None
         self.current_instruction = None
-        self.current_instructions = None
+        self.instructions_to_show = None
 
         self.response_keys = np.array(response_keys)
 
@@ -451,27 +451,25 @@ class FlashSession(EyelinkSession):
         # Loop through blocks
         for block_n in range(5):
 
-            # The first block is always the localizer
-            if block_n == 0:
-                self.current_instructions = self.localizer_instructions
-            else:
-                # Get current block type, in order to find the corresponding instruction screens to show
-                block_type = self.design.loc[self.design['block'] == block_n, 'block_type'].values[0]
+            # Get current block type, in order to find the corresponding instruction screens to show
+            block_type = self.design.loc[self.design['block'] == block_n, 'block_type'].values[0]
 
-                if block_type == 'cognitive_hand':
-                    self.current_instructions = self.cognitive_hand_instructions
-                elif block_type == 'cognitive_eye':
-                    self.current_instructions = self.cognitive_eye_instructions
-                elif block_type == 'limbic_hand':
-                    self.current_instructions = self.limbic_hand_instructions
-                elif block_type == 'limbic_eye':
-                    self.current_instructions = self.limbic_eye_instructions
+            if block_type == 'cognitive_hand':
+                self.instructions_to_show = self.cognitive_hand_instructions
+            elif block_type == 'cognitive_eye':
+                self.instructions_to_show = self.cognitive_eye_instructions
+            elif block_type == 'limbic_hand':
+                self.instructions_to_show = self.limbic_hand_instructions
+            elif block_type == 'limbic_eye':
+                self.instructions_to_show = self.limbic_eye_instructions
+            elif block_type == 'localizer':
+                self.instructions_to_show = self.localizer_instructions
 
             # Loop through instruction screens
-            for instruction_screen_n in range(len(self.current_instructions)):
+            for instruction_screen_n in range(len(self.instructions_to_show)):
 
                 # Set the current instruction correctly
-                self.current_instruction = self.current_instructions[instruction_screen_n]
+                self.current_instruction = self.instructions_to_show[instruction_screen_n]
 
                 # And "play"
                 FlashInstructions(ID=n_instruction_screens_shown, parameters={},

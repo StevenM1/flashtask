@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from exp_tools import Trial
-from psychopy import visual, event, logging
+from psychopy import event
 import numpy as np
 
 
@@ -143,8 +143,9 @@ class FlashTrial(Trial):
             #         self.stopped = True
 
             # events and draw
-            self.event()
-            self.draw()
+            if not self.stopped:
+                self.event()
+                self.draw()
 
         self.stop()
 
