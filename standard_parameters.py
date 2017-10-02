@@ -14,12 +14,12 @@ parameters = {
 
 # Information about the screen
 background_color = (0.5, 0.5, 0.5)  # -0.75,-0.75,-0.75)
-# screen_res = (2560, 1440)
-# monitor_name = 'u2715h'
+screen_res = (2560, 1440)
+monitor_name = 'u2715h'
 # screen_res = (1280, 800)
 # monitor_name = 'laptop'
-screen_res = (1680, 1050)
-monitor_name = '2208WFP'
+# screen_res = (1680, 1050)
+# monitor_name = '2208WFP'
 
 # Path to find the designs of all participants
 design_path = '/users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs'

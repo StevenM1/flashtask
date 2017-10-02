@@ -20,14 +20,13 @@ class LocalizerTrial(Trial):
         self.block_trial_ID = block_trial_ID
 
         self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response
-        self.stimulus = self.session.arrow_stimuli[parameters['correct_answer']]
+        self.cue = self.session.arrow_stimuli[parameters['correct_answer']]
 
         # Initialize cue
-        if 'cue' in parameters.keys():
-            cuetext = parameters['cue']
-        else:
-            cuetext = 'Warning! No cue passed to trial!'
-        self.session.cue_object.text = cuetext
+        if parameters['cue'] == 'pro':
+            self.cue.fillColor = 'darkblue'
+        elif parameters['cue'] == 'anti':
+            self.cue.fillColor = 'darkred'
 
         # Initialize times  -> what timing here?
         self.run_time = 0.0
@@ -46,15 +45,11 @@ class LocalizerTrial(Trial):
         elif self.phase == 1:  # Pre-cue fix cross
             self.session.fixation_cross.draw()
         elif self.phase == 2:  # Cue
-            self.session.cue_object.draw()
+            self.cue.draw()
+            self.session.crosses[0].draw()
+            self.session.crosses[1].draw()
         elif self.phase == 3:  # post-cue fix cross
             self.session.fixation_cross.draw()
-        elif self.phase == 4:  # stimulus
-            self.stimulus.draw()
-        elif self.phase == 5:  # post-stimulus fill time
-            self.stimulus.draw()
-        elif self.phase == 6:  # feedback
-            self.session.feedback_text_objects[self.response_type].draw()
 
         super(LocalizerTrial, self).draw()
 

@@ -134,14 +134,6 @@ class FlashSession(EyelinkSession):
         # Load full design in self.design
         self.design = pd.read_csv(os.path.join(design_path, pp_dir, 'all_blocks', 'trials.csv'))
 
-        # Get the number of trials from the design; this is the the number of rows in the DataFrame.
-        self.n_trials = self.design.shape[0]
-        self.stim_max_time = self.design['phase_4'].max()  # Also get the maximum duration a stimulus is shown
-
-        # Make sure the correct_answers are extracted from the design
-        self.correct_answers = self.design['correct_answer'].values
-        self.correct_answers = self.correct_answers.astype(int)
-
         # First load localizer block
         localizer_conditions = data.importConditions(
             os.path.join(design_path, pp_dir, 'block_0_type_localizer', 'trials.csv'))
@@ -207,6 +199,11 @@ class FlashSession(EyelinkSession):
                              lineColor='white', units='height'),
             visual.ShapeStim(win=self.screen, vertices=arrow_neutral_vertices, fillColor='lightgray', size=.25,
                              lineColor='white', units='height')
+        ]
+
+        self.crosses = [
+            visual.TextStim(win=self.screen, text='+', pos=(-8, 0), height=1, units='deg'),
+            visual.TextStim(win=self.screen, text='+', pos=(8, 0), height=1, units='deg')
         ]
 
         # Prepare waiting for scanner-screen
@@ -381,23 +378,29 @@ class FlashSession(EyelinkSession):
             self.frame_rate = 60
         self.frame_rate = np.round(self.frame_rate)  # Rounding to nearest integer
 
+        # Get the number of trials from the design; this is the the number of rows in the DataFrame.
+        self.n_trials = self.design.shape[0]
+
+        # Get the maximum duration a stimulus is shown
+        self.stim_max_time = self.design.loc[self.design['block_type'] != 'localizer', 'phase_4'].max()
+
+        # Make sure the correct_answers are extracted from the design
+        self.correct_answers = self.design['correct_answer'].values.astype(int)
+
+        # Define which flashing circle is correct in all n_trials
+        self.incorrect_answers = [np.delete(np.arange(self.n_flashers), i) for i in self.correct_answers if i in
+                                  np.arange(self.n_flashers)]
+
         # How many increments can we show during the stimulus period, with the specified increment_length and current
         # frame rate?
         n_increments = np.ceil(self.stim_max_time * self.frame_rate / increment_length).astype(int)
-        n_increments += 1  # 1 extra, in case we're dropping frames
+        n_increments += 1  # 1 full increment extra, in case we're dropping frames
 
         # Knowing this, we can define an index mask to select all frames that correspond to the between-increment
         # pause period
         mask_idx = np.tile(np.hstack((np.repeat([0], repeats=flash_length),
                                       np.repeat([1], repeats=pause_length))),
                            n_increments).astype(bool)
-
-        # Define which flashing circle is correct in all n_trials
-        self.correct_answers = self.design['correct_answer'].values.astype(int)
-        # if self.correct_answers is None:
-        #     raise(ValueError('Correct answers not yet set upon calling prepare_trials(). Is the design loaded?'))
-        self.incorrect_answers = [np.delete(np.arange(self.n_flashers), i) for i in self.correct_answers if i in
-                                  np.arange(self.n_flashers)]
 
         # # Which responses (keys or saccades) correspond to these flashers?
         # self.correct_responses = np.array(self.response_keys)[self.correct_answers]
@@ -411,7 +414,7 @@ class FlashSession(EyelinkSession):
 
             # If the current trial is a null trial, or is a localizer trial, don't make an evidence array
             if self.design.iloc[trial_n]['null_trial'] or self.design.iloc[trial_n]['block_type'] == 'localizer':
-                self.trial_arrays.append([[] * self.n_flashers])
+                self.trial_arrays.append(None)
                 continue
 
             evidence_streams_this_trial = []
@@ -456,9 +459,9 @@ class FlashSession(EyelinkSession):
             trial_pointer = LocalizerTrialSaccade
         else:
             raise (ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
-                                          'hand'' is expected. Trial n: %d, block n: %d' % (trial.response_modality,
-                                                                                            trial.trial_ID,
-                                                                                            trial.block_num)))
+                              'hand'' is expected. Trial n: %d, block n: 0' % (trial.response_modality,
+                                                                                trial.trial_ID)))
+
         trial_object = trial_pointer(ID=trial.trial_ID,
                                      block_trial_ID=trial.block_trial_ID,
                                      parameters={'correct_answer': trial.correct_answer,
