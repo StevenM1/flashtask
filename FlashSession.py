@@ -15,6 +15,7 @@ from FlashTrial import *
 from FlashInstructions import FlashInstructions
 from FlashStim import FlashStim
 from LocalizerTrial import *
+from NullTrial import *
 from FixationCross import *
 
 
@@ -127,9 +128,11 @@ class FlashSession(EyelinkSession):
     def load_design(self):
         """ Loads all trials (blocks, conditions). The design files are created in a separate notebook. """
 
+        # useful shortcut
+        pp_dir = 'pp_%s' % str(self.index_number).zfill(3)
+
         # Load full design in self.design
-        self.design = pd.read_csv(os.path.join(design_path, 'pp_%s_trial_types_full.csv' %
-                                               str(self.index_number).zfill(3)))
+        self.design = pd.read_csv(os.path.join(design_path, pp_dir, 'all_blocks', 'trials.csv'))
 
         # Get the number of trials from the design; this is the the number of rows in the DataFrame.
         self.n_trials = self.design.shape[0]
@@ -137,10 +140,11 @@ class FlashSession(EyelinkSession):
 
         # Make sure the correct_answers are extracted from the design
         self.correct_answers = self.design['correct_answer'].values
+        self.correct_answers = self.correct_answers.astype(int)
 
         # First load localizer block
         localizer_conditions = data.importConditions(
-            os.path.join(design_path, 'pp_%s_block_0_type_localizer.csv' % str(self.index_number).zfill(3)))
+            os.path.join(design_path, pp_dir, 'block_0_type_localizer', 'trials.csv'))
 
         # Append the localizer trial handler to the self.trial_handlers attr
         self.trial_handlers.append(data.TrialHandler(localizer_conditions, nReps=1, method='sequential'))
@@ -149,7 +153,7 @@ class FlashSession(EyelinkSession):
         for block in range(4):
 
             # Find path of block design
-            path = glob(os.path.join(design_path, 'pp_%s_block_%d_*' % (str(self.index_number).zfill(3), block+1)))[0]
+            path = glob(os.path.join(design_path, pp_dir, 'block_%d_*' % (block+1), 'trials.csv'))[0]
 
             # Create trial handler, and append to experiment handler
             self.trial_handlers.append(data.TrialHandler(data.importConditions(path), nReps=1, method='sequential'))
@@ -389,9 +393,11 @@ class FlashSession(EyelinkSession):
                            n_increments).astype(bool)
 
         # Define which flashing circle is correct in all n_trials
-        if self.correct_answers is None:
-            raise(ValueError('Correct answers not yet set upon calling prepare_trials(). Is the design loaded?'))
-        self.incorrect_answers = [np.delete(np.arange(self.n_flashers), i) for i in self.correct_answers]
+        self.correct_answers = self.design['correct_answer'].values.astype(int)
+        # if self.correct_answers is None:
+        #     raise(ValueError('Correct answers not yet set upon calling prepare_trials(). Is the design loaded?'))
+        self.incorrect_answers = [np.delete(np.arange(self.n_flashers), i) for i in self.correct_answers if i in
+                                  np.arange(self.n_flashers)]
 
         # # Which responses (keys or saccades) correspond to these flashers?
         # self.correct_responses = np.array(self.response_keys)[self.correct_answers]
@@ -402,6 +408,11 @@ class FlashSession(EyelinkSession):
         # (this is a bit loopy, but I can't be bothered to make nice matrices here)
         self.trial_arrays = []
         for trial_n in range(self.n_trials):
+
+            # If the current trial is a null trial, or is a localizer trial, don't make an evidence array
+            if self.design.iloc[trial_n]['null_trial'] or self.design.iloc[trial_n]['block_type'] == 'localizer':
+                self.trial_arrays.append([[] * self.n_flashers])
+                continue
 
             evidence_streams_this_trial = []
             for i in range(self.n_flashers):
@@ -424,6 +435,90 @@ class FlashSession(EyelinkSession):
 
         # Create new mask to select only first frame of every increment
         self.first_frame_idx = np.arange(0, mask_idx.shape[0], increment_length)
+
+    def run_null_trial(self, trial, phases):
+        """ Runs a single null trial """
+
+        NullTrial(ID=trial.trial_ID,
+                  block_trial_ID=trial.block_trial_ID,
+                  parameters={},
+                  phase_durations=phases,
+                  session=self,
+                  screen=self.screen,
+                  tracker=self.tracker).run()
+
+    def run_localizer_trial(self, trial, phases):
+        """ Runs a single localizer trial """
+
+        if trial.response_modality == 'hand':
+            trial_pointer = LocalizerTrialKeyboard
+        elif trial.response_modality == 'eye':
+            trial_pointer = LocalizerTrialSaccade
+        else:
+            raise (ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
+                                          'hand'' is expected. Trial n: %d, block n: %d' % (trial.response_modality,
+                                                                                            trial.trial_ID,
+                                                                                            trial.block_num)))
+        trial_object = trial_pointer(ID=trial.trial_ID,
+                                     block_trial_ID=trial.block_trial_ID,
+                                     parameters={'correct_answer': trial.correct_answer,
+                                                 'cue': trial.cue,
+                                                 'trial_type': trial.trial_type},
+                                     phase_durations=phases,
+                                     session=self,
+                                     screen=self.screen,
+                                     tracker=self.tracker)
+        trial_object.run()
+
+        return trial_object
+
+    def run_experimental_trial(self, trial, phases, block_n):
+        """ Runs a single experimental trial """
+
+        # shortcut
+        this_trial_type = trial.trial_type
+
+        if trial.response_modality == 'hand':
+            trial_pointer = FlashTrialKeyboard
+        elif trial.response_modality == 'eye':
+            trial_pointer = FlashTrialSaccade
+        else:
+            raise(ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
+                             'hand'' is expected. Trial n: %d, block n: %d' % (trial.response_modality,
+                                                                               trial.trial_ID,
+                                                                               trial.block_num)))
+
+        # In a limbic trial, prepare / update feedback
+        if 'limbic' in trial.block_type:
+            if this_trial_type in [0, 1]:  # Neutral condition
+                self.feedback_text_objects[1].text = 'Correct!'
+            elif this_trial_type in [2, 5]:  # Compatible cue condition
+                self.feedback_text_objects[1].text = 'Correct! +8\nTotal score: %d' % (
+                    self.participant_scores[block_n] + 8)
+            elif this_trial_type in [3, 4]:  # Incompatible cue condition
+                self.feedback_text_objects[1].text = 'Correct! +2\nTotal score: %d' % (
+                    self.participant_scores[block_n] + 2)
+
+        trial_object = trial_pointer(ID=trial.trial_ID,
+                                     block_trial_ID=trial.block_trial_ID,
+                                     parameters={'trial_evidence_arrays': self.trial_arrays[trial.trial_ID],
+                                                 'correct_answer': trial.correct_answer.astype(int),
+                                                 'cue': trial.cue,
+                                                 'trial_type': trial.trial_type},
+                                     phase_durations=phases,
+                                     session=self,
+                                     screen=self.screen,
+                                     tracker=self.tracker)
+        trial_object.run()
+
+        # If the response given is correct, update scores
+        if 'limbic' in trial.block_type and trial_object.response_type == 1:
+            if this_trial_type in [2, 5]:
+                self.participant_scores[block_n] += 8
+            elif this_trial_type in [3, 4]:
+                self.participant_scores[block_n] += 2
+
+        return trial_object
 
     def run(self):
         """ Run the trials that were prepared. The experimental design must be loaded. """
@@ -487,95 +582,42 @@ class FlashSession(EyelinkSession):
             # Get the trial handler of the current block
             trial_handler = self.trial_handlers[block_n]
 
+            # Reset any changed feedback object text (SAT after limbic might otherwise show weird feedback)
+            self.feedback_text_objects[1].text = 'Correct!'
+
             # Loop over block trials
             for trial in trial_handler:
 
-                # shortcuts
-                this_trial_type = trial.trial_type
-                this_ID = trial.trial_ID
-                this_block_trial_ID = trial.block_trial_ID
-                this_trial_evidence_array = self.trial_arrays[this_ID]
-                this_correct_answer = trial.correct_answer
-                this_cue = trial.cue
-                this_response_modality = trial.response_modality
+                # shortcut (needed in all trial types)
                 this_phases = (trial.phase_0,  # time to wait for scanner
                                trial.phase_1,  # pre-cue fixation cross
                                trial.phase_2,  # cue
-                               trial.phase_3,  # post-cue fixation cross
+                               trial.phase_3,  # post-cue fixation cross [0 for localizer]
                                trial.phase_4,  # stimulus
                                trial.phase_5,  # post-stimulus time (after response, before feedback)
                                trial.phase_6)  # feedback time
 
-                # Get trial type: LocalizerTrial or FlashTrial; plus, what kind of response should we expect?
-                if block_n == 0:  # First block is always the localizer
-                    # LocalizerTrial, but what subclass?
-                    if this_response_modality == 'hand':
-                        trial_pointer = LocalizerTrialKeyboard
-                    elif this_response_modality == 'eye':
-                        trial_pointer = LocalizerTrialSaccade
-                    else:
-                        raise (ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
-                                          'hand'' is expected. Trial n: %d, block n: %d' % (this_response_modality,
-                                                                                            this_ID,
-                                                                                            block_n)))
+                # What trial type to run?
+                if trial.null_trial:  # True or false
+                    self.run_null_trial(trial, phases=this_phases)
                 else:
-                    # FlashTrial, but what subclass?
-                    if this_response_modality == 'hand':
-                        trial_pointer = FlashTrialKeyboard
-                    elif this_response_modality == 'eye':
-                        trial_pointer = FlashTrialSaccade
-                    else:
-                        raise(ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
-                                         'hand'' is expected. Trial n: %d, block n: %d' % (this_response_modality,
-                                                                                           this_ID,
-                                                                                           block_n)))
+                    if block_n == 0:   # Localizer
+                        trial_object = self.run_localizer_trial(trial, phases=this_phases)
+                    else:              # Experiment
+                        trial_object = self.run_experimental_trial(trial, phases=this_phases, block_n=block_n)
 
-                # In case the current block is a limbic block, make sure feedback is prepared properly
-                if 'limbic' in trial.block_type:
-                    if this_trial_type in [0, 1]:  # Neutral condition
-                        self.feedback_text_objects[1].text = 'Correct!'
-                    elif this_trial_type in [2, 5]:  # Compatible cue condition
-                        self.feedback_text_objects[1].text = 'Correct! +8\nTotal score: %d' % (
-                            self.participant_scores[block_n] + 8)
-                    elif this_trial_type in [3, 4]:  # Incompatible cue condition
-                        self.feedback_text_objects[1].text = 'Correct! +2\nTotal score: %d' % (
-                            self.participant_scores[block_n] + 2)
+                        # Save evidence arrays (only in experimental trials)
+                        for flasher in range(self.n_flashers):
+                            trial_handler.addData('evidence stream ' + str(flasher),
+                                                  self.trial_arrays[trial.trial_ID][flasher][self.first_frame_idx])
+                        trial_handler.addData('evidence shown at rt',
+                                              trial_object.evidence_shown / self.standard_parameters['flash_length'])
 
-                # Initialize and run trial
-                # Note that we're always passing trial_evidence_arrays, even if we're in a localizer block. This is a
-                #  bit ugly but allows us to use exactly the same method call here.
-                trial_obj = trial_pointer(ID=this_ID,
-                                          block_trial_ID=this_block_trial_ID,
-                                          parameters={'trial_evidence_arrays': this_trial_evidence_array,
-                                                      'correct_answer': this_correct_answer,
-                                                      'cue': this_cue,
-                                                      'trial_type': this_trial_type},
-                                          phase_durations=this_phases,
-                                          session=self,
-                                          screen=self.screen,
-                                          tracker=self.tracker)
-                trial_obj.run()
-
-                # If the response given is correct, update scores
-                if 'limbic' in trial.block_type and trial_obj.response_type == 1:
-                    if this_trial_type in [2, 5]:
-                        self.participant_scores[block_n] += 8
-                    elif this_trial_type in [3, 4]:
-                        self.participant_scores[block_n] += 2
-
-                # Save all data
-                trial_handler.addData('rt', trial_obj.response_time)
-                trial_handler.addData('response', trial_obj.response)
-                trial_handler.addData('correct', trial_obj.response_type == 1)
-                trial_handler.addData('feedback', self.feedback_text_objects[trial_obj.response_type].text)
-
-                # For non-localizer blocks, also save the evidence arrays
-                if block_n > 0:
-                    for flasher in range(self.n_flashers):
-                        trial_handler.addData('evidence stream ' + str(flasher),
-                                              this_trial_evidence_array[flasher][self.first_frame_idx])
-                    trial_handler.addData('evidence shown at rt',
-                                          trial_obj.evidence_shown / self.standard_parameters['flash_length'])
+                    # Save all data (only in non-null trials)
+                    trial_handler.addData('rt', trial_object.response_time)
+                    trial_handler.addData('response', trial_object.response)
+                    trial_handler.addData('correct', trial_object.response_type == 1)
+                    trial_handler.addData('feedback', self.feedback_text_objects[trial_object.response_type].text)
 
                 # Trial finished, so on to the next entry
                 self.exp_handler.nextEntry()
@@ -583,6 +625,87 @@ class FlashSession(EyelinkSession):
                 # Check for stop flag in inner/trial loop
                 if self.stopped:
                     break
+
+
+
+                        # else:
+                #     # Get trial type: LocalizerTrial or FlashTrial; plus, what kind of response should we expect?
+                #     if block_n == 0:  # First block is always the localizer
+                #         # LocalizerTrial, but what subclass?
+                #         if this_response_modality == 'hand':
+                #             trial_pointer = LocalizerTrialKeyboard
+                #         elif this_response_modality == 'eye':
+                #             trial_pointer = LocalizerTrialSaccade
+                #         else:
+                #             raise (ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
+                #                               'hand'' is expected. Trial n: %d, block n: %d' % (this_response_modality,
+                #                                                                                 this_ID,
+                #                                                                                 block_n)))
+                #     else:
+                #         # FlashTrial, but what subclass?
+                #         if this_response_modality == 'hand':
+                #             trial_pointer = FlashTrialKeyboard
+                #         elif this_response_modality == 'eye':
+                #             trial_pointer = FlashTrialSaccade
+                #         else:
+                #             raise(ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
+                #                              'hand'' is expected. Trial n: %d, block n: %d' % (this_response_modality,
+                #                                                                                this_ID,
+                #                                                                                block_n)))
+
+                    # # In case the current block is a limbic block, make sure feedback is prepared properly
+                    # if 'limbic' in trial.block_type:
+                    #     if this_trial_type in [0, 1]:  # Neutral condition
+                    #         self.feedback_text_objects[1].text = 'Correct!'
+                    #     elif this_trial_type in [2, 5]:  # Compatible cue condition
+                    #         self.feedback_text_objects[1].text = 'Correct! +8\nTotal score: %d' % (
+                    #             self.participant_scores[block_n] + 8)
+                    #     elif this_trial_type in [3, 4]:  # Incompatible cue condition
+                    #         self.feedback_text_objects[1].text = 'Correct! +2\nTotal score: %d' % (
+                    #             self.participant_scores[block_n] + 2)
+                    #
+                    # # Initialize and run trial
+                    # # Note that we're always passing trial_evidence_arrays, even if we're in a localizer block. This is a
+                    # #  bit ugly but allows us to use exactly the same method call here.
+                    # trial_obj = trial_pointer(ID=this_ID,
+                    #                           block_trial_ID=this_block_trial_ID,
+                    #                           parameters={'trial_evidence_arrays': this_trial_evidence_array,
+                    #                                       'correct_answer': this_correct_answer,
+                    #                                       'cue': this_cue,
+                    #                                       'trial_type': this_trial_type},
+                    #                           phase_durations=this_phases,
+                    #                           session=self,
+                    #                           screen=self.screen,
+                    #                           tracker=self.tracker)
+                    # trial_obj.run()
+                    #
+                    # # If the response given is correct, update scores
+                    # if 'limbic' in trial.block_type and trial_obj.response_type == 1:
+                    #     if this_trial_type in [2, 5]:
+                    #         self.participant_scores[block_n] += 8
+                    #     elif this_trial_type in [3, 4]:
+                    #         self.participant_scores[block_n] += 2
+
+                    # # Save all data
+                    # trial_handler.addData('rt', trial_obj.response_time)
+                    # trial_handler.addData('response', trial_obj.response)
+                    # trial_handler.addData('correct', trial_obj.response_type == 1)
+                    # trial_handler.addData('feedback', self.feedback_text_objects[trial_obj.response_type].text)
+
+                    # # For non-localizer blocks, also save the evidence arrays
+                    # if block_n > 0:
+                    #     for flasher in range(self.n_flashers):
+                    #         trial_handler.addData('evidence stream ' + str(flasher),
+                    #                               this_trial_evidence_array[flasher][self.first_frame_idx])
+                    #     trial_handler.addData('evidence shown at rt',
+                    #                           trial_obj.evidence_shown / self.standard_parameters['flash_length'])
+
+                # # Trial finished, so on to the next entry
+                # self.exp_handler.nextEntry()
+                #
+                # # Check for stop flag in inner/trial loop
+                # if self.stopped:
+                #     break
 
             # Check for stop flag in outer/block loop
             if self.stopped:

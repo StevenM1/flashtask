@@ -274,6 +274,7 @@ class FlashTrialKeyboard(FlashTrial):
                                                  session=session, screen=screen, tracker=tracker)
 
         self.correct_answer = parameters['correct_answer']
+        print(self.correct_answer)
         self.correct_key = self.session.response_keys[self.correct_answer]
 
     def event(self):
