@@ -1,0 +1,11 @@
+</pre><hr>Initialisation<br><pre>
+
+/usr/local/fsl/bin/fslmaths /Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_031/all_blocks prefiltered_func_data -odt float
+Cannot open volume /Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_031/all_blocks for reading!
+
+FATAL ERROR ENCOUNTERED:
+COMMAND:
+/usr/local/fsl/bin/fslmaths /Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_031/all_blocks prefiltered_func_data -odt float
+ERROR MESSAGE:
+child process exited abnormally
+END OF ERROR MESSAGE
