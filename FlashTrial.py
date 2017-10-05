@@ -166,29 +166,31 @@ class FlashTrialSaccade(FlashTrial):
         self.correct_direction = parameters['correct_answer']
         self.directions_verbose = ['left saccade', 'right saccade']
         self.eye_movement_detected_in_phase = False
+        self.eye_pos_start_phase = [None, None, None, None, None, None, None]
 
     def event(self):
         """ Checks for saccades as answers and keyboard responses for escape / scanner pulse """
+
+        # Make sure to get eye position at the start of each phase
+        if self.eye_pos_start_phase[self.phase] is None:
+            self.eye_pos_start_phase[self.phase] = self.session.eye_pos()
 
         if not self.eye_movement_detected_in_phase:
             # Get eye position
             eyepos = self.session.eye_pos()
             eyepos_time = self.session.clock.getTime()
 
-            # Calculate distance travelled in cm
-            # distance_from_center = np.sqrt((eyepos[0]-self.session.screen_pix_size[0]/2)**2 +
-            #                                (eyepos[1]-self.session.screen_pix_size[1]/2)**2) / \
-            #                        self.session.pixels_per_centimeter
-
-            distance_from_center = np.divide(np.sqrt(eyepos[0]**2 + eyepos[1]**2), self.session.pixels_per_centimeter)
+            # We calculate the distance travelled from the eye position at the start of this phase.
+            center = self.eye_pos_start_phase[self.phase]
+            distance_from_center = np.divide(np.sqrt((eyepos[0]-center[0])**2 +
+                                                     (eyepos[1]-center[1])**2),
+                                             self.session.pixels_per_centimeter)
 
             if distance_from_center >= self.session.eye_travel_threshold:
                 self.eye_movement_detected_in_phase = True
 
-                # Is the final xpos left or right from center?  left = 0, right = 1
-                # ToDO: checkout how eye positions are returned: is screen center (0,0) or n_pix/2?
-#                saccade_direction = 0 if eyepos[0] < self.session.screen_pix_size[0]/2 else 1
-                saccade_direction = 0 if eyepos[0] < 0 else 1
+                # Is the final xpos left or right from initial position?  left = 0, right = 1
+                saccade_direction = 0 if eyepos[0] < center[0] else 1
                 saccade_direction_verbose = self.directions_verbose[saccade_direction]
 
                 if self.phase == 1:
@@ -274,7 +276,6 @@ class FlashTrialKeyboard(FlashTrial):
                                                  session=session, screen=screen, tracker=tracker)
 
         self.correct_answer = parameters['correct_answer']
-        print(self.correct_answer)
         self.correct_key = self.session.response_keys[self.correct_answer]
 
     def event(self):

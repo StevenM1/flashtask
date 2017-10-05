@@ -23,10 +23,18 @@ class LocalizerTrial(Trial):
         self.cue = self.session.arrow_stimuli[parameters['correct_answer']]
 
         # Initialize cue
-        if parameters['cue'] == 'pro':
+        if parameters['cue'] == 'LEFT' and parameters['correct_answer'] == 0:
+            self.cue = self.session.arrow_stimuli[0]
             self.cue.fillColor = 'darkblue'
-        elif parameters['cue'] == 'anti':
+        elif parameters['cue'] == 'LEFT' and parameters['correct_answer'] == 1:
+            self.cue = self.session.arrow_stimuli[0]
             self.cue.fillColor = 'darkred'
+        elif parameters['cue'] == 'RIGHT' and parameters['correct_answer'] == 0:
+            self.cue = self.session.arrow_stimuli[1]
+            self.cue.fillColor = 'darkred'
+        elif parameters['cue'] == 'RIGHT' and parameters['correct_answer'] == 1:
+            self.cue = self.session.arrow_stimuli[1]
+            self.cue.fillColor = 'darkblue'
 
         # Initialize times  -> what timing here?
         self.run_time = 0.0

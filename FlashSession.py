@@ -56,6 +56,7 @@ class FlashSession(EyelinkSession):
                                                   autoLog=True)
         self.trial_handlers = []
         self.participant_scores = []
+        self.n_instructions_shown = -1
 
         # If we're running in debug mode, only show the instruction screens for 1 sec each.
         if self.subject_initials == 'DEBUG':
@@ -225,14 +226,26 @@ class FlashSession(EyelinkSession):
                                               italic=False, height=30, alignHoriz='center',)
 
         # Prepare instruction screens
-        self.localizer_instructions = [
-            visual.TextStim(win=self.screen, text='In the next trials, you will first read a cue that tells you how '
-                                                  'to respond: either by making an eye movement, '
-                                                  'or by pressing a button.\n\nAfterwards, you see an arrow. '
-                                                  'When you see the arrow, respond as fast as possible. If the cue '
-                                                  'was EYE, make an eye movement in the direction that was indicated '
-                                                  'by the arrow. If the cue was HAND, press the left or right button, '
-                                                  'as indicated by the arrow.\n\nPress a button to continue',
+        self.localizer_instructions_eye = [
+            visual.TextStim(win=self.screen,
+                            text='In the next trials, you will see an arrow with a +-sign on the left an right side '
+                                 'of the screen. When the screen goes blank, move your eyes towards the +-sign that '
+                                 'to which the arrow pointed. Keep your eyes fixed at that point until the fixation '
+                                 'cross appears in the center of the screen. \n\nPress a button to continue',
+                            font='Helvetica Neue', pos=(0, 0),
+                            italic=False, height=30, alignHoriz='center', units='pix'),
+            visual.TextStim(win=self.screen, text='Always respond as fast as possible, without making '
+                                                  'mistakes!\n\nPress a button to start',
+                            font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
+                            units='pix')
+        ]
+
+        self.localizer_instructions_hand = [
+            visual.TextStim(win=self.screen,
+                            text='In the next trials, you will see an arrow with a +-sign on the left an right side '
+                                 'of the screen. When the screen goes blank, click and hold the button in the hand that '
+                                 'was indicated by the arrow. Keep your eyes fixed to the center of the screen.\n\n'
+                                 'Press a button to continue',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
             visual.TextStim(win=self.screen, text='Always respond as fast as possible, without making '
@@ -460,7 +473,7 @@ class FlashSession(EyelinkSession):
         else:
             raise (ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
                               'hand'' is expected. Trial n: %d, block n: 0' % (trial.response_modality,
-                                                                                trial.trial_ID)))
+                                                                               trial.trial_ID)))
 
         trial_object = trial_pointer(ID=trial.trial_ID,
                                      block_trial_ID=trial.block_trial_ID,
@@ -523,73 +536,80 @@ class FlashSession(EyelinkSession):
 
         return trial_object
 
-    def run(self):
-        """ Run the trials that were prepared. The experimental design must be loaded. """
+    def show_instructions(self):
+        """ Shows current instructions """
 
-        # Initialize variable to keep track of the number of instruction screens shown
-        # Instruction screen IDs are negative. The first shown is -1, the second -2, etc.
-        n_instruction_screens_shown = -1
-
-        # Show DEBUG screen first, if we're in debug mode.
-        if self.subject_initials == 'DEBUG':
-            self.current_instruction = self.debug_screen
-            FlashInstructions(ID=-99, parameters={}, phase_durations=[100],
+        # Loop over self.current_instructions
+        for instruction_n in range(len(self.instructions_to_show)):
+            self.current_instruction = self.instructions_to_show[instruction_n]
+            FlashInstructions(ID=self.n_instructions_shown,
+                              parameters={},
+                              phase_durations=self.instructions_durations,
                               session=self,
                               screen=self.screen,
                               tracker=self.tracker).run()
 
+            # Check for kill flag
+            if self.stopped:
+                break
+
+        # Variable to keep track of the number of instruction screens shown
+        # Instruction screen IDs are negative. The first shown is -1, the second -2, etc.
+        self.n_instructions_shown -= 1
+
+    def run(self):
+        """ Run the trials that were prepared. The experimental design must be loaded. """
+
+        # Show DEBUG screen first, if we're in debug mode.
+        if self.subject_initials == 'DEBUG':
+            self.current_instruction = self.debug_screen
+            FlashInstructions(ID=-99, parameters={},
+                              phase_durations=[100],
+                              session=self,
+                              screen=self.screen,
+                              tracker=self.tracker).run()
         # Show welcome screen
-        self.current_instruction = self.welcome_screen
-        FlashInstructions(ID=n_instruction_screens_shown, parameters={}, phase_durations=self.instructions_durations,
-                          session=self,
-                          screen=self.screen,
-                          tracker=self.tracker).run()
-        n_instruction_screens_shown -= 1  # Update instruction screen counter
+        self.instructions_to_show = [self.welcome_screen]  # In list, so show_instructions() can iterate
+        self.show_instructions()
 
         # Loop through blocks
         for block_n in range(5):
 
-            # Get current block type, in order to find the corresponding instruction screens to show
-            block_type = self.design.loc[self.design['block'] == block_n, 'block_type'].values[0]
-
-            if block_type == 'cognitive_hand':
-                self.instructions_to_show = self.cognitive_hand_instructions
-            elif block_type == 'cognitive_eye':
-                self.instructions_to_show = self.cognitive_eye_instructions
-            elif block_type == 'limbic_hand':
-                self.instructions_to_show = self.limbic_hand_instructions
-            elif block_type == 'limbic_eye':
-                self.instructions_to_show = self.limbic_eye_instructions
-            elif block_type == 'localizer':
-                self.instructions_to_show = self.localizer_instructions
-
-            # Loop through instruction screens
-            for instruction_screen_n in range(len(self.instructions_to_show)):
-
-                # Set the current instruction correctly
-                self.current_instruction = self.instructions_to_show[instruction_screen_n]
-
-                # And "play"
-                FlashInstructions(ID=n_instruction_screens_shown, parameters={},
-                                  phase_durations=self.instructions_durations,
-                                  session=self, screen=self.screen, tracker=self.tracker).run()
-                n_instruction_screens_shown -= 1  # Update instruction screen counter
-
-                # Check for stop signal during instruction screen
-                if self.stopped:
-                    self.close()
-
-            # After instructions, set participant score for this block to 0
+            # Set participant score for this block to 0
             self.participant_scores.append(0)
 
             # Get the trial handler of the current block
             trial_handler = self.trial_handlers[block_n]
 
-            # Reset any changed feedback object text (SAT after limbic might otherwise show weird feedback)
+            # Reset any changed feedback object text (SAT after limbic might otherwise show feedback with points)
             self.feedback_text_objects[1].text = 'Correct!'
 
             # Loop over block trials
             for trial in trial_handler:
+
+                # If this is the first trial in the block, prepare and show instructions first.
+                if trial.block_trial_ID == 0:
+                    block_type = trial.block_type
+                    response_modality = trial.response_modality
+
+                    if block_type == 'cognitive_hand':
+                        self.instructions_to_show = self.cognitive_hand_instructions
+                    elif block_type == 'cognitive_eye':
+                        self.instructions_to_show = self.cognitive_eye_instructions
+                    elif block_type == 'limbic_hand':
+                        self.instructions_to_show = self.limbic_hand_instructions
+                    elif block_type == 'limbic_eye':
+                        self.instructions_to_show = self.limbic_eye_instructions
+                    elif block_type == 'localizer' and response_modality == 'hand':
+                        self.instructions_to_show = self.localizer_instructions_hand
+                    elif block_type == 'localizer' and response_modality == 'eye':
+                        self.instructions_to_show = self.localizer_instructions_eye
+
+                    self.show_instructions()
+
+                    # Check for kill flag
+                    if self.stopped:
+                        break
 
                 # shortcut (needed in all trial types)
                 this_phases = (trial.phase_0,  # time to wait for scanner
@@ -602,12 +622,12 @@ class FlashSession(EyelinkSession):
 
                 # What trial type to run?
                 if trial.null_trial:  # True or false
-                    self.run_null_trial(trial, phases=this_phases)
+                    self.run_null_trial(trial, phases=this_phases)          # RUN NULL TRIAL
                 else:
                     if block_n == 0:   # Localizer
-                        trial_object = self.run_localizer_trial(trial, phases=this_phases)
+                        trial_object = self.run_localizer_trial(trial, phases=this_phases)   # RUN LOCALIZER
                     else:              # Experiment
-                        trial_object = self.run_experimental_trial(trial, phases=this_phases, block_n=block_n)
+                        trial_object = self.run_experimental_trial(trial, phases=this_phases, block_n=block_n)  # RUN
 
                         # Save evidence arrays (only in experimental trials)
                         for flasher in range(self.n_flashers):
@@ -625,92 +645,11 @@ class FlashSession(EyelinkSession):
                 # Trial finished, so on to the next entry
                 self.exp_handler.nextEntry()
 
-                # Check for stop flag in inner/trial loop
+                # Check for stop flag in trial loop
                 if self.stopped:
                     break
 
-
-
-                        # else:
-                #     # Get trial type: LocalizerTrial or FlashTrial; plus, what kind of response should we expect?
-                #     if block_n == 0:  # First block is always the localizer
-                #         # LocalizerTrial, but what subclass?
-                #         if this_response_modality == 'hand':
-                #             trial_pointer = LocalizerTrialKeyboard
-                #         elif this_response_modality == 'eye':
-                #             trial_pointer = LocalizerTrialSaccade
-                #         else:
-                #             raise (ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
-                #                               'hand'' is expected. Trial n: %d, block n: %d' % (this_response_modality,
-                #                                                                                 this_ID,
-                #                                                                                 block_n)))
-                #     else:
-                #         # FlashTrial, but what subclass?
-                #         if this_response_modality == 'hand':
-                #             trial_pointer = FlashTrialKeyboard
-                #         elif this_response_modality == 'eye':
-                #             trial_pointer = FlashTrialSaccade
-                #         else:
-                #             raise(ValueError('The trial response type is not understood. %s was provided, but ''eye'' or '
-                #                              'hand'' is expected. Trial n: %d, block n: %d' % (this_response_modality,
-                #                                                                                this_ID,
-                #                                                                                block_n)))
-
-                    # # In case the current block is a limbic block, make sure feedback is prepared properly
-                    # if 'limbic' in trial.block_type:
-                    #     if this_trial_type in [0, 1]:  # Neutral condition
-                    #         self.feedback_text_objects[1].text = 'Correct!'
-                    #     elif this_trial_type in [2, 5]:  # Compatible cue condition
-                    #         self.feedback_text_objects[1].text = 'Correct! +8\nTotal score: %d' % (
-                    #             self.participant_scores[block_n] + 8)
-                    #     elif this_trial_type in [3, 4]:  # Incompatible cue condition
-                    #         self.feedback_text_objects[1].text = 'Correct! +2\nTotal score: %d' % (
-                    #             self.participant_scores[block_n] + 2)
-                    #
-                    # # Initialize and run trial
-                    # # Note that we're always passing trial_evidence_arrays, even if we're in a localizer block. This is a
-                    # #  bit ugly but allows us to use exactly the same method call here.
-                    # trial_obj = trial_pointer(ID=this_ID,
-                    #                           block_trial_ID=this_block_trial_ID,
-                    #                           parameters={'trial_evidence_arrays': this_trial_evidence_array,
-                    #                                       'correct_answer': this_correct_answer,
-                    #                                       'cue': this_cue,
-                    #                                       'trial_type': this_trial_type},
-                    #                           phase_durations=this_phases,
-                    #                           session=self,
-                    #                           screen=self.screen,
-                    #                           tracker=self.tracker)
-                    # trial_obj.run()
-                    #
-                    # # If the response given is correct, update scores
-                    # if 'limbic' in trial.block_type and trial_obj.response_type == 1:
-                    #     if this_trial_type in [2, 5]:
-                    #         self.participant_scores[block_n] += 8
-                    #     elif this_trial_type in [3, 4]:
-                    #         self.participant_scores[block_n] += 2
-
-                    # # Save all data
-                    # trial_handler.addData('rt', trial_obj.response_time)
-                    # trial_handler.addData('response', trial_obj.response)
-                    # trial_handler.addData('correct', trial_obj.response_type == 1)
-                    # trial_handler.addData('feedback', self.feedback_text_objects[trial_obj.response_type].text)
-
-                    # # For non-localizer blocks, also save the evidence arrays
-                    # if block_n > 0:
-                    #     for flasher in range(self.n_flashers):
-                    #         trial_handler.addData('evidence stream ' + str(flasher),
-                    #                               this_trial_evidence_array[flasher][self.first_frame_idx])
-                    #     trial_handler.addData('evidence shown at rt',
-                    #                           trial_obj.evidence_shown / self.standard_parameters['flash_length'])
-
-                # # Trial finished, so on to the next entry
-                # self.exp_handler.nextEntry()
-                #
-                # # Check for stop flag in inner/trial loop
-                # if self.stopped:
-                #     break
-
-            # Check for stop flag in outer/block loop
+            # Check for stop flag in block loop
             if self.stopped:
                 break
 
@@ -753,443 +692,3 @@ class FlashSession(EyelinkSession):
             pylab.savefig(self.output_file + '_frame_intervals.png')
 
         super(FlashSession, self).close()
-
-#
-# class FlashSessionPayoffBias(FlashSession):
-#     """
-#     Subclasses FlashSession to handle an experimental session to a 3 x 2 (cue x correct) asymmetric pay-off bias design.
-#
-#     Each trial has 6 phases:
-#     0. Fixation cross until scanner pulse
-#     1. Show cue (0.5s)
-#     2. Fixation cross (0.5s; this should be jittered)
-#     3. Stimulus presentation; participant can respond
-#     4. Stimulus presentation after participant has responded (until 1.5s has passed since phase 2)
-#     5. Feedback (0.5s)
-#     6. ITI (1s; this should be jittered)
-#
-#     The cue is either 'NEU', 'LEFT', or 'RIGHT'. If the cue was NEU, any response (correct or incorrect) gets a
-#     pay-off of 0. If the cue was congruent with the correct answer, the participant receives 8 points for a correct
-#     answer. If the cue is incongruent with the correct answer, the participant receives 2 points for a correct
-#     answer. No points for too fast (<150ms), too late (>1.5s), or wrong answers.
-#     """
-#
-#     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
-#         super(FlashSessionPayoffBias, self).__init__(subject_initials, index_number, scanner, tracker_on, sound_system)
-#
-#         self.trial_types = None
-#         self.cue_by_trial = None
-#         self.prepare_trials()
-#         self.participant_score = 0
-#
-#     def prepare_trials(self):
-#         """
-#         Trial conditions are set up as follows:
-#         0. Neutral cue, left is correct. Pay-off: 0
-#         1. Neutral cue, right is correct. Pay-off: 0
-#         2. Left cue, left is correct. Pay-off: 8 if correct (0 if incorrect)
-#         3. Left cue, right is correct. Pay-off: 2 if correct (0 if incorrect)
-#         4. Right cue, left is correct. Pay-off: 2 if correct (0 if incorrect)
-#         5. Right cue, right is correct. Pay-off: 8 if correct (0 if incorrect)
-#         """
-#
-#         self.trial_types = np.hstack((np.repeat([0, 1], repeats=n_trials/6),    # Neutral cue, left/right corr
-#                                       np.repeat([2, 3], repeats=n_trials/6),    # Left cue, left/right corr
-#                                       np.repeat([4, 5], repeats=n_trials/6)))   # Right cue, left/right corr
-#         np.random.shuffle(self.trial_types)
-#
-#         if self.trial_types.shape[0] != n_trials:
-#             raise(ValueError('The provided n_trials (%d) could not be split into the correct number of trial types. '
-#                              'Closest option is %d trials' % (n_trials, self.trial_types.shape[0])))
-#
-#         self.cue_by_trial = np.zeros(n_trials, dtype='<U5')
-#         self.correct_answers = np.zeros(n_trials, dtype=np.int8)
-#
-#         self.cue_by_trial[(self.trial_types == 0) | (self.trial_types == 1)] = 'NEU'
-#         self.cue_by_trial[(self.trial_types == 2) | (self.trial_types == 3)] = 'LEFT'
-#         self.cue_by_trial[(self.trial_types == 4) | (self.trial_types == 5)] = 'RIGHT'
-#
-#         self.correct_answers[(self.trial_types == 0) |
-#                              (self.trial_types == 2) |
-#                              (self.trial_types == 4)] = 0  # 0 = left is correct
-#         self.correct_answers[(self.trial_types == 1) |
-#                              (self.trial_types == 3) |
-#                              (self.trial_types == 5)] = 1  # 1 = right is correct
-#
-#         # Exported trial types to check whether everything went ok
-#         trial_data = pd.DataFrame({'ID': np.arange(n_trials),
-#                                    'correct_answer': self.correct_answers,
-#                                    'cue': self.cue_by_trial,
-#                                    'trial_types': self.trial_types})
-#         trial_data.to_csv(self.output_file + '_trial_types.csv', index=False)
-#
-#         # Set-up trial handler
-#         self.trial_handler = data.TrialHandler(trial_data.to_dict('records'), 1, extraInfo=
-#                                                {'subject_initials': self.subject_initials,
-#                                                 'index_number': self.index_number,
-#                                                 'session_type': session_type,
-#                                                 }, method='sequential')
-#         self.exp_handler.addLoop(self.trial_handler)
-#
-#         super(FlashSessionPayoffBias, self).prepare_trials()
-#
-#     def run(self):
-#         # Show instruction first
-#         FlashInstructions(ID=-1, parameters={}, phase_durations=[100], session=self, screen=self.screen,
-#                           tracker=self.tracker).run()
-#
-#         # Loop through trials
-#         for this_trial in self.trial_handler:
-#             this_ID = this_trial['ID']
-#             this_trial_type = this_trial['trial_type']
-#             this_cue = this_trial['cue']
-#             this_correct_answer = this_trial['correct_answer']
-#             this_trial_evidence_array = self.trial_arrays[this_ID]
-#
-#             # Prepare feedback, in case the participant responds correctly
-#             if this_trial_type in [0, 1]:           # Neutral condition
-#                 self.feedback_text_objects[1].text = 'Correct!'
-#             elif this_trial_type in [2, 5]:         # Compatible cue condition
-#                 self.feedback_text_objects[1].text = 'Correct! +8\nTotal score: %d' % (self.participant_score+8)
-#             elif this_trial_type in [3, 4]:         # Incompatible cue condition
-#                 self.feedback_text_objects[1].text = 'Correct! +2\nTotal score: %d' % (self.participant_score+2)
-#
-#             trial = self.trial_pointer(ID=this_ID,
-#                                        parameters={'trial_evidence_arrays': this_trial_evidence_array,
-#                                                    'correct_answer': this_correct_answer,
-#                                                    'cue': this_cue,
-#                                                    'trial_type': this_trial_type},
-#                                        phase_durations=phase_durations,
-#                                        session=self,
-#                                        screen=self.screen,
-#                                        tracker=self.tracker)
-#
-#             trial.run()
-#
-#             # If the response given is correct, update scores
-#             if trial.response_type == 1:
-#                 if this_trial_type in [2, 5]:
-#                     self.participant_score += 8
-#                 elif this_trial_type in [3, 4]:
-#                     self.participant_score += 2
-#
-#             # Add all data
-#             self.trial_handler.addData('rt', trial.response_time)
-#             self.trial_handler.addData('response', trial.response)
-#             self.trial_handler.addData('correct', trial.response_type == 1)
-#             for flasher in range(self.n_flashers):
-#                 self.trial_handler.addData('evidence stream ' + str(flasher),
-#                                            this_trial_evidence_array[flasher][self.first_frame_idx])
-#
-#             self.trial_handler.addData('evidence shown at rt',
-#                                        trial.evidence_shown/self.standard_parameters['flash_length'])
-#             self.exp_handler.nextEntry()
-#
-#             if self.stopped:
-#                 break
-#
-#         self.close()
-#
-#
-# class FlashSessionSAT(FlashSession):
-#     """
-#     Subclasses FlashSession to handle an experimental session to a 2 x 2 (cue x correct) speed-accuracy trade-off
-#     design.
-#
-#     Each trial has 6 phases:
-#     0. Fixation cross until scanner pulse
-#     1. Show cue (0.5s)
-#     2. Fixation cross (0.5s; this should be jittered)
-#     3. Stimulus presentation; participant can respond
-#     4. Stimulus presentation after participant has responded (until 1.5s has passed since phase 2)
-#     5. Feedback (0.5s)
-#     6. ITI (1s; this should be jittered)
-#
-#     The cue is either 'SP', or 'ACC'.
-#     """
-#
-#     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
-#         super(FlashSessionSAT, self).__init__(subject_initials, index_number, scanner, tracker_on, sound_system)
-#
-#         self.trial_types = None
-#         self.cue_by_trial = None
-#         self.prepare_trials()
-#
-#     def prepare_trials(self):
-#         """
-#         """
-#
-#         self.trial_types = np.hstack(
-#             (np.repeat([0, 1], repeats=n_trials / 4),   # SPEED cue, left/right corr
-#              np.repeat([2, 3], repeats=n_trials / 4)))  # ACCURACY cue, left/right corr
-#
-#         np.random.shuffle(self.trial_types)
-#
-#         if self.trial_types.shape[0] != n_trials:
-#             raise(ValueError('The provided n_trials (%d) could not be split into the correct number of trial types. '
-#                              'Closest option is %d trials' % (n_trials, self.trial_types.shape[0])))
-#
-#         self.cue_by_trial = np.zeros(n_trials, dtype='<U5')
-#         self.correct_answers = np.zeros(n_trials, dtype=np.int8)
-#
-#         self.cue_by_trial[(self.trial_types == 0) | (self.trial_types == 1)] = 'SP'
-#         self.cue_by_trial[(self.trial_types == 2) | (self.trial_types == 3)] = 'ACC'
-#
-#         self.correct_answers[(self.trial_types == 0) |
-#                              (self.trial_types == 2)] = 0  # 0 = left is correct
-#         self.correct_answers[(self.trial_types == 1) |
-#                              (self.trial_types == 3)] = 1  # 1 = right is correct
-#
-#         # Exported trial types to check whether everything went ok
-#         trial_data = pd.DataFrame({'ID': np.arange(n_trials),
-#                                    'correct_answer': self.correct_answers,
-#                                    'cue': self.cue_by_trial,
-#                                    'trial_type': self.trial_types})
-#         trial_data.to_csv(self.output_file + '_trial_types.csv', index=False)
-#
-#         # Set-up trial handler
-#         self.trial_handler = data.TrialHandler(trial_data.to_dict('records'), 1,
-#                                                extraInfo={'subject_initials': self.subject_initials,
-#                                                           'index_number': self.index_number,
-#                                                           'session_type': session_type,
-#                                                           },
-#                                                method='sequential')
-#         self.exp_handler.addLoop(self.trial_handler)
-#
-#         super(FlashSessionSAT, self).prepare_trials()
-#
-#     def run(self):
-#         # Show instruction first
-#         FlashInstructions(ID=-1, parameters={}, phase_durations=[100], session=self, screen=self.screen,
-#                           tracker=self.tracker).run()
-#
-#         # Loop through trials
-#         for this_trial in self.trial_handler:
-#             this_ID = this_trial['ID']
-#             this_trial_type = this_trial['trial_type']
-#             this_cue = this_trial['cue']
-#             this_correct_answer = this_trial['correct_answer']
-#             this_trial_evidence_array = self.trial_arrays[this_ID]
-#
-#             trial = self.trial_pointer(ID=this_ID,
-#                                        parameters={'trial_evidence_arrays': this_trial_evidence_array,
-#                                                    'correct_answer': this_correct_answer,
-#                                                    'cue': this_cue,
-#                                                    'trial_type': this_trial_type},
-#                                        phase_durations=phase_durations,
-#                                        session=self,
-#                                        screen=self.screen,
-#                                        tracker=self.tracker)
-#             trial.run()
-#
-#             # Add all data
-#             self.trial_handler.addData('rt', trial.response_time)
-#             self.trial_handler.addData('response', trial.response)
-#             self.trial_handler.addData('correct', trial.response_type == 1)
-#
-#             for flasher in range(self.n_flashers):
-#                 self.trial_handler.addData('evidence stream ' + str(flasher),
-#                                            this_trial_evidence_array[flasher][self.first_frame_idx])
-#             self.trial_handler.addData('evidence shown at rt',
-#                                        trial.evidence_shown/self.standard_parameters['flash_length'])
-#
-#             self.exp_handler.nextEntry()
-#
-#             if self.stopped:
-#                 break
-#
-#         self.close()
-#
-#
-# class FlashSessionMotor(FlashSession):
-#     """
-#     Subclasses FlashSession to handle an experimental session to a 2 x 2 (cue x correct) speed-accuracy trade-off
-#     design.
-#
-#     Each trial has 6 phases:
-#     0. Fixation cross until scanner pulse
-#     1. Show cue (0.5s)
-#     2. Fixation cross (0.5s; this should be jittered)
-#     3. Stimulus presentation; participant can respond
-#     4. Stimulus presentation after participant has responded (until 1.5s has passed since phase 2)
-#     5. Feedback (0.5s)
-#     6. ITI (1s; this should be jittered)
-#
-#     The cue is either 'eye', or 'hand'.
-#     """
-#
-#     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
-#         super(FlashSessionMotor, self).__init__(subject_initials, index_number, scanner, tracker_on, sound_system)
-#
-#         # These are not set correctly for this manipulation
-#         self.response_keys = np.array(response_keys)
-#         self.eye_travel_threshold = 3
-#         self.trial_pointer = None
-#
-#         self.trial_types = None
-#         self.cue_by_trial = None
-#         self.prepare_trials()
-#
-#     def prepare_trials(self):
-#         """
-#         """
-#
-#         self.trial_types = np.hstack(
-#             (np.repeat([0, 1], repeats=n_trials / 4),   # EYE cue, left/right corr
-#              np.repeat([2, 3], repeats=n_trials / 4)))  # HAND cue, left/right corr
-#
-#         np.random.shuffle(self.trial_types)
-#
-#         if self.trial_types.shape[0] != n_trials:
-#             raise (
-#                 ValueError(
-#                     'The provided n_trials (%d) could not be split into the correct number of trial types. '
-#                     'Closest option is %d trials' % (n_trials, self.trial_types.shape[0])))
-#
-#         self.cue_by_trial = np.zeros(n_trials, dtype='<U5')
-#         self.correct_answers = np.zeros(n_trials, dtype=np.int8)
-#
-#         self.cue_by_trial[(self.trial_types == 0) | (self.trial_types == 1)] = 'EYE'
-#         self.cue_by_trial[(self.trial_types == 2) | (self.trial_types == 3)] = 'HAND'
-#
-#         self.correct_answers[(self.trial_types == 0) |
-#                              (self.trial_types == 2)] = 0  # 0 = left is correct
-#         self.correct_answers[(self.trial_types == 1) |
-#                              (self.trial_types == 3)] = 1  # 1 = right is correct
-#
-#         # Exported trial types to check whether everything went ok
-#         trial_data = pd.DataFrame({'ID': np.arange(n_trials),
-#                                    'correct_answer': self.correct_answers,
-#                                    'cue': self.cue_by_trial,
-#                                    'trial_type': self.trial_types})
-#         trial_data.to_csv(self.output_file + '_trial_types.csv', index=False)
-#
-#         # Set-up trial handler
-#         self.trial_handler = data.TrialHandler(trial_data.to_dict('records'), 1,
-#                                                extraInfo={'subject_initials': self.subject_initials,
-#                                                           'index_number': self.index_number,
-#                                                           'session_type': session_type,
-#                                                           },
-#                                                method='sequential')
-#         self.exp_handler.addLoop(self.trial_handler)
-#
-#         super(FlashSessionMotor, self).prepare_trials()
-#
-#     def run(self):
-#         # Show instruction first
-#         FlashInstructions(ID=-1, parameters={}, phase_durations=[100], session=self, screen=self.screen,
-#                           tracker=self.tracker).run()
-#
-#         # Loop through trials
-#         for this_trial in self.trial_handler:
-#             this_ID = this_trial['ID']
-#             this_trial_type = this_trial['trial_type']
-#             this_cue = this_trial['cue']
-#             this_correct_answer = this_trial['correct_answer']
-#             this_trial_evidence_array = self.trial_arrays[this_ID]
-#
-#             if this_cue == 'EYE':
-#                 trial_pointer = FlashTrialSaccade
-#             elif this_cue == 'HAND':
-#                 trial_pointer = FlashTrialKeyboard
-#             else:
-#                 raise(ValueError('Something is wrong: cue type not understood; should be EYE or HAND'))
-#
-#             trial = trial_pointer(ID=this_ID,
-#                                   parameters={'trial_evidence_arrays': this_trial_evidence_array,
-#                                               'correct_answer': this_correct_answer,
-#                                               'cue': this_cue,
-#                                               'trial_type': this_trial_type},
-#                                   phase_durations=phase_durations,
-#                                   session=self,
-#                                   screen=self.screen,
-#                                   tracker=self.tracker)
-#             trial.run()
-#
-#             # Add all data
-#             self.trial_handler.addData('rt', trial.response_time)
-#             self.trial_handler.addData('response', trial.response)
-#             self.trial_handler.addData('correct', trial.response_type == 1)
-#
-#             for flasher in range(self.n_flashers):
-#                 self.trial_handler.addData('evidence stream ' + str(flasher),
-#                                            this_trial_evidence_array[flasher][self.first_frame_idx])
-#
-#             self.trial_handler.addData('evidence shown at rt',
-#                                        trial.evidence_shown/self.standard_parameters['flash_length'])
-#
-#             self.exp_handler.nextEntry()
-#
-#             if self.stopped:
-#                 break
-#
-#         self.close()
-
-# class FlashSessionProbBias(FlashSession):
-#
-#     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
-#         super(FlashSessionProbBias, self).__init__(subject_initials, index_number, scanner, tracker_on, sound_system)
-#
-#         self.trial_conditions = None
-#         self.cue_by_trial = None
-#         self.prepare_trials()
-#
-#     def prepare_trials(self):
-#
-#         self.trial_conditions = np.hstack((np.repeat([0, 1], repeats=n_trials/4),  # Neutral trials, left/right corr
-#                                            np.repeat([2, 3], repeats=(n_trials/4)*.8),  # Bias left/right: correct
-#                                            np.repeat([4, 5], repeats=(n_trials/4)*.2)))  # Bias left/right: incorrect
-#         np.random.shuffle(self.trial_conditions)
-#
-#         if self.trial_conditions.shape[0] != n_trials:
-#             raise(ValueError('The provided n_trials (%d) could not be split into the correct number of trial types. '
-#                              'Closest option is %d trials' % (n_trials, self.trial_conditions.shape[0])))
-#
-#         self.cue_by_trial = np.zeros(n_trials, dtype='<U5')
-#         self.correct_answers = np.zeros(n_trials, dtype=np.int8)
-#
-#         self.cue_by_trial[(self.trial_conditions == 0) | (self.trial_conditions == 1)] = 'NEU'
-#         self.cue_by_trial[(self.trial_conditions == 2) | (self.trial_conditions == 4)] = 'LEFT'
-#         self.cue_by_trial[(self.trial_conditions == 3) | (self.trial_conditions == 5)] = 'RIGHT'
-#
-#         self.correct_answers[(self.trial_conditions == 0) |
-#                              (self.trial_conditions == 2) |
-#                              (self.trial_conditions == 5)] = 0
-#         self.correct_answers[(self.trial_conditions == 1) |
-#                              (self.trial_conditions == 3) |
-#                              (self.trial_conditions == 4)] = 1
-#
-#         # tmp: exported trial types to check whether everything went ok
-#         # import pandas as pd
-#         # trial_data = pd.DataFrame({'correct_answer': self.correct_answers,
-#         #                            'cue': self.cue_by_trial,
-#         #                            'trial_condition': self.trial_conditions})
-#         # trial_data.to_csv('/users/steven/Desktop/trial_conditions.csv')
-#
-#         super(FlashSessionProbBias, self).prepare_trials()
-#
-#     def run(self):
-#
-#         # Show instruction first
-#         FlashInstructions(ID=-1, parameters={'instruction_text': "Decide which circle flashes most"},
-#                           phase_durations=[100],
-#                           session=self,
-#                           screen=self.screen,
-#                           tracker=self.tracker).run()
-#
-#         # Loop through trials
-#         for ID in range(self.n_trials):
-#             FlashTrialKeyboard(ID=ID, parameters={'trial_evidence_arrays': self.trial_arrays[ID],
-#                                                   'correct_answer': self.correct_answers[ID],
-#                                                   'incorrect_answers': self.incorrect_answers[ID],
-#                                                   'cue': self.cue_by_trial[ID]},
-#                                phase_durations=phase_durations,
-#                                session=self,
-#                                screen=self.screen,
-#                                tracker=self.tracker).run()
-#
-#             if self.stopped:
-#                 break
-#
-#         self.close()
-#
