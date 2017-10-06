@@ -33,10 +33,10 @@ set fmri(sscleanup_yn) 0
 set fmri(outputdir) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_010/block_0_type_localizer"
 
 # TR(s)
-set fmri(tr) 2.0
+set fmri(tr) 3.0
 
 # Total volumes
-set fmri(npts) 180
+set fmri(npts) 100
 
 # Delete volumes
 set fmri(ndelete) 0
@@ -666,7 +666,7 @@ set fmri(tempfilt_yn7) 1
 set fmri(deriv_yn7) 0
 
 # Custom EV file (EV 7)
-set fmri(custom7) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_002/all_blocks/evs/ev_resp_hand_LEFT.txt"
+set fmri(custom7) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_010/all_blocks/evs/ev_resp_hand_LEFT.txt"
 
 # Orthogonalise EV 7 wrt EV 0
 set fmri(ortho7.0) 0
@@ -727,7 +727,7 @@ set fmri(tempfilt_yn8) 1
 set fmri(deriv_yn8) 0
 
 # Custom EV file (EV 8)
-set fmri(custom8) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_002/all_blocks/evs/ev_resp_hand_RIGHT.txt"
+set fmri(custom8) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_010/all_blocks/evs/ev_resp_hand_RIGHT.txt"
 
 # Orthogonalise EV 8 wrt EV 0
 set fmri(ortho8.0) 0

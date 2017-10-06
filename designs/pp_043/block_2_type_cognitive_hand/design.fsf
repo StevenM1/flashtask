@@ -33,10 +33,10 @@ set fmri(sscleanup_yn) 0
 set fmri(outputdir) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_043/block_2_type_cognitive_hand"
 
 # TR(s)
-set fmri(tr) 2.0
+set fmri(tr) 3.0
 
 # Total volumes
-set fmri(npts) 500
+set fmri(npts) 273
 
 # Delete volumes
 set fmri(ndelete) 0
