@@ -36,7 +36,7 @@ set fmri(outputdir) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/fla
 set fmri(tr) 3.0
 
 # Total volumes
-set fmri(npts) 1300
+set fmri(npts) 1130
 
 # Delete volumes
 set fmri(ndelete) 0
