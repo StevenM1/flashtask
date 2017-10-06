@@ -9,8 +9,10 @@ parameters = {
     'flash_length': 3,      # Duration of the flash itself in frames on a 60Hz screen
     'prop_correct': 0.7,    # Probability of flashing on every increment for the correct answer
     'prop_incorrect': 0.4,  # Probability of flashing on every increment for the incorrect answers
-    'radius': 3             # Radius: distance of flashers from center in cm
+    'radius': 7             # Radius: distance of flashers from center in cm
 }
+
+TR = 3
 
 # Information about the screen
 background_color = (0.5, 0.5, 0.5)  # -0.75,-0.75,-0.75)

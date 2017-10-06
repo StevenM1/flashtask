@@ -26,7 +26,7 @@ if sysErr:
 
 
 # Initialize Session
-sess = FlashSession(subject_initials='DEBUG', index_number=13, scanner='n', tracker_on=True)
+sess = FlashSession(subject_initials='DEBUG', index_number=1, scanner='n', tracker_on=True)
 
 # Launch dummy scanner
 sess.scanner = launchScan(win=sess.screen, settings={'TR': 2, 'volumes': 10000, 'sync': 't'}, mode='Test')

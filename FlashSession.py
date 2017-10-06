@@ -58,6 +58,9 @@ class FlashSession(EyelinkSession):
         self.participant_scores = []
         self.n_instructions_shown = -1
 
+        # TR of MRI
+        self.TR = TR
+
         # If we're running in debug mode, only show the instruction screens for 1 sec each.
         if self.subject_initials == 'DEBUG':
             self.instructions_durations = [1]
@@ -228,30 +231,26 @@ class FlashSession(EyelinkSession):
         # Prepare instruction screens
         self.localizer_instructions_eye = [
             visual.TextStim(win=self.screen,
-                            text='In the next trials, you will see an arrow with a +-sign on the left an right side '
-                                 'of the screen. When the screen goes blank, move your eyes towards the +-sign that '
-                                 'to which the arrow pointed. Keep your eyes fixed at that point until the fixation '
-                                 'cross appears in the center of the screen. \n\nPress a button to continue',
+                            text='In the next trials, you will see an arrow. Remember where it points to (left or right). As soon as the arrow disappears, make an eye movement in the direction that was indicated by the arrow. When the fixation cross appears again, move your eyes to the fixation cross.\nRespond as fast as possible, without making mistakes. \n\nPress a '
+                                 'button to start',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='Always respond as fast as possible, without making '
-                                                  'mistakes!\n\nPress a button to start',
-                            font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
-                            units='pix')
+            # visual.TextStim(win=self.screen, text='Always respond as fast as possible, without making '
+            #                                       'mistakes!\n\nPress a button to start',
+            #                 font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
+            #                 units='pix')
         ]
 
         self.localizer_instructions_hand = [
             visual.TextStim(win=self.screen,
-                            text='In the next trials, you will see an arrow with a +-sign on the left an right side '
-                                 'of the screen. When the screen goes blank, click and hold the button in the hand that '
-                                 'was indicated by the arrow. Keep your eyes fixed to the center of the screen.\n\n'
-                                 'Press a button to continue',
+                            text='In the next trials, you will see an arrow. Remember where it points to (left or right). After the arrow disappears, press the button using your hand that was indicated by the arrow. Keep your eyes fixed to the center of the screen. \nRespond as fast as possible, without making mistakes. \n\n'
+                                 'Press a button to start',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='Always respond as fast as possible, without making '
-                                                  'mistakes!\n\nPress a button to start',
-                            font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
-                            units='pix')
+            # visual.TextStim(win=self.screen, text='Always respond as fast as possible, without making '
+            #                                       'mistakes!\n\nPress a button to start',
+            #                 font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
+            #                 units='pix')
         ]
 
         self.cognitive_eye_instructions = [
@@ -584,6 +583,9 @@ class FlashSession(EyelinkSession):
             # Reset any changed feedback object text (SAT after limbic might otherwise show feedback with points)
             self.feedback_text_objects[1].text = 'Correct!'
 
+            # It is useful to save the last trial ID for the current block.
+            self.last_ID_this_block = self.design.loc[self.design['block'] == block_n, 'block_trial_ID'].iloc[-1]
+
             # Loop over block trials
             for trial in trial_handler:
 
@@ -618,7 +620,8 @@ class FlashSession(EyelinkSession):
                                trial.phase_3,  # post-cue fixation cross [0 for localizer]
                                trial.phase_4,  # stimulus
                                trial.phase_5,  # post-stimulus time (after response, before feedback)
-                               trial.phase_6)  # feedback time
+                               trial.phase_6,  # feedback time
+                               trial.phase_7)  # ITI
 
                 # What trial type to run?
                 if trial.null_trial:  # True or false

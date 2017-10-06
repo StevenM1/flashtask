@@ -22,19 +22,25 @@ class LocalizerTrial(Trial):
         self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response
         self.cue = self.session.arrow_stimuli[parameters['correct_answer']]
 
+        # When do we stop the trial? If there is an acquisition volume during the ITI, actively hold the ITI (trial).
+        # That is, stop the trial only after the final volume for this trial is obtained.
+        # The remainder of the ITI is used to prepare next trial. The actual trial start only occurs when the next
+        # volume is acquired.
+        self.stop_at_ITI = self.phase_durations[7] % self.session.TR
+
         # Initialize cue
-        if parameters['cue'] == 'LEFT' and parameters['correct_answer'] == 0:
-            self.cue = self.session.arrow_stimuli[0]
-            self.cue.fillColor = 'darkblue'
-        elif parameters['cue'] == 'LEFT' and parameters['correct_answer'] == 1:
-            self.cue = self.session.arrow_stimuli[0]
-            self.cue.fillColor = 'darkred'
-        elif parameters['cue'] == 'RIGHT' and parameters['correct_answer'] == 0:
-            self.cue = self.session.arrow_stimuli[1]
-            self.cue.fillColor = 'darkred'
-        elif parameters['cue'] == 'RIGHT' and parameters['correct_answer'] == 1:
-            self.cue = self.session.arrow_stimuli[1]
-            self.cue.fillColor = 'darkblue'
+        # if parameters['cue'] == 'LEFT' and parameters['correct_answer'] == 0:
+        #     self.cue = self.session.arrow_stimuli[0]
+        #     self.cue.fillColor = 'darkblue'
+        # elif parameters['cue'] == 'LEFT' and parameters['correct_answer'] == 1:
+        #     self.cue = self.session.arrow_stimuli[0]
+        #     self.cue.fillColor = 'darkred'
+        # elif parameters['cue'] == 'RIGHT' and parameters['correct_answer'] == 0:
+        #     self.cue = self.session.arrow_stimuli[1]
+        #     self.cue.fillColor = 'darkred'
+        # elif parameters['cue'] == 'RIGHT' and parameters['correct_answer'] == 1:
+        #     self.cue = self.session.arrow_stimuli[1]
+        #     self.cue.fillColor = 'darkblue'
 
         # Initialize times  -> what timing here?
         self.run_time = 0.0
@@ -54,10 +60,13 @@ class LocalizerTrial(Trial):
             self.session.fixation_cross.draw()
         elif self.phase == 2:  # Cue
             self.cue.draw()
-            self.session.crosses[0].draw()
-            self.session.crosses[1].draw()
+            # self.session.crosses[0].draw()
+            # self.session.crosses[1].draw()
         elif self.phase == 3:  # post-cue fix cross
             self.session.fixation_cross.draw()
+        elif self.phase == 7:
+            self.session.fixation_cross.draw()
+
 
         super(LocalizerTrial, self).draw()
 
@@ -121,13 +130,24 @@ class LocalizerTrial(Trial):
             if self.phase == 6:
                 self.feedback_time = self.session.clock.getTime()
                 if (self.feedback_time - self.post_stimulus_time) > self.phase_durations[6]:
-                    self.stopped = True
+                    self.phase_forward()
 
-            # # Finally, we show ITI
-            # if self.phase == 7:
-            #     self.ITI_time = self.session.clock.getTime()
-            #     if (self.ITI_time - self.feedback_time) > self.phase_durations[6]:
-            #         self.stopped = True
+            # Finally, we show ITI
+            if self.phase == 7:
+                self.ITI_time = self.session.clock.getTime()
+
+                if self.block_trial_ID == self.session.last_ID_this_block:
+                    # If this is the last trial of the block, show the FULL ITI
+                    print('Trial number %d (block trial %d)' % (self.ID, self.block_trial_ID))
+                    print('Actively showing full ITI')
+                    if self.ITI_time - self.feedback_time > self.phase_durations[7]:
+                        self.stopped = True
+
+                else:
+                    # See the __init__ method for the description of self.stop_at_ITI.
+                    # This holds the current trial until the last MRI volume of this trial is obtained.
+                    if (self.ITI_time - self.feedback_time) > self.stop_at_ITI:
+                        self.stopped = True
 
             # events and draw, but only if we haven't stopped yet
             if not self.stopped:

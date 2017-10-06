@@ -25,6 +25,12 @@ class FlashTrial(Trial):
         self.stimulus.trial_evidence_arrays = parameters['trial_evidence_arrays']
         self.evidence_shown = np.repeat([0], self.session.n_flashers)
 
+        # When do we stop the trial? If there is an acquisition volume during the TR, actively hold the ITI (trial).
+        # That is, stop the trial as soon as the final volume for this trial is obtained.
+        # The next trial won't start until the next volume is gained. The remainder of the ITI can thus be used to
+        # prepare everything for the next trial.
+        self.stop_at_ITI = self.phase_durations[7] % self.session.TR
+
         # Initialize cue. This is a bit of a hacky workaround in order to be able to use this class for both conditions
         if 'cue' in parameters.keys():
             cuetext = parameters['cue']
@@ -70,6 +76,8 @@ class FlashTrial(Trial):
             self.stimulus.draw(frame_n=self.frame_n, continuous=False)  # Continuous creates constant streams of flashes
         elif self.phase == 6:  # feedback
             self.session.feedback_text_objects[self.response_type].draw()
+        elif self.phase == 7:
+            self.session.fixation_cross.draw()
 
         super(FlashTrial, self).draw()
 
@@ -134,13 +142,23 @@ class FlashTrial(Trial):
                 self.feedback_time = self.session.clock.getTime()
                 if (self.feedback_time - self.post_stimulus_time) > self.phase_durations[6]:
                     self.phase_forward()  # keep track of timing
-                    self.stopped = True
 
-            # # Finally, we show ITI
-            # if self.phase == 7:
-            #     self.ITI_time = self.session.clock.getTime()
-            #     if (self.ITI_time - self.feedback_time) > self.phase_durations[6]:
-            #         self.stopped = True
+            # Finally, we show ITI
+            if self.phase == 7:
+                self.ITI_time = self.session.clock.getTime()
+
+                if self.block_trial_ID == self.session.last_ID_this_block:
+                    # If this is the last trial of the block, show the FULL ITI
+                    print('Trial number %d (block trial %d)' % (self.ID, self.block_trial_ID))
+                    print('Actively showing full ITI')
+                    if self.ITI_time - self.feedback_time > self.phase_durations[7]:
+                        self.stopped = True
+
+                else:
+                    # See the __init__ method for the description of self.stop_at_ITI.
+                    # This holds the current trial until the last MRI volume of this trial is obtained.
+                    if (self.ITI_time - self.feedback_time) > self.stop_at_ITI:
+                        self.stopped = True
 
             # events and draw
             if not self.stopped:
