@@ -26,7 +26,7 @@ class LocalizerTrial(Trial):
         # That is, stop the trial only after the final volume for this trial is obtained.
         # The remainder of the ITI is used to prepare next trial. The actual trial start only occurs when the next
         # volume is acquired.
-        self.stop_at_ITI = self.phase_durations[7] % self.session.TR
+        self.n_TRs = 0
 
         # Initialize cue
         # if parameters['cue'] == 'LEFT' and parameters['correct_answer'] == 0:
@@ -144,9 +144,9 @@ class LocalizerTrial(Trial):
                         self.stopped = True
 
                 else:
-                    # See the __init__ method for the description of self.stop_at_ITI.
-                    # This holds the current trial until the last MRI volume of this trial is obtained.
-                    if (self.ITI_time - self.feedback_time) > self.stop_at_ITI:
+                    # Only allow stopping if at least 2 TRs are recorded. The rest of the ITI is used for preparing the
+                    #  next trial.
+                    if self.n_TRs >= 2:
                         self.stopped = True
 
             # events and draw, but only if we haven't stopped yet
@@ -261,6 +261,7 @@ class LocalizerTrialSaccade(LocalizerTrial):
 
                 elif ev == 't':  # Scanner pulse
                     self.events.append([99, ev_time, 'pulse'])
+                    self.n_TRs += 1
 
                     if self.phase == 0:
                         self.phase_forward()
@@ -352,6 +353,7 @@ class LocalizerTrialKeyboard(LocalizerTrial):
 
                 elif ev == 't':  # Scanner pulse
                     self.events.append([99, ev_time, 'pulse'])
+                    self.n_TRs += 1
 
                     if self.phase == 0:
                         self.phase_forward()

@@ -25,11 +25,8 @@ class FlashTrial(Trial):
         self.stimulus.trial_evidence_arrays = parameters['trial_evidence_arrays']
         self.evidence_shown = np.repeat([0], self.session.n_flashers)
 
-        # When do we stop the trial? If there is an acquisition volume during the TR, actively hold the ITI (trial).
-        # That is, stop the trial as soon as the final volume for this trial is obtained.
-        # The next trial won't start until the next volume is gained. The remainder of the ITI can thus be used to
-        # prepare everything for the next trial.
-        self.stop_at_ITI = self.phase_durations[7] % self.session.TR
+        # keep track of number of TRs recorded. Only end trial if at least 2 TRs are recorded (3 TRs per trial).
+        self.n_TRs = 0
 
         # Initialize cue. This is a bit of a hacky workaround in order to be able to use this class for both conditions
         if 'cue' in parameters.keys():
@@ -155,9 +152,10 @@ class FlashTrial(Trial):
                         self.stopped = True
 
                 else:
-                    # See the __init__ method for the description of self.stop_at_ITI.
-                    # This holds the current trial until the last MRI volume of this trial is obtained.
-                    if (self.ITI_time - self.feedback_time) > self.stop_at_ITI:
+                    # Only allow stopping if at least 3 TRs are recorded (including the start-volume!)
+                    # The rest of the ITI is used for preparing the next trial.
+                    print(self.n_TRs)
+                    if self.n_TRs >= 3:
                         self.stopped = True
 
             # events and draw
@@ -184,7 +182,7 @@ class FlashTrialSaccade(FlashTrial):
         self.correct_direction = parameters['correct_answer']
         self.directions_verbose = ['left saccade', 'right saccade']
         self.eye_movement_detected_in_phase = False
-        self.eye_pos_start_phase = [None, None, None, None, None, None, None]
+        self.eye_pos_start_phase = [None, None, None, None, None, None, None, None]
 
     def event(self):
         """ Checks for saccades as answers and keyboard responses for escape / scanner pulse """
@@ -273,6 +271,7 @@ class FlashTrialSaccade(FlashTrial):
 
                 elif ev == 't':  # Scanner pulse
                     self.events.append([99, ev_time, 'pulse'])
+                    self.n_TRs += 1
 
                     if self.phase == 0:
                         self.phase_forward()
@@ -364,6 +363,7 @@ class FlashTrialKeyboard(FlashTrial):
 
                 elif ev == 't':  # Scanner pulse
                     self.events.append([99, ev_time, 'pulse'])
+                    self.n_TRs += 1
 
                     if self.phase == 0:
                         self.phase_forward()

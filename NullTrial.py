@@ -18,6 +18,8 @@ class NullTrial(Trial):
         self.response = None
         self.block_trial_ID = block_trial_ID
 
+        self.n_TRs = 0
+
         # Initialize times  -> what timing here?
         self.run_time = 0.0
         self.t_time = self.fix1_time = self.cue_time = self.fix2_time = self.stimulus_time = self.post_stimulus_time = \
@@ -43,6 +45,7 @@ class NullTrial(Trial):
 
                 elif ev == 't':  # Scanner pulse
                     self.events.append([99, ev_time, 'pulse'])
+                    self.n_TRs += 1
 
                     if self.phase == 0:
                         self.phase_forward()
@@ -101,7 +104,24 @@ class NullTrial(Trial):
             if self.phase == 6:
                 self.feedback_time = self.session.clock.getTime()
                 if (self.feedback_time - self.post_stimulus_time) > self.phase_durations[6]:
-                    self.stopped = True
+                    self.phase_forward()
+
+            # Finally, we show ITI
+            if self.phase == 7:
+                self.ITI_time = self.session.clock.getTime()
+
+                if self.block_trial_ID == self.session.last_ID_this_block:
+                    # If this is the last trial of the block, show the FULL ITI
+                    print('Trial number %d (block trial %d)' % (self.ID, self.block_trial_ID))
+                    print('Actively showing full ITI')
+                    if self.ITI_time - self.feedback_time > self.phase_durations[7]:
+                        self.stopped = True
+
+                else:
+                    # Only allow stopping if at least 3 TRs are recorded (including the start-volume!)
+                    # The rest of the ITI is used for preparing the next trial.
+                    if self.n_TRs >= 3:
+                        self.stopped = True
 
             # events and draw, but only if we haven't stopped yet
             if not self.stopped:
