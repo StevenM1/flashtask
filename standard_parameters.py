@@ -4,12 +4,17 @@
 # Parameters of the flashing circles
 parameters = {
     'n_flashers': 2,        # Number of choice options
-    'increment_length': 7,  # Duration of a flash + pause ('increment')
-    'flasher_size': 1,      # in cm?
+    'increment_length': 7,  # Duration of a flash + pause ('increment'), in frames
+    'flasher_size': 0.6,      # Size of flashing circles (radius) in degrees
     'flash_length': 3,      # Duration of the flash itself in frames on a 60Hz screen
     'prop_correct': 0.7,    # Probability of flashing on every increment for the correct answer
     'prop_incorrect': 0.4,  # Probability of flashing on every increment for the incorrect answers
-    'radius': 7             # Radius: distance of flashers from center in cm
+    'radius_deg': 1.5,      # Radius: distance of flashers from center in degrees
+}
+
+fix_cross_parameters = {
+    'outer_radius_degrees': 0.3,
+    'inner_radius_degrees': 0.15
 }
 
 # MR parameter

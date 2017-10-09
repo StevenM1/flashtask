@@ -103,7 +103,7 @@ class FlashSession(EyelinkSession):
 
         # Get session information about flashers
         self.n_flashers = self.standard_parameters['n_flashers']
-        self.radius = self.standard_parameters['radius']
+        self.radius_deg = self.standard_parameters['radius_deg']
         self.flasher_size = self.standard_parameters['flasher_size']
 
         # Initialize psychopy.visual objects attributes
@@ -173,7 +173,10 @@ class FlashSession(EyelinkSession):
         """
 
         # Prepare fixation cross
-        self.fixation_cross = FixationCross(win=self.screen, rad=0.3, bg=background_color)
+        self.fixation_cross = FixationCross(win=self.screen,
+                                            inner_radius=fix_cross_parameters['inner_radius_degrees'],
+                                            outer_radius=fix_cross_parameters['outer_radius_degrees'],
+                                            bg=background_color)
 
         # Prepare cue
         self.cue_object = visual.TextStim(win=self.screen, text='Cue here', units='cm')
@@ -235,8 +238,11 @@ class FlashSession(EyelinkSession):
         # Prepare instruction screens
         self.localizer_instructions_eye = [
             visual.TextStim(win=self.screen,
-                            text='In the next trials, you will see an arrow. Remember where it points to (left or right). As soon as the arrow disappears, make an eye movement in the direction that was indicated by the arrow. When the fixation cross appears again, move your eyes to the fixation cross.\nRespond as fast as possible, without making mistakes. \n\nPress a '
-                                 'button to start',
+                            text='In the next trials, you will see an arrow. Remember where it points to (left or '
+                                 'right). As soon as the arrow disappears, make an eye movement in the direction that '
+                                 'was indicated by the arrow. When the fixation cross appears again, move your eyes to '
+                                 'the fixation cross.\nRespond as fast as possible, without making mistakes. \n\nPress '
+                                 'a button to start',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
             # visual.TextStim(win=self.screen, text='Always respond as fast as possible, without making '
@@ -247,7 +253,10 @@ class FlashSession(EyelinkSession):
 
         self.localizer_instructions_hand = [
             visual.TextStim(win=self.screen,
-                            text='In the next trials, you will see an arrow. Remember where it points to (left or right). After the arrow disappears, press the button using your hand that was indicated by the arrow. Keep your eyes fixed to the center of the screen. \nRespond as fast as possible, without making mistakes. \n\n'
+                            text='In the next trials, you will see an arrow. Remember where it points to (left or '
+                                 'right). After the arrow disappears, press the button using your hand that was '
+                                 'indicated by the arrow. Keep your eyes fixed to the center of the screen. \nRespond '
+                                 'as fast as possible, without making mistakes. \n\n'
                                  'Press a button to start',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
@@ -377,8 +386,9 @@ class FlashSession(EyelinkSession):
         else:                # else start from 0.5*pi (== (1,0))
             t = 0.5*np.pi
 
-        pos_x = self.radius * np.cos(t + np.arange(1, self.n_flashers+1) * 2 * np.pi / self.n_flashers)
-        pos_y = self.radius * np.sin(t + np.arange(1, self.n_flashers+1) * 2 * np.pi / self.n_flashers)
+        radius_cm = self.centimeters_per_degree * self.radius_deg
+        pos_x = radius_cm * np.cos(t + np.arange(1, self.n_flashers+1) * 2 * np.pi / self.n_flashers)
+        pos_y = radius_cm * np.sin(t + np.arange(1, self.n_flashers+1) * 2 * np.pi / self.n_flashers)
         self.flasher_positions = zip(pos_x, pos_y)
 
         # Prepare Flasher stimuli

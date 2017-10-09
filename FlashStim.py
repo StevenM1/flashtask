@@ -14,7 +14,7 @@ class FlashStim(object):
 
         self.flasher_objects = []
         for i in range(self.n_flashers):
-            self.flasher_objects.append(visual.Circle(win=self.screen, name='flasher_'+str(i), units='cm',
+            self.flasher_objects.append(visual.Circle(win=self.screen, name='flasher_'+str(i), units='deg',
                                                       size=flasher_size, ori=0,
                                                       pos=positions[i], lineWidth=0, lineColor=[0, 0, 0],
                                                       lineColorSpace='rgb', fillColor=[1, 1, 1], fillColorSpace='rgb',
