@@ -429,22 +429,39 @@ class FlashSession(EyelinkSession):
                 self.trial_arrays.append(None)
                 continue
 
-            evidence_streams_this_trial = []
-            for i in range(self.n_flashers):
+            corr_answer_this_trial = self.correct_answers[trial_n]   # shortcut
 
-                # First, create initial evidence stream
-                if i == self.correct_answers[trial_n]:
-                    evidence_stream_this_flasher = np.random.binomial(n=1, p=prop_correct, size=n_increments).astype(
-                        np.int8)
-                else:
-                    evidence_stream_this_flasher = np.random.binomial(n=1, p=prop_incorrect,
-                                                                      size=n_increments).astype(np.int8)
+            # Ensure that, at the end of the trial, there is more evidence for the correct choice alternative than for
+            # any of the other choice alternatives
+            good_evidence_streams = False
+            while not good_evidence_streams:
+                evidence_streams_this_trial = []
+                total_evidence_per_flasher = []
+                for i in range(self.n_flashers):
 
-                # Repeat every increment for n_frames
-                evidence_stream_this_flasher = np.repeat(evidence_stream_this_flasher, increment_length)
-                evidence_stream_this_flasher[mask_idx] = 0   # add pause
+                    # First, create initial evidence stream
+                    if i == corr_answer_this_trial:
+                        evidence_stream_this_flasher = np.random.binomial(n=1, p=prop_correct, size=n_increments).astype(
+                            np.int8)
+                    else:
+                        evidence_stream_this_flasher = np.random.binomial(n=1, p=prop_incorrect,
+                                                                          size=n_increments).astype(np.int8)
 
-                evidence_streams_this_trial.append(evidence_stream_this_flasher)
+                    # How many pieces of evidence are shown in total for this flasher?
+                    total_evidence_per_flasher.append(np.sum(evidence_stream_this_flasher))
+
+                    # Repeat every increment for n_frames
+                    evidence_stream_this_flasher = np.repeat(evidence_stream_this_flasher, increment_length)
+                    evidence_stream_this_flasher[mask_idx] = 0   # add pause
+
+                    evidence_streams_this_trial.append(evidence_stream_this_flasher)
+
+                # Check if the evidence for the correct flasher is at least the evidence for each other flasher
+                total_evidence_per_flasher = np.array(total_evidence_per_flasher)
+                mask = np.ones(total_evidence_per_flasher.shape[0], np.bool)  # Create mask: compare correct to others
+                mask[corr_answer_this_trial] = 0
+                if (total_evidence_per_flasher[corr_answer_this_trial] >= total_evidence_per_flasher)[mask].all():
+                    good_evidence_streams = True
 
             self.trial_arrays.append(evidence_streams_this_trial)
 

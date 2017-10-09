@@ -12,7 +12,8 @@ class FlashTrial(Trial):
     see below).
     """
 
-    def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None, tracker=None):
+    def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None,
+                 tracker=None):
         super(FlashTrial, self).__init__(parameters=parameters, phase_durations=phase_durations, session=session,
                                          screen=screen, tracker=tracker)
         self.ID = ID
@@ -144,7 +145,7 @@ class FlashTrial(Trial):
             if self.phase == 7:
                 self.ITI_time = self.session.clock.getTime()
 
-                if self.block_trial_ID == self.session.last_ID_this_block:
+                if self.block_trial_ID == self.session.last_ID_this_block or self.session.scanner == 'n':
                     # If this is the last trial of the block, show the FULL ITI
                     print('Trial number %d (block trial %d)' % (self.ID, self.block_trial_ID))
                     print('Actively showing full ITI')
@@ -174,7 +175,8 @@ class FlashTrialSaccade(FlashTrial):
     Currently, can only handle TWO flashers / choice options!
     """
 
-    def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None, tracker=None):
+    def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None,
+                 tracker=None):
         super(FlashTrialSaccade, self).__init__(ID, block_trial_ID=block_trial_ID, parameters=parameters,
                                                 phase_durations=phase_durations,
                                                 session=session, screen=screen, tracker=tracker)
@@ -287,7 +289,8 @@ class FlashTrialKeyboard(FlashTrial):
     FlashTrial on which participants respond with a keypress
     """
 
-    def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None, tracker=None):
+    def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None,
+                 tracker=None):
         super(FlashTrialKeyboard, self).__init__(ID, block_trial_ID=block_trial_ID, parameters=parameters,
                                                  phase_durations=phase_durations,
                                                  session=session, screen=screen, tracker=tracker)

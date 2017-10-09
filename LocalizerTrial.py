@@ -136,7 +136,7 @@ class LocalizerTrial(Trial):
             if self.phase == 7:
                 self.ITI_time = self.session.clock.getTime()
 
-                if self.block_trial_ID == self.session.last_ID_this_block:
+                if self.block_trial_ID == self.session.last_ID_this_block or self.session.scanner == 'n':
                     # If this is the last trial of the block, show the FULL ITI
                     print('Trial number %d (block trial %d)' % (self.ID, self.block_trial_ID))
                     print('Actively showing full ITI')
