@@ -10,6 +10,7 @@ import pandas as pd
 import os
 import sys
 from glob import glob
+import cPickle as pickle
 
 from FlashTrial import *
 from FlashInstructions import FlashInstructions
@@ -38,15 +39,18 @@ class FlashSession(EyelinkSession):
                                     background_color=background_color, physical_screen_size=(70, 40),
                                     monitor=monitor_name)
         self.screen.monitor = monitors.Monitor(monitor_name)
+        self.screen.recordFrameIntervals = record_intervals
         self.mouse = event.Mouse(win=screen, visible=False)
 
         # For logging: set-up output file name, experiment handler
         self.create_output_file_name()
+        # save a log file for detail verbose info
+        logFile = logging.LogFile(self.output_file + '.log', level=logging.EXP)
 
         # Ensure that relative paths start from the same directory as this script
         _thisDir = os.path.dirname(os.path.abspath(__file__)).decode(sys.getfilesystemencoding())
         self.exp_handler = data.ExperimentHandler(name='flashtask',
-                                                  version='0.2.0',
+                                                  version='0.3.0',
                                                   extraInfo={'subject_initials': subject_initials,
                                                              'index_number': index_number,
                                                              'scanner': scanner,
@@ -681,6 +685,7 @@ class FlashSession(EyelinkSession):
         self.exp_handler.saveAsWideText(self.exp_handler.dataFileName + '.csv')
 
         if self.screen.recordFrameIntervals:
+
             # Save frame intervals to file
             self.screen.saveFrameIntervals(fileName=self.output_file + '_frame_intervals.log', clear=False)
 

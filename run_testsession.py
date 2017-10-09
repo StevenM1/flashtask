@@ -29,7 +29,7 @@ if sysErr:
 sess = FlashSession(subject_initials='DEBUG', index_number=1, scanner='n', tracker_on=True)
 
 # Launch dummy scanner
-sess.scanner = launchScan(win=sess.screen, settings={'TR': 2, 'volumes': 10000, 'sync': 't'}, mode='Test')
+sess.scanner = launchScan(win=sess.screen, settings={'TR': TR, 'volumes': 10000, 'sync': 't'}, mode='Test')
 
 if sess.dummy_tracker:  # annoyingly, launchScan sets mouseVisible to False - set it back to True for dummy tracking...
     sess.screen.setMouseVisible(True)

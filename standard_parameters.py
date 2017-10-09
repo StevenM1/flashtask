@@ -12,6 +12,7 @@ parameters = {
     'radius': 7             # Radius: distance of flashers from center in cm
 }
 
+# MR parameter
 TR = 3
 
 # Information about the screen
@@ -27,4 +28,8 @@ monitor_name = 'u2715h'
 design_path = '/users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs'
 
 # Keyboard response keys
-response_keys = ['z', 'm']  # Order: left, right. Ignored if response_type = 'saccade'
+response_keys = ['z', 'm']  # Order: left, right.
+
+
+# Do you want to keep track of frame lengths? Recommended
+record_intervals = True
