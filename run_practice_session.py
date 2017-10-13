@@ -14,26 +14,25 @@ except:
     pass
 
 # Kill Finder during execution (this will be fun)
-applescript="\'tell application \"Finder\" to quit\'"
-shellCmd = 'osascript -e '+applescript
-os.system(shellCmd)
+# applescript="\'tell application \"Finder\" to quit\'"
+# shellCmd = 'osascript -e '+applescript
+# os.system(shellCmd)
 
 # Set nice to -20: extremely high PID priority
-new_nice = -20
-sysErr = os.system("sudo renice -n %s %s" % (new_nice, os.getpid()))
-if sysErr:
-    print('Warning: Failed to renice, probably you arent authorized as superuser')
+# new_nice = -20
+# sysErr = os.system("sudo renice -n %s %s" % (new_nice, os.getpid()))
+# if sysErr:
+#     print('Warning: Failed to renice, probably you arent authorized as superuser')
 
 
 # Initialize Session
-sess = FlashSession(subject_initials='SM', index_number=13, scanner='n', tracker_on=True)
+sess = FlashPracticeSession(subject_initials='SM', index_number=1, scanner='n', tracker_on=True)
 
 # Launch dummy scanner
 sess.scanner = launchScan(win=sess.screen, settings={'TR': TR, 'volumes': 10000, 'sync': 't'}, mode='Test')
 
 if sess.dummy_tracker:  # annoyingly, launchScan sets mouseVisible to False - set it back to True for dummy tracking...
     sess.screen.setMouseVisible(True)
-
 
 # RUN
 sess.run()

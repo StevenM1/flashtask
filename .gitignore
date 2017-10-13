@@ -1,3 +1,6 @@
+# FSL stuff that's not interesting to sync
+*.ppm
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

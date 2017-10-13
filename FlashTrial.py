@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from exp_tools import Trial
-from psychopy import event
+from psychopy import event, core
 import numpy as np
-
+import os
 
 class FlashTrial(Trial):
     """ Class that holds the draw() and run() methods for a FlashTrial.
@@ -31,17 +31,17 @@ class FlashTrial(Trial):
 
         # Initialize cue. This is a bit of a hacky workaround in order to be able to use this class for both conditions
         if 'cue' in parameters.keys():
-            cuetext = parameters['cue']
-            if cuetext in ['LEFT', 'RIGHT', 'NEU']:
-                if cuetext == 'LEFT':
+            self.cuetext = parameters['cue']
+            if self.cuetext in ['LEFT', 'RIGHT', 'NEU']:
+                if self.cuetext == 'LEFT':
                     self.cue = self.session.arrow_stimuli[0]
-                elif cuetext == 'RIGHT':
+                elif self.cuetext == 'RIGHT':
                     self.cue = self.session.arrow_stimuli[1]
-                elif cuetext == 'NEU':
+                elif self.cuetext == 'NEU':
                     self.cue = self.session.arrow_stimuli[2]
             else:
                 self.cue = self.session.cue_object
-                self.cue.text = cuetext
+                self.cue.text = self.cuetext
         else:
             cuetext = 'Warning! No cue passed to trial!'
             self.cue = self.session.cue_object
@@ -63,17 +63,39 @@ class FlashTrial(Trial):
                 self.session.fixation_cross.draw()
         elif self.phase == 1:  # Pre-cue fix cross
             self.session.fixation_cross.draw()
+            # if not os.path.isfile('screenshot_trial_fixcross.png'):
+            #     self.session.screen.flip()
+            #     self.session.screen.getMovieFrame()
+            #     self.session.screen.saveMovieFrames('screenshot_trial_fixcross.png')
         elif self.phase == 2:  # Cue
             self.cue.draw()
+            # if not os.path.isfile('screenshot_trial_cue_' + self.cuetext + '.png'):
+            #     self.session.screen.flip()
+            #     self.session.screen.getMovieFrame()
+            #     self.session.screen.saveMovieFrames('screenshot_trial_cue_' + self.cuetext + '.png')
+
         elif self.phase == 3:  # post-cue fix cross
             self.session.fixation_cross.draw()
         elif self.phase == 4:  # stimulus
             shown_opacities = self.stimulus.draw(frame_n=self.frame_n)
             self.evidence_shown = self.evidence_shown + shown_opacities
+
+            # if self.stimulus.trial_evidence_arrays[0][self.frame_n] == 1 and self.stimulus.trial_evidence_arrays[1][
+            #     self.frame_n] == 1:
+            #     if not os.path.isfile('screenshot_trial_stim.png'):
+            #         self.session.screen.flip()
+            #         self.session.screen.getMovieFrame()
+            #         self.session.screen.saveMovieFrames('screenshot_trial_stim.png')
+
         elif self.phase == 5:  # post-stimulus fill time
             self.stimulus.draw(frame_n=self.frame_n, continuous=False)  # Continuous creates constant streams of flashes
         elif self.phase == 6:  # feedback
             self.session.feedback_text_objects[self.response_type].draw()
+            # fb_name = self.session.feedback_text_objects[self.response_type].text
+            # if not os.path.isfile('screenshot_trial_feedback_' + fb_name[0] + fb_name[-2] + '.png'):
+            #     self.session.screen.flip()
+            #     self.session.screen.getMovieFrame()
+            #     self.session.screen.saveMovieFrames('screenshot_trial_feedback_' + fb_name[0] + fb_name[-2] + '.png')
         elif self.phase == 7:
             self.session.fixation_cross.draw()
 

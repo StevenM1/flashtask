@@ -147,7 +147,7 @@ class Session(object):
         self.input_data = pickle.load(ipf)
         ipf.close()
 
-    def create_input_data(self, save = False):
+    def create_input_data(self, save=False):
         """
         This method should be provided by subclasses that create input data on the fly
         """
@@ -336,14 +336,14 @@ class EyelinkSession(Session):
 #			self.eye_measured, self.sample_rate, self.CR_mode, self.file_sample_filter, self.link_sample_filter = self.tracker.getModeData()
             self.sample_rate = sample_rate
 
-    def drift_correct(self, position = None):
+    def drift_correct(self, position=None):
         """docstring for drift_correct"""
         if self.tracker.connected():
-            if position is None:  # standard is of course centered on the screen.
-                position = [self.screen.size[0]/2,self.screen.size[1]/2]
+            if position is None:  # standard is of course centered on the screen
+                position = [self.screen.size[0]/2, self.screen.size[1]/2]
             while 1:
                 # Does drift correction and handles the re-do camera setup situations
-                error = self.tracker.doDriftCorrect(position[0],position[1],1,1)
+                error = self.tracker.doDriftCorrect(position[0], position[1], 1, 1)
                 if error != 27:
                     break
                 else:

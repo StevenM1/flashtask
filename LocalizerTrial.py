@@ -1,7 +1,7 @@
 from exp_tools import Trial
-from psychopy import visual, event, logging
+from psychopy import visual, event, logging, core
 import numpy as np
-
+import os
 
 class LocalizerTrial(Trial):
     """ Class that holds the draw() and run() methods for a LocalizerTrial.
@@ -18,8 +18,9 @@ class LocalizerTrial(Trial):
         self.frame_n = -1
         self.response = None
         self.block_trial_ID = block_trial_ID
+        self.correct_answer = parameters['correct_answer']
 
-        self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response
+        self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response, 3 = too fast, 4 = wrong phase
         self.cue = self.session.arrow_stimuli[parameters['correct_answer']]
 
         # When do we stop the trial? If there is an acquisition volume during the ITI, actively hold the ITI (trial).
@@ -56,17 +57,41 @@ class LocalizerTrial(Trial):
                 self.session.scanner_wait_screen.draw()
             else:
                 self.session.fixation_cross.draw()
+                self.session.crosses[0].draw()
+                self.session.crosses[1].draw()
         elif self.phase == 1:  # Pre-cue fix cross
             self.session.fixation_cross.draw()
+            self.session.crosses[0].draw()
+            self.session.crosses[1].draw()
+
+            # self.session.screen.getMovieFrame()  # Defaults to front buffer, I.e. what's on screen now.
+            # self.session.screen.saveMovieFrames('screenshot_localizer_fixcross.png')
         elif self.phase == 2:  # Cue
             self.cue.draw()
-            # self.session.crosses[0].draw()
-            # self.session.crosses[1].draw()
+            self.session.crosses[0].draw()
+            self.session.crosses[1].draw()
+            # if not os.path.isfile('screenshot_localizer_cue_' + str(self.correct_answer) + '.png'):
+            #     self.session.screen.flip()
+            #     self.session.screen.getMovieFrame()
+            #     self.session.screen.saveMovieFrames('screenshot_localizer_cue_' + str(self.correct_answer) + '.png')
+
         elif self.phase == 3:  # post-cue fix cross
             self.session.fixation_cross.draw()
+            self.session.crosses[0].draw()
+            self.session.crosses[1].draw()
+        elif self.phase == 4 or self.phase == 5:
+            self.session.crosses[0].draw()
+            self.session.crosses[1].draw()
+            # self.session.screen.getMovieFrame()
+            # self.session.screen.saveMovieFrames('screenshot_localizer_blank_screen.png')
+        elif self.phase == 6:
+            self.session.crosses[0].draw()
+            self.session.crosses[1].draw()
+            self.session.feedback_text_objects[self.response_type].draw()
         elif self.phase == 7:
             self.session.fixation_cross.draw()
-
+            self.session.crosses[0].draw()
+            self.session.crosses[1].draw()
 
         super(LocalizerTrial, self).draw()
 
@@ -275,6 +300,13 @@ class LocalizerTrialSaccade(LocalizerTrial):
 class LocalizerTrialKeyboard(LocalizerTrial):
     """
     FlashTrial on which participants respond with a keypress
+
+    There are four response types
+    0. Too late
+    1. Correct
+    2. Incorrect
+    3. Too slow
+    4. Too early phase
     """
 
     def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None, tracker=None):
@@ -306,12 +338,15 @@ class LocalizerTrialKeyboard(LocalizerTrial):
                 elif ev in self.session.response_keys:
 
                     if self.phase == 1:
+                        self.response_type = 4
                         self.events.append([ev, ev_time, 'early keypress during fix cross 1'])
 
                     elif self.phase == 2:
+                        self.response_type = 4
                         self.events.append([ev, ev_time, 'early keypress during cue'])
 
                     elif self.phase == 3:
+                        self.response_type = 4
                         self.events.append([ev, ev_time, 'early keypress during fix cross 2'])
 
                     elif self.phase == 4:
@@ -320,7 +355,7 @@ class LocalizerTrialKeyboard(LocalizerTrial):
                             self.response = ev
                             self.response_time = ev_time - self.fix2_time
 
-                            if self.response_time < 0.150:
+                            if self.response_time < 0.150 and self.response_type == 0:
                                 self.response_type = 3  # Too early
 
                                 if ev == self.correct_key:
@@ -333,11 +368,13 @@ class LocalizerTrialKeyboard(LocalizerTrial):
                                 if ev == self.correct_key:
                                     self.events.append([ev, ev_time, 'first keypress', 'correct',
                                                         self.response_time])
-                                    self.response_type = 1
+                                    if self.response_type == 0:
+                                        self.response_type = 1
                                 else:
                                     self.events.append([ev, ev_time, 'first keypress', 'incorrect',
                                                         self.response_time])
-                                    self.response_type = 2
+                                    if self.response_type == 0:
+                                        self.response_type = 2
                             self.phase_forward()  # End stimulus presentation upon keypress
                         else:
                             self.events.append([ev, ev_time, 'late keypress (during stimulus)'])
