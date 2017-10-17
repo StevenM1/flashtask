@@ -43,12 +43,23 @@ def main():
     language = None
     while language not in ['en', 'nl']:
         language = raw_input('What language do you want to use (en/nl)?: ')
-        if language not in ['y', 'n']:
+        if language not in ['en', 'nl']:
             print('I don''t understand that. Please enter ''en'' or ''nl''. What language do you want to use ('
                   'en/nl)?: ')
 
+    mirror = None
+    while mirror not in ['y', 'n']:
+        mirror = raw_input('Are you in the mock scanner? (y/n)')
+        if mirror not in ['y', 'n']:
+            print('I don''t understand that. Please enter ''y'' or ''n''. Are in the mock scanner?: ')
+
+    if mirror == 'y':
+        mirror = True
+    elif mirror == 'n':
+        mirror = False
+
     sess = FlashSession(subject_initials=initials, index_number=pp_nr, scanner=scanner, tracker_on=tracker_on,
-                        language=language)
+                        language=language, mirror=mirror)
     sess.run()
 
 

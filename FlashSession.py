@@ -31,7 +31,8 @@ class FlashSession(EyelinkSession):
 
     """
 
-    def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False, language='en'):
+    def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False, language='en',
+                 mirror=False):
         super(FlashSession, self).__init__(subject_initials, index_number, sound_system)
 
         # Set-up screen
@@ -89,6 +90,7 @@ class FlashSession(EyelinkSession):
         self.standard_parameters = parameters
 
         # Initialize a bunch of attributes used in load_design() or prepare_trials()
+        self.mirror = mirror
         self.n_trials = None
         self.stim_max_time = None
         self.frame_rate = None
@@ -214,18 +216,23 @@ class FlashSession(EyelinkSession):
         # Prepare feedback stimuli
         self.feedback_text_objects = [
             visual.TextStim(win=self.screen, text=self.feedback_txt[0], color=(1, 100/255, 100/255), units='deg',
-                            height=visual_sizes['fb_text']),
+                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=self.feedback_txt[1], color=(100/255, 1, 100/255), units='deg',
-                            height=visual_sizes['fb_text']),
+                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=self.feedback_txt[2], color=(1, 100/255, 100/255), units='deg',
-                            height=visual_sizes['fb_text']),
+                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=self.feedback_txt[3], color=(1, 100/255, 100/255), units='deg',
-                            height=visual_sizes['fb_text'])
+                            height=visual_sizes['fb_text'], flipHoriz=self.mirror)
         ]
 
         # Prepare localizer stimuli
         arrow_right_vertices = [(-0.2, 0.05), (-0.2, -0.05), (-.0, -0.05), (0, -0.1), (0.2, 0), (0, 0.1), (0, 0.05)]
         arrow_left_vertices = [(0.2, 0.05), (0.2, -0.05), (0.0, -0.05), (0, -0.1), (-0.2, 0), (0, 0.1), (0, 0.05)]
+
+        if self.mirror:
+            # Swap left & right
+            arrow_right_vertices, arrow_left_vertices = arrow_left_vertices, arrow_right_vertices
+
         arrow_neutral_vertices = [(0.3, 0.0),  # Right point
                                   (0.1, 0.1),  # Towards up, left
                                   (0.1, 0.05),  # Down
@@ -255,80 +262,80 @@ class FlashSession(EyelinkSession):
         self.scanner_wait_screen = visual.TextStim(win=self.screen,
                                               text=scanner_wait_txt,
                                               units='pix', font='Helvetica Neue', pos=(0, 0),
-                                              italic=False, height=30, alignHoriz='center',)
+                                              italic=False, height=30, alignHoriz='center', flipHoriz=self.mirror)
 
         # Keep debug screen at hand
         self.debug_screen = visual.TextStim(win=self.screen,
                                             text='DEBUG MODE. DO NOT RUN AN ACTUAL EXPERIMENT',
-                                            color='darkred', height=1, units='cm')
+                                            color='darkred', height=1, units='cm', flipHoriz=self.mirror)
 
         # Prepare welcome screen
         self.welcome_screen = visual.TextStim(win=self.screen,
                                               text=welcome_txt,
                                               units='pix', font='Helvetica Neue', pos=(0, 0),
-                                              italic=False, height=30, alignHoriz='center',)
+                                              italic=False, height=30, alignHoriz='center', flipHoriz=self.mirror)
 
         # Prepare instruction screens
         self.localizer_instructions_eye = [
             visual.TextStim(win=self.screen,
                             text=localizer_eye_txt,
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
         ]
 
         self.localizer_instructions_hand = [
             visual.TextStim(win=self.screen,
                             text=localizer_hand_txt,
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
         ]
 
         self.cognitive_eye_instructions = [
             visual.TextStim(win=self.screen, text=cognitive_eye_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=cognitive_eye_txt[1],
                             font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
-                            units='pix')
+                            units='pix', flipHoriz=self.mirror)
         ]
 
         self.cognitive_hand_instructions = [
             visual.TextStim(win=self.screen, text=cognitive_hand_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=cognitive_hand_txt[1],
                             font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
-                            units='pix')
+                            units='pix', flipHoriz=self.mirror)
         ]
 
         self.limbic_eye_instructions = [
             visual.TextStim(win=self.screen, text=limbic_eye_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_eye_txt[1],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_eye_txt[2],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_eye_txt[3],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix')
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror)
         ]
 
         self.limbic_hand_instructions = [
             visual.TextStim(win=self.screen, text=limbic_hand_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_hand_txt[1],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_hand_txt[2],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix'),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_hand_txt[3],
                             font='Helvetica Neue', pos=(0, 0),
-                            italic=False, height=30, alignHoriz='center', units='pix')
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror)
         ]
 
     def prepare_trials(self):
@@ -358,6 +365,11 @@ class FlashSession(EyelinkSession):
         radius_cm = self.centimeters_per_degree * self.radius_deg
         pos_x = radius_cm * np.cos(t + np.arange(1, self.n_flashers+1) * 2 * np.pi / self.n_flashers)
         pos_y = radius_cm * np.sin(t + np.arange(1, self.n_flashers+1) * 2 * np.pi / self.n_flashers)
+
+        # Flip the horizontal axis if there's a mirror
+        if self.mirror:
+            pos_x = -pos_x
+
         self.flasher_positions = zip(pos_x, pos_y)
 
         # Prepare Flasher stimuli
