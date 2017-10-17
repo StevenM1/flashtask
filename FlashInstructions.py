@@ -101,7 +101,7 @@ class FlashInstructionsPractice(FlashInstructions):
                         self.session.stop_instructions = True
 
                 elif ev == 'right':
-                    if not self.session.current_block == 6:
+                    if not self.session.current_block == 7:
                         self.events.append([-2, ev_time, 'user fast forwards to next block'])
                         self.session.current_block += 1
                         self.stopped = True

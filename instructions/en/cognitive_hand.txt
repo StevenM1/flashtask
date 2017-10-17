@@ -1,0 +1,10 @@
+In the next trials, you need to decide which of two circles flashes most often. If the left circle flashes most often, press the button in your left hand. If the right circle flashes most often, PRESS the BUTTON in your right hand.
+
+Before each trial, you receive a cue that tells you either to respond as fast as possible (SPD), or as accurate as possible (ACC).
+
+Press a button to continue to next instruction screen
+
+
+Remember to respond with your hands! Keep your eyes fixed to the center of the screen
+
+Press a button to start the trials!

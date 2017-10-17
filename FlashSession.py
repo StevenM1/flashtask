@@ -31,7 +31,7 @@ class FlashSession(EyelinkSession):
 
     """
 
-    def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
+    def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False, language='en'):
         super(FlashSession, self).__init__(subject_initials, index_number, sound_system)
 
         # Set-up screen
@@ -59,7 +59,7 @@ class FlashSession(EyelinkSession):
                                                   dataFileName=os.path.join(_thisDir, self.output_file),
                                                   autoLog=True)
         self.trial_handlers = []
-        self.participant_scores = []
+        self.participant_score = 0
         self.n_instructions_shown = -1
 
         # TR of MRI
@@ -106,7 +106,8 @@ class FlashSession(EyelinkSession):
         self.radius_deg = self.standard_parameters['radius_deg']
         self.flasher_size = self.standard_parameters['flasher_size']
 
-        # Initialize psychopy.visual objects attributes
+        # Initialize psychopy.visual objects attributes and language
+        self.language = language
         self.feedback_text_objects = None
         self.fixation_cross = None
         self.stimulus = None
@@ -172,6 +173,34 @@ class FlashSession(EyelinkSession):
         - Instruction screens (idem)
         """
 
+        # Load all instruction texts
+        with open(os.path.join('instructions', self.language, 'feedback.txt'), 'rb') as f:
+            self.feedback_txt = f.read().split('\n\n\n')
+
+        with open(os.path.join('instructions', self.language, 'scanner_wait.txt'), 'rb') as f:
+            scanner_wait_txt = f.read().split('\n\n\n')[0]
+
+        with open(os.path.join('instructions', self.language, 'welcome_exp.txt'), 'rb') as f:
+            welcome_txt = f.read().split('\n\n\n')[0]
+
+        with open(os.path.join('instructions', self.language, 'localizer_eye.txt'), 'rb') as f:
+            localizer_eye_txt = f.read().split('\n\n\n')[0]
+
+        with open(os.path.join('instructions', self.language, 'localizer_hand.txt'), 'rb') as f:
+            localizer_hand_txt = f.read().split('\n\n\n')[0]
+
+        with open(os.path.join('instructions', self.language, 'cognitive_eye.txt'), 'rb') as f:
+            cognitive_eye_txt = f.read().split('\n\n\n')
+
+        with open(os.path.join('instructions', self.language, 'cognitive_hand.txt'), 'rb') as f:
+            cognitive_hand_txt = f.read().split('\n\n\n')
+
+        with open(os.path.join('instructions', self.language, 'limbic_eye.txt'), 'rb') as f:
+            limbic_eye_txt = f.read().split('\n\n\n')
+
+        with open(os.path.join('instructions', self.language, 'limbic_hand.txt'), 'rb') as f:
+            limbic_hand_txt = f.read().split('\n\n\n')
+
         # Prepare fixation cross
         self.fixation_cross = FixationCross(win=self.screen,
                                             inner_radius=fix_cross_parameters['inner_radius_degrees'],
@@ -184,13 +213,13 @@ class FlashSession(EyelinkSession):
 
         # Prepare feedback stimuli
         self.feedback_text_objects = [
-            visual.TextStim(win=self.screen, text='Too late!', color=(1, 100/255, 100/255), units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[0], color=(1, 100/255, 100/255), units='deg',
                             height=visual_sizes['fb_text']),
-            visual.TextStim(win=self.screen, text='Correct!', color=(100/255, 1, 100/255), units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[1], color=(100/255, 1, 100/255), units='deg',
                             height=visual_sizes['fb_text']),
-            visual.TextStim(win=self.screen, text='Wrong!', color=(1, 100/255, 100/255), units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[2], color=(1, 100/255, 100/255), units='deg',
                             height=visual_sizes['fb_text']),
-            visual.TextStim(win=self.screen, text='Too fast!', color=(1, 100/255, 100/255), units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[3], color=(1, 100/255, 100/255), units='deg',
                             height=visual_sizes['fb_text'])
         ]
 
@@ -218,13 +247,13 @@ class FlashSession(EyelinkSession):
         ]
 
         self.crosses = [
-            visual.TextStim(win=self.screen, text='+', pos=(-8, 0), height=visual_sizes['crosses'], units='deg'),
-            visual.TextStim(win=self.screen, text='+', pos=(8, 0), height=visual_sizes['crosses'], units='deg')
+            visual.TextStim(win=self.screen, text='+', pos=(-10, 0), height=visual_sizes['crosses'], units='deg'),
+            visual.TextStim(win=self.screen, text='+', pos=(10, 0), height=visual_sizes['crosses'], units='deg')
         ]
 
         # Prepare waiting for scanner-screen
         self.scanner_wait_screen = visual.TextStim(win=self.screen,
-                                              text='Waiting for scanner...',
+                                              text=scanner_wait_txt,
                                               units='pix', font='Helvetica Neue', pos=(0, 0),
                                               italic=False, height=30, alignHoriz='center',)
 
@@ -235,134 +264,69 @@ class FlashSession(EyelinkSession):
 
         # Prepare welcome screen
         self.welcome_screen = visual.TextStim(win=self.screen,
-                                              text='Welcome to this experiment!\n\nPress '
-                                                   'a button to continue',
+                                              text=welcome_txt,
                                               units='pix', font='Helvetica Neue', pos=(0, 0),
                                               italic=False, height=30, alignHoriz='center',)
 
         # Prepare instruction screens
         self.localizer_instructions_eye = [
             visual.TextStim(win=self.screen,
-                            text='In the next trials, you will see an arrow. Remember where it points to (left or '
-                                 'right). As soon as the arrow disappears, make an EYE MOVEMENT in the direction that '
-                                 'was indicated by the arrow. When the fixation cross appears again, move your eyes to '
-                                 'the fixation cross.\nRespond as fast as possible, without making mistakes. \n\nPress '
-                                 'a button to start the trials!',
+                            text=localizer_eye_txt,
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
         ]
 
         self.localizer_instructions_hand = [
             visual.TextStim(win=self.screen,
-                            text='In the next trials, you will see an arrow. Remember where it points to (left or '
-                                 'right). After the arrow disappears, PRESS the BUTTON using your hand that was '
-                                 'indicated by the arrow. Keep your eyes fixed to the center of the screen. \nRespond '
-                                 'as fast as possible, without making mistakes. \n\n'
-                                 'Press a button to start the trials!',
+                            text=localizer_hand_txt,
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
         ]
 
         self.cognitive_eye_instructions = [
-            visual.TextStim(win=self.screen, text='In the next trials, you need to decide which of two '
-                                                  'circles flashes most often. If the left circle flashes most often, '
-                                                  'make an EYE MOVEMENT towards the left side of the screen. If the '
-                                                  'right circle flashes most often, make an EYE MOVEMENT the right '
-                                                  'side of the screen.\n\n'
-                                                  'Before each trial, you receive a cue that tells you either to '
-                                                  'respond as fast as possible (SPD), or as accurate as possible ('
-                                                  'ACC). \n\nPress a button to continue to next instruction screen',
+            visual.TextStim(win=self.screen, text=cognitive_eye_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='Remember to respond with your eyes!\n\nPress a button to start the '
-                                                  'trials!',
+            visual.TextStim(win=self.screen, text=cognitive_eye_txt[1],
                             font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
                             units='pix')
         ]
 
         self.cognitive_hand_instructions = [
-            visual.TextStim(win=self.screen, text='In the next trials, you need to decide which of two '
-                                                  'circles flashes most often. If the left circle flashes most often, '
-                                                  'press the button in your left hand. If the right circle '
-                                                  'flashes most often, PRESS the BUTTON in your right hand.\n\n'
-                                                  'Before each trial, you receive a cue that tells you either to '
-                                                  'respond as fast as possible (SPD), or as accurate as possible ('
-                                                  'ACC). \n\nPress a button to continue to next instruction screen',
+            visual.TextStim(win=self.screen, text=cognitive_hand_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='Remember to respond with your hands! Keep your eyes fixed to the '
-                                                  'center of the screen\n\nPress a button to start the trials!',
+            visual.TextStim(win=self.screen, text=cognitive_hand_txt[1],
                             font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
                             units='pix')
         ]
 
         self.limbic_eye_instructions = [
-            visual.TextStim(win=self.screen, text='In the next trials, you need to decide which of two '
-                                                  'circles flashes most often. If the left circle flashes most often, '
-                                                  'make an EYE MOVEMENT towards the left side of the screen. If the '
-                                                  'right circle flashes most often, make an EYE MOVEMENT the right '
-                                                  'side of the screen.\n\n'
-                                                  'Press a button to continue to next instruction screen',
+            visual.TextStim(win=self.screen, text=limbic_eye_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='You earn points by answering correctly. At the end of the '
-                                                  'experiment, you will receive a monetary reward depending on how '
-                                                  'many points you earn. For each correct answer, '
-                                                  'you receive either 0, 2, or 8 points, depending on the cue at the '
-                                                  'start of the trial.\n\nPress a button to continue to next '
-                                                  'instruction screen',
+            visual.TextStim(win=self.screen, text=limbic_eye_txt[1],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='The cue-arrow indicates for which answer (left or right) you get 8 '
-                                                  'points, if you get it correct. For example, if the cue-arrow '
-                                                  'points to the left, and you correctly answer left, '
-                                                  'you get 8 points. However, if the cue-arrow points to the left, '
-                                                  'and the correct answer is right, you get 2 points if you answer '
-                                                  'right - you never get points for wrong answers!\n\nIf the cue '
-                                                  'points in both directions, you will not receive points, '
-                                                  'but you must still answer correctly.\n\nPress a button to '
-                                                  'continue to next instruction screen',
+            visual.TextStim(win=self.screen, text=limbic_eye_txt[2],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='Every time you earn points, you will see how many points you '
-                                                  'earned, and how many points you earned in total for this block.\n\n'
-                                                  'Remember to respond with your eyes!\n\nPress a button to start the '
-                                                  'trials!',
+            visual.TextStim(win=self.screen, text=limbic_eye_txt[3],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix')
         ]
 
         self.limbic_hand_instructions = [
-            visual.TextStim(win=self.screen, text='In the next trials, you need to decide which of two '
-                                                  'circles flashes most often. If the left circle flashes most often, '
-                                                  'PRESS the BUTTON in your left hand. If the right circle '
-                                                  'flashes most often, PRESS the BUTTON in your right hand.\n\n'
-                                                  'Press a button to continue to next instruction screen',
+            visual.TextStim(win=self.screen, text=limbic_hand_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='You earn points by answering correctly. At the end of the '
-                                                  'experiment, you will receive a monetary reward depending on how '
-                                                  'many points you earn. For each correct answer, '
-                                                  'you receive either 2 or 8 points, depending on the cue at the '
-                                                  'start of the trial.\n\nPress a button to continue to next '
-                                                  'instruction screen',
+            visual.TextStim(win=self.screen, text=limbic_hand_txt[1],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='The cue-arrow indicates for which answer (left or right) you get 8 '
-                                                  'points, if you get it correct. For example, if the cue-arrow '
-                                                  'points to the left, and you correctly answer left, '
-                                                  'you get 8 points. However, if the cue-arrow points to the left, '
-                                                  'and the correct answer is right, you get 2 points if you answer '
-                                                  'right - you never get points for wrong answers!\n\nIf the cue '
-                                                  'points in both directions, you will not receive points, '
-                                                  'but you must still answer correctly.\n\nPress a button to '
-                                                  'continue to next instruction screen',
+            visual.TextStim(win=self.screen, text=limbic_hand_txt[2],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix'),
-            visual.TextStim(win=self.screen, text='Every time you earn points, you will see how many points you '
-                                                  'earned, and how many points you earned in total for this block.\n\n'
-                                                  'Remember to respond with your hands! Keep your eyes fixed to the '
-                                                  'center of the screen\n\nPress a button to start the trials!',
+            visual.TextStim(win=self.screen, text=limbic_hand_txt[3],
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix')
         ]
@@ -541,13 +505,13 @@ class FlashSession(EyelinkSession):
         # In a limbic trial, prepare / update feedback
         if 'limbic' in trial.block_type:
             if this_trial_type in [0, 1]:  # Neutral condition
-                self.feedback_text_objects[1].text = 'Correct!'
+                self.feedback_text_objects[1].text = self.feedback_txt[1]
             elif this_trial_type in [2, 5]:  # Compatible cue condition
-                self.feedback_text_objects[1].text = 'Correct! +8\nTotal score: %d' % (
-                    self.participant_scores[block_n] + 8)
+                self.feedback_text_objects[1].text = self.feedback_txt[1] + ' +8\n' + self.feedback_txt[6] + ' %d' % (
+                    self.participant_score + 8)
             elif this_trial_type in [3, 4]:  # Incompatible cue condition
-                self.feedback_text_objects[1].text = 'Correct! +2\nTotal score: %d' % (
-                    self.participant_scores[block_n] + 2)
+                self.feedback_text_objects[1].text = self.feedback_txt[1] + ' +2\n' + self.feedback_txt[6] + ' %d' % (
+                    self.participant_score + 2)
 
         trial_object = trial_pointer(ID=trial.trial_ID,
                                      block_trial_ID=trial.block_trial_ID,
@@ -564,9 +528,9 @@ class FlashSession(EyelinkSession):
         # If the response given is correct, update scores
         if 'limbic' in trial.block_type and trial_object.response_type == 1:
             if this_trial_type in [2, 5]:
-                self.participant_scores[block_n] += 8
+                self.participant_score += 8
             elif this_trial_type in [3, 4]:
-                self.participant_scores[block_n] += 2
+                self.participant_score += 2
 
         return trial_object
 
@@ -609,8 +573,8 @@ class FlashSession(EyelinkSession):
         # Loop through blocks
         for block_n in range(5):
 
-            # Set participant score for this block to 0
-            self.participant_scores.append(0)
+            # # Set participant score for this block to 0
+            # self.participant_scores.append(0)
 
             # Get the trial handler of the current block
             trial_handler = self.trial_handlers[block_n]
@@ -735,7 +699,7 @@ class FlashSession(EyelinkSession):
 
 class FlashPracticeSession(EyelinkSession):
 
-    def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False):
+    def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False, language='en'):
         super(FlashPracticeSession, self).__init__(subject_initials, index_number, sound_system)
 
         # Set-up screen
@@ -765,7 +729,7 @@ class FlashPracticeSession(EyelinkSession):
                                                   dataFileName=os.path.join(_thisDir, self.output_file),
                                                   autoLog=True)
         self.trial_handlers = []
-        self.participant_scores = []
+        self.participant_score = 0
         self.n_instructions_shown = -1
         self.current_block = 0
         self.current_block_trial = 0
@@ -815,6 +779,7 @@ class FlashPracticeSession(EyelinkSession):
         self.flasher_size = self.standard_parameters['flasher_size']
 
         # Initialize psychopy.visual objects attributes
+        self.language = language
         self.feedback_text_objects = None
         self.fixation_cross = None
         self.stimulus = None
@@ -898,6 +863,25 @@ class FlashPracticeSession(EyelinkSession):
          - Instruction screens (idem)
          """
 
+        # Load all texts
+        with open(os.path.join('instructions', self.language, 'welcome_practice.txt'), 'rb') as f:
+            welcome_screen_txt = f.read().split('\n\n\n')[0]
+
+        with open(os.path.join('instructions', self.language, 'practice_block_end_instruction.txt'), 'rb') as f:
+            practice_block_end_instruction_txt = f.read().split('\n\n\n')[0]
+
+        with open(os.path.join('instructions', self.language, 'practice_instructions.txt'), 'rb') as f:
+            practice_instructions_txt = f.read().split('\n\n\n')
+
+        with open(os.path.join('instructions', self.language, 'end_screen.txt'), 'rb') as f:
+            end_screen_txt = f.read().split('\n\n\n')[0]
+
+        with open(os.path.join('instructions', self.language, 'scanner_wait.txt'), 'rb') as f:
+            scanner_wait_txt = f.read().split('\n\n\n')[0]
+
+        with open(os.path.join('instructions', self.language, 'feedback.txt'), 'rb') as f:
+            self.feedback_txt = f.read().split('\n\n\n')
+
         # Prepare fixation cross
         self.fixation_cross = FixationCross(win=self.screen,
                                             inner_radius=fix_cross_parameters['inner_radius_degrees'],
@@ -910,22 +894,17 @@ class FlashPracticeSession(EyelinkSession):
 
         # Prepare feedback stimuli
         self.feedback_text_objects = [
-            visual.TextStim(win=self.screen, text='Too late!', color='darkred', units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[0], color='darkred', units='deg',
                             height=visual_sizes['fb_text']),
-            visual.TextStim(win=self.screen, text='Correct!', color='darkgreen', units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[1], color='darkgreen', units='deg',
                             height=visual_sizes['fb_text']),
-            visual.TextStim(win=self.screen, text='Wrong!', color='darkred', units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[2], color='darkred', units='deg',
                             height=visual_sizes['fb_text']),
-            visual.TextStim(win=self.screen, text='Too fast!', color='darkred', units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[3], color='darkred', units='deg',
                             height=visual_sizes['fb_text']),
-            visual.TextStim(win=self.screen, text='Response in wrong phase! Only respond after the cue disappears.',
-                            color='darkred',
-                            units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[4], color='darkred', units='deg',
                             height=visual_sizes['fb_text']),
-            visual.TextStim(win=self.screen, text='Response in wrong phase! Only respond during the flashing '
-                                                  'circles-phase.',
-                            color='darkred',
-                            units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[5], color='darkred', units='deg',
                             height=visual_sizes['fb_text'])
         ]
 
@@ -959,7 +938,7 @@ class FlashPracticeSession(EyelinkSession):
 
         # Prepare waiting for scanner-screen
         self.scanner_wait_screen = visual.TextStim(win=self.screen,
-                                                   text='Waiting for scanner...',
+                                                   text=scanner_wait_txt,
                                                    units='pix', font='Helvetica Neue', pos=(0, 0),
                                                    italic=False, height=30, alignHoriz='center', )
 
@@ -970,16 +949,13 @@ class FlashPracticeSession(EyelinkSession):
 
         # Prepare welcome screen
         self.welcome_screen = visual.TextStim(win=self.screen,
-                                              text='Welcome to this practice session!\n\nPlease, always read the '
-                                                   'instructions carefully before continuing.\n\nPress '
-                                                   '<space bar> to continue',
+                                              text=welcome_screen_txt,
                                               units='pix', font='Helvetica Neue', pos=(0, 0),
                                               italic=False, height=30, alignHoriz='center', )
 
         self.practice_block_end_instruction = [
             visual.TextStim(win=self.screen,
-                                text='If you want to try again, press the <left arrow> key. To continue, press <space '
-                                     'bar>',
+                                text=practice_block_end_instruction_txt,
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
             ]
@@ -989,151 +965,73 @@ class FlashPracticeSession(EyelinkSession):
             [
                 # First, hand localizer with feedback.
                 visual.TextStim(win=self.screen,
-                                text='You will first practice the simple choice task. \n\nIn the next trials, '
-                                     'you will see an arrow. Remember where it points to (left or '
-                                     'right). As soon as the arrow disappears, PRESS the BUTTON in the hand that '
-                                     'was indicated by the arrow. You will receive feedback in this first '
-                                     'practice block. In later blocks, and in the MRI-scanner, you will not '
-                                     'receive feedback.\n\nRespond as fast as '
-                                     'possible, without making mistakes. '
-                                     '\n\nPress a button to start practicing!',
+                                text=practice_instructions_txt[0],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
             ],
             [   # Hand localizer without feedback
                 visual.TextStim(win=self.screen,
-                                text='You will now practice the simple choice again, but you will no longer receive '
-                                     'feedback. This is the exact same task as you will do in the MRI-scanner.\n\nIn '
-                                     'the next trials, you will see an arrow. Remember where it points '
-                                     'to (left or right). As soon as the arrow disappears, PRESS the BUTTON in the '
-                                     'hand that was indicated by the arrow.\n\nRespond as fast as '
-                                     'possible, without making mistakes. '
-                                     '\n\nPress a button to start practicing!',
+                                text=practice_instructions_txt[1],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
             ],
             [   # Eye localizer without feedback.
                 visual.TextStim(win=self.screen,
-                                text='You will now practice the simple choice again, but you will be asked to respond '
-                                     'with your eyes. This is the exact same task as you will do in the '
-                                     'MRI-scanner.\n\n'
-                                     'In the next trials, you will see an arrow. Remember where it points '
-                                     'to (left or right). As soon as the arrow disappears, make an EYE MOVEMENT '
-                                     'towards the +-sign that was indicated by the arrow.\n\nRespond as fast as '
-                                     'possible, without making mistakes. '
-                                     '\n\nPress a button to start practicing!',
+                                text=practice_instructions_txt[2],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
             ],
             [   # Flashing circles without cue, hand response, increasing difficulty.
                 visual.TextStim(win=self.screen,
-                                text='Next, you will practice the flashing circles-task. In this task, you will see '
-                                     'two '
-                                     'circles flashing. The task is to decide which circle flashes most often. If '
-                                     'you think the left circle flashes most often, PRESS the BUTTON with your left '
-                                     'hand. If you think the right circle flashes most often, PRESS the BUTTON with '
-                                     'your right hand. You will first practice this task without a cue before each '
-                                     'trial.\n\nPress a button to start practicing!',
+                                text=practice_instructions_txt[3],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
             ],
             [   # Flashing circles with SAT-cue, hand response.
                 visual.TextStim(win=self.screen,
-                                text='You will again practice the flashing circles-task. Before each trial, you '
-                                     'receive a cue that tells you either to respond as fast as possible (SPD), or as '
-                                     'accurate as possible (ACC). The task is to decide which '
-                                     'circle flashes most often. If you think the left circle flashes most often, '
-                                     'PRESS the BUTTON with your left '
-                                     'hand. If you think the right circle flashes most often, PRESS the BUTTON with '
-                                     'your right hand. \n\nPress a button to start practicing!',
+                                text=practice_instructions_txt[4],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
             ],
             [   # Flashing circles with SAT-cue, eye response.
                 visual.TextStim(win=self.screen,
-                                text='You will again practice the flashing circles-task. Before each trial, you '
-                                     'receive a cue that tells you either to respond as fast as possible (SPD), or as '
-                                     'accurate as possible (ACC). The task is to decide which '
-                                     'circle flashes most often. If you think the left circle flashes most often, '
-                                     'make an EYE MOVEMENT to the left. If you think the right circle flashes most '
-                                     'often, make an EYE MOVEMENT to the right.\n\n'
-                                     'In this practice session, you will not receive feedback for making eye '
-                                     'movements. In the MRI-scanner, you will receive feedback.\n\nPress a button to '
-                                     'start practicing!',
+                                text=practice_instructions_txt[5],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
             ],
             [   # Flashing circles with bias-cue, hand response.
                 visual.TextStim(win=self.screen,
-                                text='You will again practice the flashing circles-task. The task is to decide which '
-                                     'circle flashes most often. If you think the left circle flashes most often, '
-                                     'PRESS the BUTTON with your left hand. If you think the right circle flashes most '
-                                     'often, PRESS the BUTTON with your right hand.\n\nPress a button to continue to '
-                                     'next instruction screen',
+                                text=practice_instructions_txt[6],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
                 visual.TextStim(win=self.screen,
-                                text='You earn points by answering correctly. At the end of the '
-                                     'experiment, you will receive a monetary reward depending on how '
-                                     'many points you earn. For each correct answer, '
-                                     'you receive either 0, 2, or 8 points, depending on the cue you see at the '
-                                     'start of the trial.\n\nPress a button to continue to next '
-                                     'instruction screen',
+                                text=practice_instructions_txt[7],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
                 visual.TextStim(win=self.screen,
-                                text='The cue-arrow indicates for which answer (left or right) you get 8 '
-                                     'points, if you get it correct. For example, if the cue-arrow '
-                                     'points to the left, and you correctly answer left, '
-                                     'you get 8 points. However, if the cue-arrow points to the left, '
-                                     'and the correct answer is right, you get 2 points if you answer '
-                                     'right - you never get points for wrong answers!\n\nIf the cue '
-                                     'points in both directions, you will not receive points, '
-                                     'but you must still answer correctly.\n\nPress a button to '
-                                     'continue to next instruction screen',
+                                text=practice_instructions_txt[8],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
                 visual.TextStim(win=self.screen,
-                                text='Every time you earn points, you will see how many points you '
-                                     'earned, and how many points you earned in total for this block.\n\n'
-                                     'Remember to respond with your hands!\n\nPress a button to start practicing!',
+                                text=practice_instructions_txt[9],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix')
             ],
             [  # Flashing circles with bias-cue, eye response.
                 visual.TextStim(win=self.screen,
-                                text='You will again practice the flashing circles-task. The task is to decide which '
-                                     'circle flashes most often. If you think the left circle flashes most often, '
-                                     'make an EYE MOVEMENT to the left. If you think the right circle flashes most '
-                                     'often, make an EYE MOVEMENT to the right.\n\nPress a button to continue to '
-                                     'next instruction screen',
+                                text=practice_instructions_txt[10],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
                 visual.TextStim(win=self.screen,
-                                text='You earn points by answering correctly. At the end of the '
-                                     'experiment, you will receive a monetary reward depending on how '
-                                     'many points you earn. For each correct answer, '
-                                     'you receive either 0, 2, or 8 points, depending on the cue you see at the '
-                                     'start of the trial.\n\nPress a button to continue to next '
-                                     'instruction screen',
+                                text=practice_instructions_txt[7],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
                 visual.TextStim(win=self.screen,
-                                text='The cue-arrow indicates for which answer (left or right) you get 8 '
-                                     'points, if you get it correct. For example, if the cue-arrow '
-                                     'points to the left, and you correctly answer left, '
-                                     'you get 8 points. However, if the cue-arrow points to the left, '
-                                     'and the correct answer is right, you get 2 points if you answer '
-                                     'right - you never get points for wrong answers!\n\nIf the cue '
-                                     'points in both directions, you will not receive points, '
-                                     'but you must still answer correctly.\n\nPress a button to '
-                                     'continue to next instruction screen',
+                                text=practice_instructions_txt[8],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix'),
                 visual.TextStim(win=self.screen,
-                                text='Every time you earn points, you will see how many points you '
-                                     'earned, and how many points you earned in total for this block.\n\n'
-                                     'Remember to respond with your EYES!\n\nPress a button to start practicing!',
+                                text=practice_instructions_txt[11],
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix')
             ],
@@ -1141,8 +1039,7 @@ class FlashPracticeSession(EyelinkSession):
 
         self.end_screen = visual.TextStim(
                                 win=self.screen,
-                                text='You reached the end of the practice session! If anything is unclear, '
-                                     'don''t hesitate to ask the researcher for further explanations!',
+                                text=end_screen_txt,
                                 font='Helvetica Neue', pos=(0, 0),
                                 italic=False, height=30, alignHoriz='center', units='pix')
 
@@ -1232,8 +1129,7 @@ class FlashPracticeSession(EyelinkSession):
                 # In the first block, we start out with very easy trials, and make it easier every 4 trials (total 16
                 #  trials).
                 if self.design.iloc[trial_n]['block_trial_ID'] % 4 == 0:
-                    current_difficulty[0] -= 0.5
-                    current_difficulty[1] += 0.5
+                    current_difficulty = (current_difficulty[0]-0.05, current_difficulty[1]+0.05)
 
                 prop_correct_this_trial = current_difficulty[0]
                 prop_incorrect_this_trial = current_difficulty[1]
@@ -1325,13 +1221,13 @@ class FlashPracticeSession(EyelinkSession):
         # In a limbic trial, prepare / update feedback
         if 'limbic' in trial.block_type:
             if this_trial_type in [0, 1]:  # Neutral condition
-                self.feedback_text_objects[1].text = 'Correct!'
+                self.feedback_text_objects[1].text = self.feedback_txt[1]
             elif this_trial_type in [2, 5]:  # Compatible cue condition
-                self.feedback_text_objects[1].text = 'Correct! +8\nTotal score: %d' % (
-                    self.participant_scores[block_n] + 8)
+                self.feedback_text_objects[1].text = self.feedback_txt[1] + ' +8\n' + self.feedback_txt[6] + ' %d' % (
+                    self.participant_score + 8)
             elif this_trial_type in [3, 4]:  # Incompatible cue condition
-                self.feedback_text_objects[1].text = 'Correct! +2\nTotal score: %d' % (
-                    self.participant_scores[block_n] + 2)
+                self.feedback_text_objects[1].text = self.feedback_txt[1] + ' +2\n' + self.feedback_txt[6] + ' %d' % (
+                    self.participant_score + 2)
 
         trial_object = trial_pointer(ID=trial.trial_ID,
                                      block_trial_ID=trial.block_trial_ID,
@@ -1348,9 +1244,9 @@ class FlashPracticeSession(EyelinkSession):
         # If the response given is correct, update scores
         if 'limbic' in trial.block_type and trial_object.response_type == 1:
             if this_trial_type in [2, 5]:
-                self.participant_scores[block_n] += 8
+                self.participant_score += 8
             elif this_trial_type in [3, 4]:
-                self.participant_scores[block_n] += 2
+                self.participant_score += 2
 
         return trial_object
 
@@ -1400,8 +1296,13 @@ class FlashPracticeSession(EyelinkSession):
         while not self.stopped:
             print('Starting block %d' % self.current_block)
 
-            # Set participant score for this block to 0
-            self.participant_scores.append(0)
+            if self.current_block == 3:
+                self.scanner = 'n'
+            else:
+                self.scanner = 'y'
+
+            # # Set participant score for this block to 0
+            # self.participant_scores.append(0)
 
             # Find path of block design
             path = glob(os.path.join(design_path, 'practice', 'block_%d_*' % self.current_block, 'trials.csv'))[0]
@@ -1448,9 +1349,6 @@ class FlashPracticeSession(EyelinkSession):
                     trial_object = self.run_experimental_trial(trial, phases=this_phases,
                                                                block_n=self.current_block)  # RUN
 
-                    print(self.trial_arrays)
-                    print(trial.trial_ID)
-                    print(self.first_frame_idx)
                     # Save evidence arrays (only in experimental trials)
                     for flasher in range(self.n_flashers):
                         trial_handler.addData('evidence stream ' + str(flasher),
@@ -1479,11 +1377,18 @@ class FlashPracticeSession(EyelinkSession):
                 continue
 
             # Update block
-            self.current_block += 1
+            if self.current_block < 7:
+                self.current_block += 1
 
-            if self.current_block > 0:
-                self.instructions_to_show = self.practice_block_end_instruction
+                if self.current_block > 0:
+                    self.instructions_to_show = self.practice_block_end_instruction
+                    self.show_instructions()
+            else:
+                # Final block reached
+                self.instructions_to_show = [self.end_screen]
                 self.show_instructions()
+                break
+
 
 
         self.close()

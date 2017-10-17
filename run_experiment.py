@@ -40,7 +40,15 @@ def main():
     elif track_eyes == 'n':
         tracker_on = False
 
-    sess = FlashSession(subject_initials=initials, index_number=pp_nr, scanner=scanner, tracker_on=tracker_on)
+    language = None
+    while language not in ['en', 'nl']:
+        language = raw_input('What language do you want to use (en/nl)?: ')
+        if language not in ['y', 'n']:
+            print('I don''t understand that. Please enter ''en'' or ''nl''. What language do you want to use ('
+                  'en/nl)?: ')
+
+    sess = FlashSession(subject_initials=initials, index_number=pp_nr, scanner=scanner, tracker_on=tracker_on,
+                        language=language)
     sess.run()
 
 

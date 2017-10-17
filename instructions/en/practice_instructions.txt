@@ -1,0 +1,92 @@
+You will first practice the simple choice task.
+
+In the next trials, you will see an arrow. Remember where it points to (left or right). As soon as the arrow disappears, PRESS the BUTTON in the hand that was indicated by the arrow. You will receive feedback in this first practice block. In later blocks, and in the MRI-scanner, you will not receive feedback.
+
+Respond as fast as possible, without making mistakes.
+
+Press a button to start practicing!
+
+
+You will now practice the simple choice again, but you will no longer receive feedback. This is the exact same task as you will do in the MRI-scanner.
+
+In the next trials, you will see an arrow. Remember where it points to (left or right). As soon as the arrow disappears, PRESS the BUTTON in the hand that was indicated by the arrow.
+
+Respond as fast as possible, without making mistakes.
+
+Press a button to start practicing!
+
+
+You will now practice the simple choice again, but you will be asked to respond with your eyes. This is the exact same task as you will do in the MRI-scanner.
+
+In the next trials, you will see an arrow. Remember where it points to (left or right). As soon as the arrow disappears, make an EYE MOVEMENT towards the +-sign that was indicated by the arrow.
+
+Respond as fast as possible, without making mistakes.
+
+Press a button to start practicing!
+
+
+Next, you will practice the flashing circles-task. In this task, you will see two circles flashing. The task is to decide which circle flashes most often.
+
+If you think the left circle flashes most often, PRESS the BUTTON with your left hand. If you think the right circle flashes most often, PRESS the BUTTON with your right hand.
+
+You will first practice this task without a cue before each trial.
+
+Press a button to start practicing!
+
+
+You will again practice the flashing circles-task. The task is to decide which circle flashes most often.
+
+If you think the left circle flashes most often, PRESS the BUTTON with your left hand. If you think the right circle flashes most often, PRESS the BUTTON with your right hand.
+
+Before each trial, you receive a cue that tells you either to respond as fast as possible (SPD), or as accurate as possible (ACC).
+
+Press a button to start practicing!
+
+
+You will again practice the flashing circles-task. The task is to decide which circle flashes most often.
+
+If you think the left circle flashes most often, make an EYE MOVEMENT to the left. If you think the right circle flashes most often, make an EYE MOVEMENT to the right.
+
+Before each trial, you receive a cue that tells you either to respond as fast as possible (SPD), or as accurate as possible (ACC).
+
+In this practice session, you will not receive feedback for making eye movements. In the MRI-scanner, you will receive feedback.
+
+Press a button to start practicing!
+
+
+You will again practice the flashing circles-task. The task is to decide which circle flashes most often.
+
+If you think the left circle flashes most often, PRESS the BUTTON with your left hand. If you think the right circle flashes most often, PRESS the BUTTON with your right hand.
+
+Press a button to continue to next instruction screen
+
+
+You earn points by answering correctly. At the end of the experiment, you will receive a monetary reward depending on how many points you earn. For each correct answer, you receive either 0, 2, or 8 points, depending on the cue you see at the start of the trial.
+
+Press a button to continue to next instruction screen
+
+
+The cue-arrow indicates for which answer (left or right) you get 8 points, if you get it correct. For example, if the cue-arrow points to the left, and you correctly answer left, you get 8 points. However, if the cue-arrow points to the left, and the correct answer is right, you get 2 points if you answer right - you never get points for wrong answers!
+
+If the cue points in both directions, you will not receive points.
+
+Press a button to continue to next instruction screen
+
+
+Every time you earn points, you will see how many points you earned, and how many points you earned in total for this block.
+
+Remember to respond with your hands!
+
+Press a button to start practicing!
+
+
+You will again practice the flashing circles-task. The task is to decide which circle flashes most often. If you think the left circle flashes most often, make an EYE MOVEMENT to the left. If you think the right circle flashes most often, make an EYE MOVEMENT to the right.
+
+Press a button to continue to next instruction screen
+
+
+Every time you earn points, you will see how many points you earned, and how many points you earned in total for this block.
+
+Remember to respond with your EYES!
+
+Press a button to start practicing!

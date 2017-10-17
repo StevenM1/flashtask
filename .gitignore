@@ -105,3 +105,8 @@ ENV/
 
 # mac OS
 *.DS_Store
+
+
+# Ignore data, except for notebooks
+data/*
+!data/*.ipynb

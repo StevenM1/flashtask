@@ -1,0 +1,22 @@
+In the next trials, you need to decide which of two circles flashes most often. If the left circle flashes most often, PRESS the BUTTON in your left hand. If the right circle flashes most often, PRESS the BUTTON in your right hand.
+
+Press a button to continue to next instruction screen
+
+
+You earn points by answering correctly. At the end of the experiment, you will receive a monetary reward depending on how many points you earn. For each correct answer, you receive either 0, 2, or 8 points, depending on the cue at the start of the trial.
+
+Press a button to continue to next instruction screen
+
+
+The cue-arrow indicates for which answer (left or right) you earn 8 points, if you get it correct. For example, if the cue-arrow points to the left, and you correctly answer left, you earn 8 points. However, if the cue-arrow points to the left, and the correct answer is right, you earn 2 points if you answer right - you never earn points for wrong answers!
+
+If the cue points in both directions, you will not receive points.
+
+Press a button to continue to next instruction screen
+
+
+Every time you earn points, you will see how many points you earned, and how many points you earned in total for this block.
+
+Remember to respond with your hands! Keep your eyes fixed to the center of the screen
+
+Press a button to start the trials!

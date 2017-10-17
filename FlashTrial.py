@@ -20,6 +20,7 @@ class FlashTrial(Trial):
         self.block_trial_ID = block_trial_ID
         self.frame_n = -1
         self.response = None
+        self.draw_crosses = False
 
         self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response
         self.stimulus = self.session.stimulus
@@ -61,25 +62,39 @@ class FlashTrial(Trial):
                 self.session.scanner_wait_screen.draw()  # Only show this before the first trial
             else:
                 self.session.fixation_cross.draw()
+                if self.draw_crosses:
+                    self.session.crosses[0].draw()
+                    self.session.crosses[1].draw()
         elif self.phase == 1:  # Pre-cue fix cross
             self.session.fixation_cross.draw()
-            # if not os.path.isfile('screenshot_trial_fixcross.png'):
+            if self.draw_crosses:
+                self.session.crosses[0].draw()
+                self.session.crosses[1].draw()
+                # if not os.path.isfile('screenshot_trial_fixcross.png'):
             #     self.session.screen.flip()
             #     self.session.screen.getMovieFrame()
             #     self.session.screen.saveMovieFrames('screenshot_trial_fixcross.png')
         elif self.phase == 2:  # Cue
             self.cue.draw()
-            # if not os.path.isfile('screenshot_trial_cue_' + self.cuetext + '.png'):
+            if self.draw_crosses:
+                self.session.crosses[0].draw()
+                self.session.crosses[1].draw()
+                # if not os.path.isfile('screenshot_trial_cue_' + self.cuetext + '.png'):
             #     self.session.screen.flip()
             #     self.session.screen.getMovieFrame()
             #     self.session.screen.saveMovieFrames('screenshot_trial_cue_' + self.cuetext + '.png')
 
         elif self.phase == 3:  # post-cue fix cross
             self.session.fixation_cross.draw()
+            if self.draw_crosses:
+                self.session.crosses[0].draw()
+                self.session.crosses[1].draw()
         elif self.phase == 4:  # stimulus
             shown_opacities = self.stimulus.draw(frame_n=self.frame_n)
             self.evidence_shown = self.evidence_shown + shown_opacities
-
+            if self.draw_crosses:
+                self.session.crosses[0].draw()
+                self.session.crosses[1].draw()
             # if self.stimulus.trial_evidence_arrays[0][self.frame_n] == 1 and self.stimulus.trial_evidence_arrays[1][
             #     self.frame_n] == 1:
             #     if not os.path.isfile('screenshot_trial_stim.png'):
@@ -89,15 +104,24 @@ class FlashTrial(Trial):
 
         elif self.phase == 5:  # post-stimulus fill time
             self.stimulus.draw(frame_n=self.frame_n, continuous=False)  # Continuous creates constant streams of flashes
+            if self.draw_crosses:
+                self.session.crosses[0].draw()
+                self.session.crosses[1].draw()
         elif self.phase == 6:  # feedback
             self.session.feedback_text_objects[self.response_type].draw()
-            # fb_name = self.session.feedback_text_objects[self.response_type].text
+            if self.draw_crosses:
+                self.session.crosses[0].draw()
+                self.session.crosses[1].draw()
+                # fb_name = self.session.feedback_text_objects[self.response_type].text
             # if not os.path.isfile('screenshot_trial_feedback_' + fb_name[0] + fb_name[-2] + '.png'):
             #     self.session.screen.flip()
             #     self.session.screen.getMovieFrame()
             #     self.session.screen.saveMovieFrames('screenshot_trial_feedback_' + fb_name[0] + fb_name[-2] + '.png')
         elif self.phase == 7:
             self.session.fixation_cross.draw()
+            if self.draw_crosses:
+                self.session.crosses[0].draw()
+                self.session.crosses[1].draw()
 
         super(FlashTrial, self).draw()
 
@@ -207,6 +231,7 @@ class FlashTrialSaccade(FlashTrial):
         self.directions_verbose = ['left saccade', 'right saccade']
         self.eye_movement_detected_in_phase = False
         self.eye_pos_start_phase = [None, None, None, None, None, None, None, None]
+        self.draw_crosses = True
 
     def event(self):
         """ Checks for saccades as answers and keyboard responses for escape / scanner pulse """

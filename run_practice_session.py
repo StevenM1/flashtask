@@ -24,9 +24,8 @@ except:
 # if sysErr:
 #     print('Warning: Failed to renice, probably you arent authorized as superuser')
 
-
 # Initialize Session
-sess = FlashPracticeSession(subject_initials='SM', index_number=1, scanner='n', tracker_on=True)
+sess = FlashPracticeSession(subject_initials='SM', index_number=1, scanner='n', tracker_on=True, language='en')
 
 # Launch dummy scanner
 sess.scanner = launchScan(win=sess.screen, settings={'TR': TR, 'volumes': 10000, 'sync': 't'}, mode='Test')

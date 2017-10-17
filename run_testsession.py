@@ -24,9 +24,8 @@ sysErr = os.system("sudo renice -n %s %s" % (new_nice, os.getpid()))
 if sysErr:
     print('Warning: Failed to renice, probably you arent authorized as superuser')
 
-
 # Initialize Session
-sess = FlashSession(subject_initials='SM', index_number=13, scanner='n', tracker_on=True)
+sess = FlashSession(subject_initials='SM', index_number=13, scanner='n', tracker_on=True, language='nl')
 
 # Launch dummy scanner
 sess.scanner = launchScan(win=sess.screen, settings={'TR': TR, 'volumes': 10000, 'sync': 't'}, mode='Test')
