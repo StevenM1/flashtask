@@ -26,6 +26,7 @@ class FlashTrial(Trial):
         self.stimulus = self.session.stimulus
         self.stimulus.trial_evidence_arrays = parameters['trial_evidence_arrays']
         self.evidence_shown = np.repeat([0], self.session.n_flashers)
+        self.total_increments = 0
 
         # keep track of number of TRs recorded. Only end trial if at least 2 TRs are recorded (3 TRs per trial).
         self.n_TRs = 0
@@ -92,6 +93,7 @@ class FlashTrial(Trial):
         elif self.phase == 4:  # stimulus
             shown_opacities = self.stimulus.draw(frame_n=self.frame_n)
             self.evidence_shown = self.evidence_shown + shown_opacities
+            self.total_increments += 1
             if self.draw_crosses:
                 self.session.crosses[0].draw()
                 self.session.crosses[1].draw()

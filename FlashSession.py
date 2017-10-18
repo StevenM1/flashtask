@@ -55,7 +55,8 @@ class FlashSession(EyelinkSession):
                                                   extraInfo={'subject_initials': subject_initials,
                                                              'index_number': index_number,
                                                              'scanner': scanner,
-                                                             'tracker_on': tracker_on},
+                                                             'tracker_on': tracker_on,
+                                                             'frame_rate': self.screen.getActualFrameRate()},
                                                   runtimeInfo=info.RunTimeInfo,
                                                   dataFileName=os.path.join(_thisDir, self.output_file),
                                                   autoLog=True)
@@ -649,6 +650,9 @@ class FlashSession(EyelinkSession):
                                                   self.trial_arrays[trial.trial_ID][flasher][self.first_frame_idx])
                         trial_handler.addData('evidence shown at rt',
                                               trial_object.evidence_shown / self.standard_parameters['flash_length'])
+                        trial_handler.addData('total increments shown at rt',
+                                              trial_object.total_increments / self.standard_parameters[
+                                                  'increment_length'])
 
                     # Save all data (only in non-null trials)
                     trial_handler.addData('rt', trial_object.response_time)
