@@ -58,8 +58,26 @@ def main():
     elif mirror == 'n':
         mirror = False
 
+    block_n = None
+    while block_n not in np.arange(0, 5):
+        block_n = int(raw_input("What block do you want to start? Default is 0, last block is 5. "))
+        if block_n not in np.arange(0, 5):
+            print('I don''t understand that. Please enter a number between 0 and 5 (incl). What block do you want to '
+                  'start?: ')
+
+    if block_n > 0:
+        start_score = None
+        while start_score not in np.arange(0, 561):
+            start_score = int(raw_input("If the subject performed a limbic block in the previous blocks, "
+                                        "how many points did he earn there [0-560]?: "))
+            if start_score not in np.arange(0, 561):
+                int(raw_input("That is not a number between 0 and 561. If the subject performed a limbic block in the "
+                              "previous blocks, how many points did s/he earn there [0-560; 0 if no limbic block "
+                              "was done]?: "))
+
+
     sess = FlashSession(subject_initials=initials, index_number=pp_nr, scanner=scanner, tracker_on=tracker_on,
-                        language=language, mirror=mirror)
+                        language=language, mirror=mirror, start_block=block_n, start_score=start_score)
     sess.run()
 
 

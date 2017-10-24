@@ -5,6 +5,7 @@ from psychopy import event, core
 import numpy as np
 import os
 
+
 class FlashTrial(Trial):
     """ Class that holds the draw() and run() methods for a FlashTrial.
 

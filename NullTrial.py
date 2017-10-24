@@ -17,6 +17,7 @@ class NullTrial(Trial):
         self.frame_n = -1
         self.response = None
         self.block_trial_ID = block_trial_ID
+        self.draw_crosses = parameters['draw_crosses']
 
         self.n_TRs = 0
 
@@ -24,6 +25,14 @@ class NullTrial(Trial):
         self.run_time = 0.0
         self.t_time = self.fix1_time = self.cue_time = self.fix2_time = self.stimulus_time = self.post_stimulus_time = \
           self.feedback_time = self.ITI_time = 0.0
+
+    def draw(self):
+
+        if self.draw_crosses:
+            self.session.crosses[0].draw()
+            self.session.crosses[1].draw()
+
+        super(NullTrial, self).draw()
 
     def event(self):
         """ Checks for keyboard responses and scanner pulses """

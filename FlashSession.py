@@ -32,7 +32,7 @@ class FlashSession(EyelinkSession):
     """
 
     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False, language='en',
-                 mirror=False):
+                 mirror=False, start_block=0, start_score=0):
         super(FlashSession, self).__init__(subject_initials, index_number, sound_system)
 
         # Set-up screen
@@ -61,8 +61,9 @@ class FlashSession(EyelinkSession):
                                                   dataFileName=os.path.join(_thisDir, self.output_file),
                                                   autoLog=True)
         self.trial_handlers = []
-        self.participant_score = 0
+        self.participant_score = start_score
         self.n_instructions_shown = -1
+        self.start_block = start_block
 
         # TR of MRI
         self.TR = TR
@@ -216,30 +217,42 @@ class FlashSession(EyelinkSession):
 
         # Prepare feedback stimuli
         self.feedback_text_objects = [
-            visual.TextStim(win=self.screen, text=self.feedback_txt[0], color=(1, 100/255, 100/255), units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[0], color='darkred', units='deg',
                             height=visual_sizes['fb_text'], flipHoriz=self.mirror),
-            visual.TextStim(win=self.screen, text=self.feedback_txt[1], color=(100/255, 1, 100/255), units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[1], color='darkgreen', units='deg',
                             height=visual_sizes['fb_text'], flipHoriz=self.mirror),
-            visual.TextStim(win=self.screen, text=self.feedback_txt[2], color=(1, 100/255, 100/255), units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[2], color='darkred', units='deg',
                             height=visual_sizes['fb_text'], flipHoriz=self.mirror),
-            visual.TextStim(win=self.screen, text=self.feedback_txt[3], color=(1, 100/255, 100/255), units='deg',
+            visual.TextStim(win=self.screen, text=self.feedback_txt[3], color='darkred', units='deg',
                             height=visual_sizes['fb_text'], flipHoriz=self.mirror)
         ]
 
         # Prepare localizer stimuli
-        arrow_right_vertices = [(-0.2, 0.05), (-0.2, -0.05), (-.0, -0.05), (0, -0.1), (0.2, 0), (0, 0.1), (0, 0.05)]
-        arrow_left_vertices = [(0.2, 0.05), (0.2, -0.05), (0.0, -0.05), (0, -0.1), (-0.2, 0), (0, 0.1), (0, 0.05)]
+        arrow_right_vertices = [(-0.2, 0.05),
+                                (-0.2, -0.05),
+                                (-.0, -0.05),
+                                (0, -0.1),
+                                (0.2, 0),
+                                (0, 0.1),
+                                (0, 0.05)]
+        arrow_left_vertices = [(0.2, 0.05),
+                               (0.2, -0.05),
+                               (0.0, -0.05),
+                               (0, -0.1),
+                               (-0.2, 0),
+                               (0, 0.1),
+                               (0, 0.05)]
 
         if self.mirror:
             # Swap left & right
             arrow_right_vertices, arrow_left_vertices = arrow_left_vertices, arrow_right_vertices
 
-        arrow_neutral_vertices = [(0.3, 0.0),  # Right point
+        arrow_neutral_vertices = [(0.2, 0.0),  # Right point
                                   (0.1, 0.1),  # Towards up, left
                                   (0.1, 0.05),  # Down
                                   (-0.1, 0.05),  # Left
                                   (-0.1, 0.1),  # Up
-                                  (-0.3, 0.0),  # Left point
+                                  (-0.2, 0.0),  # Left point
                                   (-0.1, -0.1),  # Down, right
                                   (-0.1, -0.05),  # Up
                                   (0.1, -0.05),  # Right
@@ -247,11 +260,11 @@ class FlashSession(EyelinkSession):
 
         self.arrow_stimuli = [
             visual.ShapeStim(win=self.screen, vertices=arrow_left_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='white', units='height'),
+                             size=visual_sizes['arrows'], lineColor='lightgray', units='height'),
             visual.ShapeStim(win=self.screen, vertices=arrow_right_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='white', units='height'),
+                             size=visual_sizes['arrows'], lineColor='lightgray', units='height'),
             visual.ShapeStim(win=self.screen, vertices=arrow_neutral_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='white', units='height')
+                             size=visual_sizes['arrows'], lineColor='lightgray', units='height')
         ]
 
         self.crosses = [
@@ -463,12 +476,12 @@ class FlashSession(EyelinkSession):
         # Create new mask to select only first frame of every increment
         self.first_frame_idx = np.arange(0, mask_idx.shape[0], increment_length)
 
-    def run_null_trial(self, trial, phases):
+    def run_null_trial(self, trial, phases, draw_crosses=False):
         """ Runs a single null trial """
 
         NullTrial(ID=trial.trial_ID,
                   block_trial_ID=trial.block_trial_ID,
-                  parameters={},
+                  parameters={'draw_crosses': draw_crosses},
                   phase_durations=phases,
                   session=self,
                   screen=self.screen,
@@ -584,7 +597,7 @@ class FlashSession(EyelinkSession):
         self.show_instructions()
 
         # Loop through blocks
-        for block_n in range(5):
+        for block_n in range(self.start_block, 5):
 
             # # Set participant score for this block to 0
             # self.participant_scores.append(0)
@@ -637,7 +650,12 @@ class FlashSession(EyelinkSession):
 
                 # What trial type to run?
                 if trial.null_trial:  # True or false
-                    self.run_null_trial(trial, phases=this_phases)          # RUN NULL TRIAL
+                    if 'eye' in trial.block_type:
+                        draw_crosses = True
+                    else:
+                        draw_crosses = False
+                    self.run_null_trial(trial, phases=this_phases, draw_crosses=draw_crosses)          # RUN NULL TRIAL
+
                 else:
                     if block_n == 0:   # Localizer
                         trial_object = self.run_localizer_trial(trial, phases=this_phases)   # RUN LOCALIZER
@@ -671,17 +689,33 @@ class FlashSession(EyelinkSession):
             if self.stopped:
                 break
 
+            # Save data of every block after every block!
+            self.save_data(block_n=block_n)
+
         self.close()
 
-    def close(self):
-        """ Saves stuff and closes """
-        self.exp_handler.saveAsPickle(self.exp_handler.dataFileName)
-        self.exp_handler.saveAsWideText(self.exp_handler.dataFileName + '.csv')
+    def save_data(self, block_n=None):
+        """ Saves all data and the current frame intervals """
+
+        if block_n is not None:
+            output_fn_dat = self.exp_handler.dataFileName + '_block_' + str(block_n)
+            output_fn_frames = self.output_file + '_block_' + str(block_n)
+        else:
+            output_fn_dat = self.exp_handler.dataFileName
+            output_fn_frames = self.output_file
+
+        self.exp_handler.saveAsPickle(output_fn_dat)
+        self.exp_handler.saveAsWideText(output_fn_dat + '.csv')
+
+        if block_n is not None:
+            parsopf = open(output_fn_frames + '_outputDict.pickle', 'a')
+            pickle.dump(self.outputDict, parsopf)
+            parsopf.close()
 
         if self.screen.recordFrameIntervals:
 
             # Save frame intervals to file
-            self.screen.saveFrameIntervals(fileName=self.output_file + '_frame_intervals.log', clear=False)
+            self.screen.saveFrameIntervals(fileName=output_fn_frames + '_frame_intervals.log', clear=False)
 
             # Make a nice figure
             intervals_ms = pylab.array(self.screen.frameIntervals) * 1000
@@ -708,7 +742,47 @@ class FlashSession(EyelinkSession):
             pylab.xlabel('t (ms)')
             pylab.ylabel('n frames')
             pylab.title(dist_string)
-            pylab.savefig(self.output_file + '_frame_intervals.png')
+            pylab.savefig(output_fn_frames + '_frame_intervals.png')
+
+    def close(self):
+        """ Saves stuff and closes """
+
+        self.save_data()
+
+        # self.exp_handler.saveAsPickle(self.exp_handler.dataFileName)
+        # self.exp_handler.saveAsWideText(self.exp_handler.dataFileName + '.csv')
+        #
+        # if self.screen.recordFrameIntervals:
+        #
+        #     # Save frame intervals to file
+        #     self.screen.saveFrameIntervals(fileName=self.output_file + '_frame_intervals.log', clear=False)
+        #
+        #     # Make a nice figure
+        #     intervals_ms = pylab.array(self.screen.frameIntervals) * 1000
+        #     m = pylab.mean(intervals_ms)
+        #     sd = pylab.std(intervals_ms)
+        #
+        #     msg = "Mean=%.1fms, s.d.=%.2f, 99%%CI(frame)=%.2f-%.2f"
+        #     dist_string = msg % (m, sd, m - 2.58 * sd, m + 2.58 * sd)
+        #     n_total = len(intervals_ms)
+        #     n_dropped = sum(intervals_ms > (1.5 * m))
+        #     msg = "Dropped/Frames = %i/%i = %.3f%%"
+        #     dropped_string = msg % (n_dropped, n_total, 100 * n_dropped / float(n_total))
+        #
+        #     # plot the frame intervals
+        #     pylab.figure(figsize=[12, 8])
+        #     pylab.subplot(1, 2, 1)
+        #     pylab.plot(intervals_ms, '-')
+        #     pylab.ylabel('t (ms)')
+        #     pylab.xlabel('frame N')
+        #     pylab.title(dropped_string)
+        #
+        #     pylab.subplot(1, 2, 2)
+        #     pylab.hist(intervals_ms, 50, normed=0, histtype='stepfilled')
+        #     pylab.xlabel('t (ms)')
+        #     pylab.ylabel('n frames')
+        #     pylab.title(dist_string)
+        #     pylab.savefig(self.output_file + '_frame_intervals.png')
 
         super(FlashSession, self).close()
 
@@ -927,12 +1001,12 @@ class FlashPracticeSession(EyelinkSession):
         # Prepare localizer stimuli
         arrow_right_vertices = [(-0.2, 0.05), (-0.2, -0.05), (-.0, -0.05), (0, -0.1), (0.2, 0), (0, 0.1), (0, 0.05)]
         arrow_left_vertices = [(0.2, 0.05), (0.2, -0.05), (0.0, -0.05), (0, -0.1), (-0.2, 0), (0, 0.1), (0, 0.05)]
-        arrow_neutral_vertices = [(0.3, 0.0),  # Right point
+        arrow_neutral_vertices = [(0.2, 0.0),  # Right point
                                   (0.1, 0.1),  # Towards up, left
                                   (0.1, 0.05),  # Down
                                   (-0.1, 0.05),  # Left
                                   (-0.1, 0.1),  # Up
-                                  (-0.3, 0.0),  # Left point
+                                  (-0.2, 0.0),  # Left point
                                   (-0.1, -0.1),  # Down, right
                                   (-0.1, -0.05),  # Up
                                   (0.1, -0.05),  # Right
@@ -940,11 +1014,11 @@ class FlashPracticeSession(EyelinkSession):
 
         self.arrow_stimuli = [
             visual.ShapeStim(win=self.screen, vertices=arrow_left_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='white', units='height'),
+                             size=visual_sizes['arrows'], lineColor='gray', units='height'),
             visual.ShapeStim(win=self.screen, vertices=arrow_right_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='white', units='height'),
+                             size=visual_sizes['arrows'], lineColor='gray', units='height'),
             visual.ShapeStim(win=self.screen, vertices=arrow_neutral_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='white', units='height')
+                             size=visual_sizes['arrows'], lineColor='gray', units='height')
         ]
 
         self.crosses = [
@@ -1404,8 +1478,6 @@ class FlashPracticeSession(EyelinkSession):
                 self.instructions_to_show = [self.end_screen]
                 self.show_instructions()
                 break
-
-
 
         self.close()
 

@@ -3,6 +3,7 @@
 from psychopy import visual
 import numpy as np
 
+
 class FlashStim(object):
 
     def __init__(self, screen, session, n_flashers, positions, flasher_size):

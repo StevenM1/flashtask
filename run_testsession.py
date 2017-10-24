@@ -14,9 +14,9 @@ except:
     pass
 
 # Kill Finder during execution (this will be fun)
-applescript="\'tell application \"Finder\" to quit\'"
-shellCmd = 'osascript -e '+applescript
-os.system(shellCmd)
+# applescript="\'tell application \"Finder\" to quit\'"
+# shellCmd = 'osascript -e '+applescript
+# os.system(shellCmd)
 
 # Set nice to -20: extremely high PID priority
 new_nice = -20
@@ -25,7 +25,8 @@ if sysErr:
     print('Warning: Failed to renice, probably you arent authorized as superuser')
 
 # Initialize Session
-sess = FlashSession(subject_initials='SM', index_number=13, scanner='n', tracker_on=True, language='nl', mirror=False)
+sess = FlashSession(subject_initials='SM', index_number=13, scanner='n', tracker_on=True, language='nl',
+                    mirror=False, start_block=4, start_score=500)
 
 # Launch dummy scanner
 sess.scanner = launchScan(win=sess.screen, settings={'TR': TR, 'volumes': 10000, 'sync': 't'}, mode='Test')
