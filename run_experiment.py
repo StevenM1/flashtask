@@ -21,7 +21,12 @@ if sysErr:
 
 def main():
     initials = raw_input('Your initials: ')
-    pp_nr = int(raw_input('Participant number: '))
+
+    pp_nr = 0
+    while not 0 < pp_nr < 101:
+        pp_nr = int(raw_input('Participant number: '))
+        if not 0 < pp_nr < 101:
+            print('Number must be between 1 and 100. What is the participant number?: ')
 
     scanner = None
     while scanner not in ['y', 'n']:
@@ -40,40 +45,42 @@ def main():
     elif track_eyes == 'n':
         tracker_on = False
 
-    language = None
+    language = ''
     while language not in ['en', 'nl']:
         language = raw_input('What language do you want to use (en/nl)?: ')
         if language not in ['en', 'nl']:
             print('I don''t understand that. Please enter ''en'' or ''nl''. What language do you want to use ('
                   'en/nl)?: ')
 
-    mirror = None
-    while mirror not in ['y', 'n']:
-        mirror = raw_input('Are you in the mock scanner? (y/n)')
-        if mirror not in ['y', 'n']:
-            print('I don''t understand that. Please enter ''y'' or ''n''. Are in the mock scanner?: ')
+    # mirror = None
+    # while mirror not in ['y', 'n']:
+    #     mirror = raw_input('Are you in the mock scanner? (y/n)')
+    #     if mirror not in ['y', 'n']:
+    #         print('I don''t understand that. Please enter ''y'' or ''n''. Are in the mock scanner?: ')
+    #
+    # if mirror == 'y':
+    #     mirror = True
+    # elif mirror == 'n':
+    mirror = False
 
-    if mirror == 'y':
-        mirror = True
-    elif mirror == 'n':
-        mirror = False
-
-    block_n = None
-    while block_n not in np.arange(0, 5):
+    block_n = -1
+    while block_n not in [0, 1, 2, 3, 4, 5]:
         block_n = int(raw_input("What block do you want to start? Default is 0, last block is 5. "))
-        if block_n not in np.arange(0, 5):
+        if block_n not in [0, 1, 2, 3, 4, 5]:
             print('I don''t understand that. Please enter a number between 0 and 5 (incl). What block do you want to '
                   'start?: ')
 
-    if block_n > 0:
+    if block_n > 1:
         start_score = None
-        while start_score not in np.arange(0, 561):
+        while not -1 < start_score < 561:
             start_score = int(raw_input("If the subject performed a limbic block in the previous blocks, "
                                         "how many points did he earn there [0-560]?: "))
-            if start_score not in np.arange(0, 561):
+            if not -1 < start_score < 561:
                 int(raw_input("That is not a number between 0 and 561. If the subject performed a limbic block in the "
                               "previous blocks, how many points did s/he earn there [0-560; 0 if no limbic block "
                               "was done]?: "))
+    else:
+        start_score = 0
 
 
     sess = FlashSession(subject_initials=initials, index_number=pp_nr, scanner=scanner, tracker_on=tracker_on,

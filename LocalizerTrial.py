@@ -163,8 +163,8 @@ class LocalizerTrial(Trial):
 
                 if self.block_trial_ID == self.session.last_ID_this_block or self.session.scanner == 'n':
                     # If this is the last trial of the block, show the FULL ITI
-                    print('Trial number %d (block trial %d)' % (self.ID, self.block_trial_ID))
-                    print('Actively showing full ITI')
+                    # print('Trial number %d (block trial %d)' % (self.ID, self.block_trial_ID))
+                    # print('Actively showing full ITI')
                     if self.ITI_time - self.feedback_time > self.phase_durations[7]:
                         self.stopped = True
 

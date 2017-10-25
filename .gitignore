@@ -110,3 +110,5 @@ ENV/
 # Ignore data, except for notebooks
 data/*
 !data/*.ipynb
+
+# Include designs?

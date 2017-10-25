@@ -227,7 +227,11 @@ class FlashSession(EyelinkSession):
             visual.TextStim(win=self.screen, text=self.feedback_txt[2], color='darkred', units='deg',
                             height=visual_sizes['fb_text'], flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=self.feedback_txt[3], color='darkred', units='deg',
-                            height=visual_sizes['fb_text'], flipHoriz=self.mirror)
+                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
+            visual.TextStim(win=self.screen, text=self.feedback_txt[4], color='darkred', units='deg',
+                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
+            visual.TextStim(win=self.screen, text=self.feedback_txt[5], color='darkred', units='deg',
+                            height=visual_sizes['fb_text'])
         ]
 
         # Prepare localizer stimuli
