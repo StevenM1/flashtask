@@ -34,7 +34,7 @@ class FlashInstructions(Trial):
                     self.session.stopped = True
                     print('Session stopped!')
 
-                elif ev == 'space':
+                elif ev == 'space' or ev in self.session.response_keys:
                     self.events.append([0, ev_time - self.start_time])
                     self.stopped = True
 
@@ -78,14 +78,13 @@ class FlashInstructionsPractice(FlashInstructions):
             # ev_time is the event timestamp relative to the Session Clock
 
             if len(ev) > 0:
-                print(ev)
                 if ev in ['esc', 'escape']:
                     self.events.append([-99, ev_time, 'escape: user killed session'])
                     self.stopped = True
                     self.session.stopped = True
                     print('Session stopped!')
 
-                elif ev == 'space':
+                elif ev == 'space' or ev in self.session.response_keys:
                     self.events.append([0, ev_time - self.start_time])
                     self.session.stop_instructions = False
                     self.stopped = True

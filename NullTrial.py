@@ -32,6 +32,8 @@ class NullTrial(Trial):
             self.session.crosses[0].draw()
             self.session.crosses[1].draw()
 
+        self.session.fixation_cross.draw()
+
         super(NullTrial, self).draw()
 
     def event(self):

@@ -48,18 +48,6 @@ class FlashSession(EyelinkSession):
         # save a log file for detail verbose info
         logFile = logging.LogFile(self.output_file + '.log', level=logging.EXP)
 
-        # Ensure that relative paths start from the same directory as this script
-        _thisDir = os.path.dirname(os.path.abspath(__file__)).decode(sys.getfilesystemencoding())
-        self.exp_handler = data.ExperimentHandler(name='flashtask',
-                                                  version='0.3.0',
-                                                  extraInfo={'subject_initials': subject_initials,
-                                                             'index_number': index_number,
-                                                             'scanner': scanner,
-                                                             'tracker_on': tracker_on,
-                                                             'frame_rate': self.screen.getActualFrameRate()},
-                                                  runtimeInfo=info.RunTimeInfo,
-                                                  dataFileName=os.path.join(_thisDir, self.output_file),
-                                                  autoLog=True)
         self.trial_handlers = []
         self.participant_score = start_score
         self.n_instructions_shown = -1
@@ -87,6 +75,21 @@ class FlashSession(EyelinkSession):
                 self.screen.setMouseVisible(True)
         else:
             self.create_tracker(tracker_on=False)
+
+        # Ensure that relative paths start from the same directory as this script
+        _thisDir = os.path.dirname(os.path.abspath(__file__)).decode(sys.getfilesystemencoding())
+        self.exp_handler = data.ExperimentHandler(name='flashtask',
+                                                  version='0.3.0',
+                                                  extraInfo={'subject_initials': subject_initials,
+                                                             'index_number': index_number,
+                                                             'scanner': scanner,
+                                                             'tracker_on': tracker_on,
+                                                             'frame_rate': self.screen.getActualFrameRate(),
+                                                             'eyelink_file_name': self.eyelink_temp_file},
+                                                  runtimeInfo=info.RunTimeInfo,
+                                                  dataFileName=os.path.join(_thisDir, self.output_file),
+                                                  autoLog=True)
+
 
         self.scanner = scanner      # either 'n' for no scanner, or a character with scanner pulse key
         self.standard_parameters = parameters
