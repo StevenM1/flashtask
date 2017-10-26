@@ -1,0 +1,18 @@
+psychopy
+scipy
+numpy
+pandas
+python-pygaze  # pip install pygaze?
+pillow
+pygame  # pip install python-pygame
+configobj
+pyglet
+future
+json_tricks
+pyaudio
+IPython
+matplotlib
+wxPython
+psutil
+
+#pylink via SR-research

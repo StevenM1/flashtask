@@ -7,10 +7,13 @@ try:
 except:
     pass
 
-# Kill Finder during execution (this will be fun)
-applescript="\'tell application \"Finder\" to quit\'"
-shellCmd = 'osascript -e '+ applescript
-os.system(shellCmd)
+try:
+    # Kill Finder during execution (this will be fun)
+    applescript="\'tell application \"Finder\" to quit\'"
+    shellCmd = 'osascript -e '+ applescript
+    os.system(shellCmd)
+except:
+    pass
 
 # Set nice to -20: extremely high PID priority
 new_nice = -20

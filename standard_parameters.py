@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import os
 
 # Parameters of the flashing circles
 parameters = {
@@ -12,6 +13,7 @@ parameters = {
     'radius_deg': 1.5,      # Radius: distance of flashers from center in degrees
 }
 
+# Parameters of the fixation cross. See
 fix_cross_parameters = {
     'outer_radius_degrees': 0.3,
     'inner_radius_degrees': 0.15
@@ -20,7 +22,7 @@ fix_cross_parameters = {
 visual_sizes = {
     'cue_object': 1,
     'fb_text': 1,
-    'arrows': .25,
+    'arrows': 5,  # If arrows = 5, draws arrows of size (2, 1) in degrees (2 horizontal degrees, 1 vertical degree)
     'crosses': 1,
 }
 
@@ -36,46 +38,52 @@ sat = {
 # MR parameter
 TR = 3
 
-# Information about the screen
-background_color = (0.5, 0.5, 0.5)  # -0.75,-0.75,-0.75)
-screen_res = (2560, 1440)
-monitor_name = 'u2715h'
-
-# monitor_name = 'boldscreen'
-# screen_res = (1920, 1080)
-
-# monitor_name = 'laptop'
-# screen_res = (1280, 800)
-
-# monitor_name = '2208WFP'
-# screen_res = (1680, 1050)
-
-from psychopy.monitors import Monitor
-cur_mon = Monitor(name='this_monitor', width=57.2, distance=60)
-cur_mon.setSizePix(screen_res)
-cur_mon.saveMon()
-monitor_name='this_monitor'
+# Information about the screen & display
+background_color = (0.5, 0.5, 0.5)
 
 # Path to find the designs of all participants
-design_path = '/users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs'
-
-# Keyboard response keys
-response_keys = ['z', 'm']  # Order: left, right.
+design_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'designs')
 
 # Do you want to keep track of frame lengths? Recommended
 record_intervals = True
 
-# adjustments for in MRI scanner
-if monitor_name == 'boldscreen':
+# Check the following: if the current user is ME
+if 'USER' in os.environ and os.environ['USER'] == 'steven':
+    monitor_name = 'u2715h'
+    screen_res = (2560, 1440)
+
+    # monitor_name = 'boldscreen'
+    # screen_res = (1920, 1080)
+
+    # monitor_name = 'laptop'
+    # screen_res = (1280, 800)
+
+    # monitor_name = '2208WFP'
+    # screen_res = (1680, 1050)
+
+    # Keyboard response keys
+    response_keys = ['z', 'm']  # Order: left, right.
+
+else:
+    # Assumes we are running on the actual, experimental set-up (i.e. 7T-MRI scanner)
+    from psychopy.monitors import Monitor
+    screen_res = (1920, 1080)
+
+    # Create Monitor
+    cur_mon = Monitor(name='this_monitor', width=57.2, distance=60, notes='Dynamically created in standard_parameters. '
+                                                                          'You might read a warning if the monitor '
+                                                                          'specification does not already exist.')
+    cur_mon.setSizePix(screen_res)
+    cur_mon.saveMon()
+    monitor_name = 'this_monitor'
+    response_keys = ['e', 'b']
+
     # Adjust for 120Hz
     parameters['increment_length'] = parameters['increment_length'] * 2
     parameters['flash_length'] = parameters['flash_length'] * 2
-    response_keys = ['e', 'b']
 
 
-
-
-    ## For screenshots ONLY
+# # The following settings are used for screenshots ONLY (they increase all sizes).
 # fix_cross_parameters = {
 #     'outer_radius_degrees': 1,
 #     'inner_radius_degrees': .5
