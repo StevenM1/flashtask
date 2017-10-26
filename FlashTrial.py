@@ -227,11 +227,11 @@ class FlashTrial(Trial):
             # In phase 5, the stimulus is presented, participant has responded
             if self.phase == 5:
                 self.post_stimulus_time = self.session.clock.getTime()
-                if self.session.scanner == 'n':  # Outside the scanner we can just move on
+                # if self.session.scanner == 'n':  # Outside the scanner we can just move on
+                #     self.phase_forward()
+                # else:
+                if (self.post_stimulus_time - self.fix2_time) > self.phase_durations[4]:  # Use phase_durations[4]!!
                     self.phase_forward()
-                else:
-                    if (self.post_stimulus_time - self.fix2_time) > self.phase_durations[4]:  # Use phase_durations[4]!!
-                        self.phase_forward()
 
             # Phase 6 reflects feedback
             if self.phase == 6:

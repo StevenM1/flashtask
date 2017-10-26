@@ -683,8 +683,15 @@ class FlashSession(EyelinkSession):
             # Get the trial handler of the current block
             trial_handler = self.trial_handlers[block_n]
 
-            # Reset any changed feedback object text (SAT after limbic might otherwise show feedback with points)
+            # Reset all feedback objects of which the text is dynamically changed
+            # text (SAT after limbic might otherwise show feedback points)
             self.feedback_text_objects[1].text = 'Correct!'
+            self.feedback_text_objects[6].text = self.feedback_txt[1]  # Too slow for SPD condition, corr
+            self.feedback_text_objects[6].color = 'darkgreen'
+            self.feedback_text_objects[7].text = self.feedback_txt[2]  # Too slow for SPD condition, incorr
+            self.feedback_text_objects[8].text = self.feedback_txt[1]  # Too slow for SPD&ACC condition, corr
+            self.feedback_text_objects[8].color = 'darkred'
+            self.feedback_text_objects[9].text = self.feedback_txt[2]  # Too slow for SPD&ACC condition, incorr
 
             # It is useful to save the last trial ID for the current block.
             self.last_ID_this_block = self.design.loc[self.design['block'] == block_n, 'block_trial_ID'].iloc[-1]
@@ -755,6 +762,7 @@ class FlashSession(EyelinkSession):
                     trial_handler.addData('response', trial_object.response)
                     trial_handler.addData('correct', trial_object.response_type in [1, 6, 8])
                     trial_handler.addData('feedback', self.feedback_text_objects[trial_object.response_type].text)
+                    trial_handler.addData('score', self.participant_score)
 
                 # Trial finished, so on to the next entry
                 self.exp_handler.nextEntry()
@@ -1525,9 +1533,15 @@ class FlashPracticeSession(EyelinkSession):
             # Create trial handler, and append to experiment handler
             trial_handler = data.TrialHandler(data.importConditions(path), nReps=1, method='sequential')
 
-            # Reset any changed feedback object text (SAT block after limbic block might otherwise show feedback with
-            # points)
+            # Reset all feedback objects of which the text is dynamically changed
+            # text (SAT after limbic might otherwise show feedback points)
             self.feedback_text_objects[1].text = 'Correct!'
+            self.feedback_text_objects[6].text = self.feedback_txt[1]  # Too slow for SPD condition, corr
+            self.feedback_text_objects[6].color = 'darkgreen'
+            self.feedback_text_objects[7].text = self.feedback_txt[2]  # Too slow for SPD condition, incorr
+            self.feedback_text_objects[8].text = self.feedback_txt[1]  # Too slow for SPD&ACC condition, corr
+            self.feedback_text_objects[8].color = 'darkred'
+            self.feedback_text_objects[9].text = self.feedback_txt[2]  # Too slow for SPD&ACC condition, incorr
 
             # It is useful to save the last trial ID for the current block.
             self.last_ID_this_block = self.design.loc[self.design['block'] == self.current_block, 'block_trial_ID'].iloc[-1]
