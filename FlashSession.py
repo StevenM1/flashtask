@@ -129,6 +129,7 @@ class FlashSession(EyelinkSession):
         self.trial_arrays = None
         self.flasher_positions = None
         self.first_frame_idx = None
+        self.last_ID_this_block = None
 
         # Get session information about flashers
         self.n_flashers = self.standard_parameters['n_flashers']
@@ -563,7 +564,7 @@ class FlashSession(EyelinkSession):
 
         return trial_object
 
-    def run_experimental_trial(self, trial, phases, block_n):
+    def run_experimental_trial(self, trial, phases):
         """ Runs a single experimental trial """
 
         # shortcut
@@ -679,8 +680,10 @@ class FlashSession(EyelinkSession):
         # Loop through blocks
         for block_n in range(self.start_block, 5):
 
-            # # Set participant score for this block to 0
-            # self.participant_scores.append(0)
+            if block_n > self.start_block:
+                # Re-calibrate? Only if this is NOT the block that we started with (because there is a calibration
+                # upon running)
+                self.tracker.calibrate()
 
             # Get the trial handler of the current block
             trial_handler = self.trial_handlers[block_n]
@@ -991,7 +994,7 @@ class FlashPracticeSession(EyelinkSession):
         self.create_output_file_name()
 
         # save a log file for detail verbose info
-        logFile = logging.LogFile(self.output_file + '.log', level=logging.EXP)
+        logfile = logging.LogFile(self.output_file + '.log', level=logging.EXP)
 
         # Ensure that relative paths start from the same directory as this script
         _thisDir = os.path.dirname(os.path.abspath(__file__)).decode(sys.getfilesystemencoding())
