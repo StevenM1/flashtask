@@ -1,16 +1,65 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from exp_tools import Trial
-from psychopy import event, core
+from psychopy import event
 import numpy as np
-import os
 
 
 class FlashTrial(Trial):
-    """ Class that holds the draw() and run() methods for a FlashTrial.
+    """ Class that runs a single FlashTrial. Parent for FlashTrialSaccade and FlashTrialKeyboard, which should
+    actually be initiadted (rather than this class).
 
-    The event() method determines the response type (manual keypress vs saccadic), and is constructed in a subclass (
-    see below).
+    This class assumes that all visual objects (flashing circles, cues, feedback texts, target crosses,
+    fixation cross) are attributes of the Session. This greatly improves speed, as these only have to be initiated
+    once instead of at the start of every trial.
+
+    A FlashTrial consists of the following phases:
+    0. Wait for scanner pulse
+    1. Pre-cue fixation cross (should be jittered)
+    2. Cue (arrow left/right)
+    3. Post-cue fixation cross (should be jittered)
+    4. Stimulus & Response (Flashing Circles are shown, participant makes eye movement / button press)
+    5. Feedback
+    6. ITI
+
+    Parameters
+    ----------
+    ID: int
+        ID number of trial
+    block_trial_ID: int
+        Number of trial within the current block
+    parameters: dict
+        Dictionary containing parameters that specify what is drawn. Needs:
+            1. "correct_answer" (0 or 1), which specifies the direction of the stimulus (and response).
+            2. trial_evidence_arrays: a list of np.arrays, which contains 0 and 1s determining for every frame
+            whether a circle needs to be shown or not. See FlashSession.prepare_trials for more details on how this
+            works.
+            3. cue: str ['LEFT', 'RIGHT', 'NEUTRAL', 'SPD', 'ACC']. If left/right/neutral, an arrow is drawn. If
+            SPD/ACC, an instruction is shown with SPD or ACC.
+    phase_durations : list
+        List specifying the durations of each phase of this trial.
+    session: exp_tools.Session instance
+    screen: psychopy.visual.Window instance
+    tracker: pygaze.EyeTracker object
+        Passed on to parent class
+
+    Attributes
+    -----------
+    response_type: int
+        Specifies what kind of response was given:
+        0 = Too slow  (no answer given at end of stimulus presentation)
+        1 = Correct
+        2 = Wrong
+        3 = Too fast
+        4 = Too early (early phase response) - does not exist in FlashTrial, but exists for compatibility with
+        LocalizerPractice
+        5 = Too early (idem)
+        6 = Too slow for SPEED trial (but fast enough for ACC). Answer was correct
+        7 = Too slow for SPEED trial (but fast enough for ACC). Answer was wrong
+        8 = Too slow for both SPEED & ACC (but during stim presentation). Answer was correct.
+        9 = Too slow for both SPEED & ACC (but during stim presentation). Answer was false.
+    response_time: float
+        Reaction time. Note that, for the child class FlashTrialSaccade, this is NOT ACCURATE!
     """
 
     def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None,

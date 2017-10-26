@@ -2,7 +2,7 @@
 # encoding: utf-8
 from __future__ import division
 from exp_tools import EyelinkSession
-from psychopy import visual, event, monitors, core, data, info
+from psychopy import monitors, data, info, logging
 from standard_parameters import *
 from warnings import warn
 import pylab
@@ -29,6 +29,28 @@ class FlashSession(EyelinkSession):
 
     Participants can either respond via keyboard or with a saccade.
 
+    Parameters
+    -----------
+    subject_initials: str
+    index_number: int
+    scanner: str
+        'n' for no scanner, anything else for a scanner. ToDo: change to bool?
+    tracker_on: bool
+        If True, attempts to connect to eye-link tracker. If no connection is found, creates a dummy tracker (mouse)
+        If False, doesn't create anything.
+        Should be True for the experiment, possibly also for practice
+    sound_system: bool
+        Should the sound system be initialized? Note that I got an error on my laptop with True, so not sure if this
+        works
+    language: str {'en', 'nl'}
+        What language should we show instructions and feedback?
+    mirror: bool
+        Horizontally flip everything? UNTESTED, AND NOT NECESSARY
+    start_block: int [0-5]
+        With which block should we start? 0 = Localizer, 1-4 are experimental blocks
+    start_score: int
+        With what participant score should we start? Usually 0, but if the session is restarted in a later block,
+        might be some number.
     """
 
     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False, language='en',
@@ -90,8 +112,7 @@ class FlashSession(EyelinkSession):
                                                   dataFileName=os.path.join(_thisDir, self.output_file),
                                                   autoLog=True)
 
-
-        self.scanner = scanner      # either 'n' for no scanner, or a character with scanner pulse key
+        self.scanner = scanner  # either 'n' for no scanner, or 'y' for scanner.
         self.standard_parameters = parameters
         self.sat_feedback_parameters = sat
 
@@ -122,13 +143,15 @@ class FlashSession(EyelinkSession):
         self.cue_object = None
         self.arrow_stimuli = None
         self.scanner_wait_screen = None
-        self.localizer_instructions = None
+        self.localizer_instructions_eye = None
+        self.localizer_instructions_hand = None
         self.cognitive_eye_instructions = None
         self.cognitive_hand_instructions = None
         self.limbic_eye_instructions = None
         self.limbic_hand_instructions = None
         self.welcome_screen = None
         self.current_instruction = None
+        self.feedback_txt = None
         self.instructions_to_show = None
 
         self.response_keys = np.array(response_keys)
@@ -179,6 +202,8 @@ class FlashSession(EyelinkSession):
         - Feedback text objects (idem)
         - Localizer stimuli (idem)
         - Instruction screens (idem)
+
+        Note that instruction texts are read from .txt-files in the package.
         """
 
         # Load all instruction texts
@@ -286,11 +311,11 @@ class FlashSession(EyelinkSession):
 
         self.arrow_stimuli = [
             visual.ShapeStim(win=self.screen, vertices=arrow_left_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='lightgray', units='height'),
+                             size=visual_sizes['arrows'], lineColor='lightgray', units='deg'),
             visual.ShapeStim(win=self.screen, vertices=arrow_right_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='lightgray', units='height'),
+                             size=visual_sizes['arrows'], lineColor='lightgray', units='deg'),
             visual.ShapeStim(win=self.screen, vertices=arrow_neutral_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='lightgray', units='height')
+                             size=visual_sizes['arrows'], lineColor='lightgray', units='deg')
         ]
 
         self.crosses = [
@@ -300,9 +325,9 @@ class FlashSession(EyelinkSession):
 
         # Prepare waiting for scanner-screen
         self.scanner_wait_screen = visual.TextStim(win=self.screen,
-                                              text=scanner_wait_txt,
-                                              units='pix', font='Helvetica Neue', pos=(0, 0),
-                                              italic=False, height=30, alignHoriz='center', flipHoriz=self.mirror)
+                                                   text=scanner_wait_txt,
+                                                   units='pix', font='Helvetica Neue', pos=(0, 0),
+                                                   italic=False, height=30, alignHoriz='center', flipHoriz=self.mirror)
 
         # Keep debug screen at hand
         self.debug_screen = visual.TextStim(win=self.screen,
@@ -380,7 +405,7 @@ class FlashSession(EyelinkSession):
 
     def prepare_trials(self):
         """
-        Prepares everything necessary to run trials:
+        Prepares everything necessary to make flashing circles trials:
          - Flashing circles objects (kept in FlashSession for efficiency)
          - Determines the position on the screen that is recognized as a "response" in the saccadic response condition
          - Correct answers (integer), correct keys, incorrect answers, incorrect keys per trial
@@ -841,6 +866,7 @@ class FlashSession(EyelinkSession):
 
 
 class FlashPracticeSession(EyelinkSession):
+    """ Practice session of the FlashTask """
 
     def __init__(self, subject_initials, index_number, scanner, tracker_on, sound_system=False, language='en'):
         super(FlashPracticeSession, self).__init__(subject_initials, index_number, sound_system)
@@ -1086,11 +1112,11 @@ class FlashPracticeSession(EyelinkSession):
 
         self.arrow_stimuli = [
             visual.ShapeStim(win=self.screen, vertices=arrow_left_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='lightgray', units='height'),
+                             size=visual_sizes['arrows'], lineColor='lightgray', units='deg'),
             visual.ShapeStim(win=self.screen, vertices=arrow_right_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='lightgray', units='height'),
+                             size=visual_sizes['arrows'], lineColor='lightgray', units='deg'),
             visual.ShapeStim(win=self.screen, vertices=arrow_neutral_vertices, fillColor='lightgray',
-                             size=visual_sizes['arrows'], lineColor='lightgray', units='height')
+                             size=visual_sizes['arrows'], lineColor='lightgray', units='deg')
         ]
 
         self.crosses = [

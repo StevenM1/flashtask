@@ -5,6 +5,30 @@ from psychopy import visual, event
 
 
 class FlashInstructions(Trial):
+    """
+    Class that runs an Instructions trial. This is a parent for FlashInstructionsPractice.
+    A FlashInstructions trial draws a *single* text screen, records keyboard responses (response_keys,
+    scanner pulses, and quit-keys (escape, space)). Each text screen should be initialized separately.
+
+    Assumes that the actual visual objects (visual.TextStim) are initiated in the Session. This greatly improves
+    speed, because rendering is done at the start of the experiment rather than at the start of the trial.
+
+    Parameters
+    ----------
+    ID: int
+        ID number of trial
+    block_trial_ID: int
+        Number of trial within the current block
+    parameters: dict
+        Dictionary containing parameters that specify what is drawn. Currently, only supports "draw_crosses" as a
+        key, with boolean value.
+    phase_durations : list
+        List specifying the durations of each phase if the NullTrial
+    session: exp_tools.Session instance
+    screen: psychopy.visual.Window instance
+    tracker: pygaze.EyeTracker object
+        Passed on to parent class
+    """
 
     def __init__(self, ID, parameters={}, phase_durations=[], session=None, screen=None, tracker=None):
         super(FlashInstructions, self).__init__(parameters=parameters, phase_durations=phase_durations,

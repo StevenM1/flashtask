@@ -5,7 +5,21 @@ import numpy as np
 
 
 class FlashStim(object):
+    """
+    Initializes and draws flashing circles stimuli.
 
+    Parameters
+    ----------
+    screen: psychopy.visual.Window instance
+    session: exp_tools.Session instance
+    n_flashers: int
+        Number of flashing circles to draw
+    positions: list
+        List of (x, y) tuples or [x, y] lists that determine the positions of each flashing circle on the screen in
+        degrees.
+    flasher_size: float
+        Size of each circle in degrees.
+    """
     def __init__(self, screen, session, n_flashers, positions, flasher_size):
         self.screen = screen
         self.session = session
@@ -23,12 +37,19 @@ class FlashStim(object):
 
     def draw(self, frame_n, continuous=0):
         """
-        Draws the flashing circles. There are 3 options for continuous:
-        0 : Draws the actual flashing circles
-        1 : Draws constantly flashing circles (which always flash on every increment)
-        2 : Draws constant white circles (no flashes anymore)
+        Draws the flashing circles on the screen.
 
-        Options 1 and 2 are possibilities for post-response stimulus drawing (to prevent an early "oh shit" response?)
+        Parameters
+        ----------
+        frame_n : int
+            Current frame number. Is used to determine whether a 'flash' or a 'pause' should be shown (i.e.,
+            opacity is 1 or 0, respectively).
+        continuous: int [0, 1, 2]
+            0: draws the actual flashing circles
+            1: draws constantly flashing circles (each circle flashes on every increment)
+            2: draws constant white circles (no flashes)
+            Options 1 and 2 are possibilities for post-response stimulus drawing (to prevent an early
+            "oh shit" response?)
         """
 
         if continuous == 1:
@@ -59,21 +80,3 @@ class FlashStim(object):
                 self.flasher_objects[i].draw()
 
             return self.shown_opacities
-
-# class FeedbackStim(object):
-#
-#     def __init__(self, screen, arguments=[]):
-#         """
-#         Assumes that arguments is a list of dictionaries with all arguments for each feedback type. Example:
-#         >>> arguments = [{'text': 'Feedback type 1', 'col': (1, 0, 0)}, {'text': 'Feedback type 2', 'col': {0, 1, 0}]
-#         """
-#
-#         self.screen = screen
-#         self.feedback_objects = []
-#
-#         for i in range(len(arguments)):
-#             self.feedback_objects.append(visual.TextStim(win=self.screen, units='cm', **arguments[i]))
-#
-#     def draw(self, feedback_type):
-#
-#         self.feedback_objects[feedback_type].draw()

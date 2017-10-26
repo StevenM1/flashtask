@@ -1,13 +1,43 @@
 from exp_tools import Trial
-from psychopy import visual, event, logging, core
+from psychopy import event
 import numpy as np
-import os
+
 
 class LocalizerTrial(Trial):
-    """ Class that holds the draw() and run() methods for a LocalizerTrial.
+    """
+    Class that runs a LocalizerTrial. This is a parent for LocalizerTrialSaccade and LocalizerTrialKeyboard,
+    which should be run in the experiment code.
 
-    The event() method determines the response type (manual keypress vs saccadic), and is constructed in a subclass (
-    see below).
+    Assumes that the actual visual objects (arrows, crosses, feedback texts) are initiated in the Session. This greatly
+    improves speed, because rendering is done at the start of the experiment rather than at the start of the trial.
+
+    A localizer trial consists of the following phases:
+    0. Wait for scanner pulse
+    1. Pre-cue fixation cross (jittered)
+    2. Cue (arrow left/right)
+    3. Post-cue fixation cross: this phase always has duration 0, so is skipped. Exists for compatibility.
+    4. Response (participant makes eye movement / button press)
+    5. Feedback: this phase always has duration 0 (except in practice session), so is skipped. Exists for compatibility.
+    6. ITI
+
+    Even though no feedback is given, automatically detects (with keyboard responses) whether a correct answer was
+    given.
+
+    Parameters
+    ----------
+    ID: int
+        ID number of trial
+    block_trial_ID: int
+        Number of trial within the current block
+    parameters: dict
+        Dictionary containing parameters that specify what is drawn. Currently, only needs "correct_answer" (
+        0 or 1), which specifies the direction of the cue (and response).
+    phase_durations : list
+        List specifying the durations of each phase of this trial.
+    session: exp_tools.Session instance
+    screen: psychopy.visual.Window instance
+    tracker: pygaze.EyeTracker object
+        Passed on to parent class
     """
 
     def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None,
@@ -28,20 +58,6 @@ class LocalizerTrial(Trial):
         # The remainder of the ITI is used to prepare next trial. The actual trial start only occurs when the next
         # volume is acquired.
         self.n_TRs = 0
-
-        # Initialize cue
-        # if parameters['cue'] == 'LEFT' and parameters['correct_answer'] == 0:
-        #     self.cue = self.session.arrow_stimuli[0]
-        #     self.cue.fillColor = 'darkblue'
-        # elif parameters['cue'] == 'LEFT' and parameters['correct_answer'] == 1:
-        #     self.cue = self.session.arrow_stimuli[0]
-        #     self.cue.fillColor = 'darkred'
-        # elif parameters['cue'] == 'RIGHT' and parameters['correct_answer'] == 0:
-        #     self.cue = self.session.arrow_stimuli[1]
-        #     self.cue.fillColor = 'darkred'
-        # elif parameters['cue'] == 'RIGHT' and parameters['correct_answer'] == 1:
-        #     self.cue = self.session.arrow_stimuli[1]
-        #     self.cue.fillColor = 'darkblue'
 
         # Initialize times  -> what timing here?
         self.run_time = 0.0
@@ -106,6 +122,9 @@ class LocalizerTrial(Trial):
         self.frame_n = 0
 
     def run(self):
+        """
+        Runs the LocalizerTrial
+        """
         super(LocalizerTrial, self).run()
 
         while not self.stopped:

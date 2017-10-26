@@ -3,10 +3,28 @@ from psychopy import event
 
 
 class NullTrial(Trial):
-    """ Class that holds the draw() and run() methods for a LocalizerTrial.
+    """ Class runs a NullTrial. NullTrials only show the fixation cross,
+    and optionally, also crosses on the left and right of the screen (for saccadic responses). Scanner pulses are
+    recorded.
 
-    The event() method determines the response type (manual keypress vs saccadic), and is constructed in a subclass (
-    see below).
+    Assumes that the actual visual objects (arrows, crosses, feedback texts) are initiated in the Session. This greatly
+    improves speed, because rendering is done at the start of the experiment rather than at the start of the trial.
+
+    Parameters
+    ----------
+    ID: int
+        ID number of trial
+    block_trial_ID: int
+        Number of trial within the current block
+    parameters: dict
+        Dictionary containing parameters that specify what is drawn. Currently, only supports "draw_crosses" as a
+        key, with boolean value.
+    phase_durations : list
+        List specifying the durations of each phase of the NullTrial
+    session: exp_tools.Session instance
+    screen: psychopy.visual.Window instance
+    tracker: pygaze.EyeTracker object
+        Passed on to parent class
     """
 
     def __init__(self, ID, block_trial_ID=0, parameters={}, phase_durations=[], session=None, screen=None,
@@ -27,6 +45,7 @@ class NullTrial(Trial):
           self.feedback_time = self.ITI_time = 0.0
 
     def draw(self):
+        """ Draws whatever should be drawn (fixation cross and maybe target crosses) """
 
         if self.draw_crosses:
             self.session.crosses[0].draw()
@@ -63,7 +82,8 @@ class NullTrial(Trial):
 
     def run(self):
         """ Everything here is directly copied from the FlashTrial. We act as if the normal 'phases' are being run, but
-        instead show nothing, only check for events (pulses and stop keys)
+        instead show a fixation cross (and maybe target crosses left/right), only check for events (pulses and stop
+        keys)
         """
 
         super(NullTrial, self).run()
