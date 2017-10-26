@@ -1,4 +1,5 @@
 from FlashSession import *
+from psychopy import core
 
 # Kill all background processes (macOS only)
 try:
@@ -127,3 +128,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    # Force python to quit (so scanner emulator also stops)
+    core.quit()

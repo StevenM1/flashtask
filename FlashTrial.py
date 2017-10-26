@@ -253,7 +253,6 @@ class FlashTrial(Trial):
                 else:
                     # Only allow stopping if at least 3 TRs are recorded (including the start-volume!)
                     # The rest of the ITI is used for preparing the next trial.
-                    print(self.n_TRs)
                     if self.n_TRs >= 3:
                         self.stopped = True
 

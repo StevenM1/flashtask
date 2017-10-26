@@ -670,9 +670,11 @@ class FlashSession(EyelinkSession):
                               session=self,
                               screen=self.screen,
                               tracker=self.tracker).run()
-        # Show welcome screen
-        self.instructions_to_show = [self.welcome_screen]  # In list, so show_instructions() can iterate
-        self.show_instructions()
+
+        if self.start_block == 0:
+            # Show welcome screen (skip if this is a later block)
+            self.instructions_to_show = [self.welcome_screen]  # In list, so show_instructions() can iterate
+            self.show_instructions()
 
         # Loop through blocks
         for block_n in range(self.start_block, 5):
@@ -834,6 +836,7 @@ class FlashSession(EyelinkSession):
         """ Saves stuff and closes """
 
         self.save_data()
+        print('Closing went ok until here')
 
         # self.exp_handler.saveAsPickle(self.exp_handler.dataFileName)
         # self.exp_handler.saveAsWideText(self.exp_handler.dataFileName + '.csv')
