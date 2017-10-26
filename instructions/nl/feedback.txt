@@ -1,19 +1,19 @@
-Te laat!
+Te langzaam!
 
 
 Correct!
 
 
-Incorrect!
+Fout!
 
 
 Te snel!
 
 
-Te vroeg!
+Te vroeg gedrukt!
 
 
-Te vroeg!
+Te vroeg gedrukt!
 
 
 Totale score:
