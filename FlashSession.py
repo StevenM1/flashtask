@@ -279,6 +279,14 @@ class FlashSession(EyelinkSession):
                             height=visual_sizes['fb_text'], flipHoriz=self.mirror),
         ]
 
+        self.block_end_instructions = [
+            visual.TextStim(win=self.screen, text='End of block reached. Waiting for operator...\n\nPress R to '
+                                                  'recalibrate, or space to proceed.',
+                            font='Helvetica Neue', pos=(0, 0),
+                            italic=True, height=30, alignHoriz='center', units='pix',
+                            )
+        ]
+
         # Prepare localizer stimuli
         arrow_right_vertices = [(-0.2, 0.05),
                                 (-0.2, -0.05),
@@ -564,7 +572,7 @@ class FlashSession(EyelinkSession):
 
         return trial_object
 
-    def run_experimental_trial(self, trial, phases):
+    def run_experimental_trial(self, trial, phases, block_n):
         """ Runs a single experimental trial """
 
         # shortcut
@@ -680,10 +688,26 @@ class FlashSession(EyelinkSession):
         # Loop through blocks
         for block_n in range(self.start_block, 5):
 
+            # If this is not the first block that is run, let operator check if we need to recalibrate.
             if block_n > self.start_block:
-                # Re-calibrate? Only if this is NOT the block that we started with (because there is a calibration
-                # upon running)
-                self.tracker.calibrate()
+                # ToDo: show instruction screen here with recalibrate option
+                end_block_instr = FlashEndBlockInstructions(ID=-99, parameters={},
+                                                            phase_durations=[100],
+                                                            session=self,
+                                                            screen=self.screen,
+                                                            tracker=self.tracker)
+                end_block_instr.run()
+
+                if end_block_instr.stop_key == 'r':
+                    if self.tracker is not None:
+                        if self.tracker.connected():
+                            self.tracker.stop_recording()
+                        # inject local file name into pygaze tracker and then close.
+                        self.tracker.local_data_file = self.output_file + '_blocks_' + str(self.start_block) + '-' + \
+                                                       str(block_n) + '.edf'
+                        self.tracker.close()
+                    else:
+                        print('I would recalibrate, but no tracker is connected...')
 
             # Get the trial handler of the current block
             trial_handler = self.trial_handlers[block_n]
@@ -799,9 +823,8 @@ class FlashSession(EyelinkSession):
         self.exp_handler.saveAsWideText(output_fn_dat + '.csv')
 
         if block_n is not None:
-            parsopf = open(output_fn_frames + '_outputDict.pickle', 'a')
-            pickle.dump(self.outputDict, parsopf)
-            parsopf.close()
+            with open(self.output_fn_frames + '_outputDict.pickle', 'wb') as f:
+                pickle.dump(f, self.outputDict)
 
         if self.screen.recordFrameIntervals:
 
@@ -839,7 +862,6 @@ class FlashSession(EyelinkSession):
         """ Saves stuff and closes """
 
         self.save_data()
-        print('Closing went ok until here')
 
         # self.exp_handler.saveAsPickle(self.exp_handler.dataFileName)
         # self.exp_handler.saveAsWideText(self.exp_handler.dataFileName + '.csv')
@@ -894,7 +916,7 @@ class FlashPracticeSession(EyelinkSession):
         self.mouse = event.Mouse(win=screen, visible=False)
 
         # For logging: set-up output file name, experiment handler
-        self.create_output_file_name()
+        self.create_output_file_name(data_directory=os.path.dirname(os.path.abspath(__file__)))
         self.output_file = self.output_file + 'PRACTICE'
 
         # save a log file for detail verbose info
@@ -1048,22 +1070,24 @@ class FlashPracticeSession(EyelinkSession):
          """
 
         # Load all texts
-        with open(os.path.join('instructions', self.language, 'welcome_practice.txt'), 'rb') as f:
+        this_file = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(this_file, 'instructions', self.language, 'welcome_practice.txt'), 'rb') as f:
             welcome_screen_txt = f.read().split('\n\n\n')[0]
 
-        with open(os.path.join('instructions', self.language, 'practice_block_end_instruction.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'practice_block_end_instruction.txt'),
+                  'rb') as f:
             practice_block_end_instruction_txt = f.read().split('\n\n\n')[0]
 
-        with open(os.path.join('instructions', self.language, 'practice_instructions.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'practice_instructions.txt'), 'rb') as f:
             practice_instructions_txt = f.read().split('\n\n\n')
 
-        with open(os.path.join('instructions', self.language, 'end_screen.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'end_screen.txt'), 'rb') as f:
             end_screen_txt = f.read().split('\n\n\n')[0]
 
-        with open(os.path.join('instructions', self.language, 'scanner_wait.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'scanner_wait.txt'), 'rb') as f:
             scanner_wait_txt = f.read().split('\n\n\n')[0]
 
-        with open(os.path.join('instructions', self.language, 'feedback.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'feedback.txt'), 'rb') as f:
             self.feedback_txt = f.read().split('\n\n\n')
 
         # Prepare fixation cross
@@ -1525,13 +1549,10 @@ class FlashPracticeSession(EyelinkSession):
         while not self.stopped:
             print('Starting block %d' % self.current_block)
 
-            if self.current_block == 3:
-                self.scanner = 'n'
-            else:
-                self.scanner = 'y'
-
-            # # Set participant score for this block to 0
-            # self.participant_scores.append(0)
+            # if self.current_block == 3:
+            #     self.scanner = 'n'
+            # else:
+            #     self.scanner = 'y'
 
             # Find path of block design
             path = glob(os.path.join(design_path, 'practice', 'block_%d_*' % self.current_block, 'trials.csv'))[0]

@@ -30,7 +30,7 @@ def main():
         if not 0 < pp_nr < 101:
             print('Number must be between 1 and 100. What is the participant number?: ')
 
-    scanner = 'n'
+    scanner = 'y'
     tracker_on = True
 
     language = ''
@@ -51,5 +51,5 @@ def main():
 if __name__ == '__main__':
     main()
 
-    # Force python to quit (so scanner is also stopped)
+    # Force python to quit (so emulated scanner is also stopped)
     core.quit()
