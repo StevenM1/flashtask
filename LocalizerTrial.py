@@ -50,7 +50,8 @@ class LocalizerTrial(Trial):
         self.block_trial_ID = block_trial_ID
         self.correct_answer = parameters['correct_answer']
 
-        self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response, 3 = too fast, 4 = wrong phase
+        self.response_type = 0   # 0 = no response, 1 = correct, 2 = wrong, 3 = too fast, 4 = wrong phase
+        self.feedback_type = 0   # 0 = too slow, 1 = correct, 2 = wrong, 3 = too fast, 4 = early phase
         self.cue = self.session.arrow_stimuli[parameters['correct_answer']]
 
         # When do we stop the trial? If there is an acquisition volume during the ITI, actively hold the ITI (trial).
@@ -103,7 +104,7 @@ class LocalizerTrial(Trial):
         elif self.phase == 6:
             self.session.crosses[0].draw()
             self.session.crosses[1].draw()
-            self.session.feedback_text_objects[self.response_type].draw()
+            self.session.feedback_text_objects[self.feedback_type].draw()
         elif self.phase == 7:
             self.session.fixation_cross.draw()
             self.session.crosses[0].draw()
@@ -238,7 +239,6 @@ class LocalizerTrialSaccade(LocalizerTrial):
                 self.eye_movement_detected_in_phase = True
 
                 # Is the final xpos left or right from center?  left = 0, right = 1
-                # ToDO: checkout how eye positions are returned: is screen center (0,0) or n_pix/2?
 #                saccade_direction = 0 if eyepos[0] < self.session.screen_pix_size[0]/2 else 1
                 saccade_direction = 0 if eyepos[0] < 0 else 1
                 saccade_direction_verbose = self.directions_verbose[saccade_direction]
@@ -257,19 +257,23 @@ class LocalizerTrialSaccade(LocalizerTrial):
 
                     # Check for early response
                     if (eyepos_time - self.fix2_time) < 0.150:  # (seconds)
-                        self.response_type = 3
+                        self.feedback_type = 3
 
                         if saccade_direction == self.correct_direction:
+                            self.response_type = 1
                             self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response', 'correct'])
                         else:
+                            self.response_type = 2
                             self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response',
                                                 'incorrect'])
                     else:
                         if saccade_direction == self.correct_direction:
+                            self.feedback_type = 1
                             self.response_type = 1
                             self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
                                                 'correct'])
                         else:
+                            self.feedback_type = 2
                             self.response_type = 2
                             self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
                                                 'incorrect'])
@@ -358,14 +362,17 @@ class LocalizerTrialKeyboard(LocalizerTrial):
 
                     if self.phase == 1:
                         self.response_type = 4
+                        self.feedback_type = 4
                         self.events.append([ev, ev_time, 'early keypress during fix cross 1'])
 
                     elif self.phase == 2:
                         self.response_type = 4
+                        self.feedback_type = 4
                         self.events.append([ev, ev_time, 'early keypress during cue'])
 
                     elif self.phase == 3:
                         self.response_type = 4
+                        self.feedback_type = 4
                         self.events.append([ev, ev_time, 'early keypress during fix cross 2'])
 
                     elif self.phase == 4:
@@ -375,12 +382,14 @@ class LocalizerTrialKeyboard(LocalizerTrial):
                             self.response_time = ev_time - self.fix2_time
 
                             if self.response_time < 0.150 and self.response_type == 0:
-                                self.response_type = 3  # Too early
+                                self.feedback_type = 3  # too early in phase
 
                                 if ev == self.correct_key:
+                                    self.response_type = 1
                                     self.events.append([ev, ev_time, 'too fast response', 'correct',
                                                         self.response_time])
                                 else:
+                                    self.response_type = 1
                                     self.events.append([ev, ev_time, 'too fast response', 'incorrect',
                                                         self.response_time])
                             else:
@@ -389,11 +398,13 @@ class LocalizerTrialKeyboard(LocalizerTrial):
                                                         self.response_time])
                                     if self.response_type == 0:
                                         self.response_type = 1
+                                        self.feedback_type = 1
                                 else:
                                     self.events.append([ev, ev_time, 'first keypress', 'incorrect',
                                                         self.response_time])
                                     if self.response_type == 0:
                                         self.response_type = 2
+                                        self.feedback_type = 2
                             self.phase_forward()  # End stimulus presentation upon keypress
                         else:
                             self.events.append([ev, ev_time, 'late keypress (during stimulus)'])

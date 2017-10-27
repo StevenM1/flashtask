@@ -3,6 +3,7 @@
 from exp_tools import Trial
 from psychopy import event
 import numpy as np
+from scipy import stats
 
 
 class FlashTrial(Trial):
@@ -72,11 +73,13 @@ class FlashTrial(Trial):
         self.response = None
         self.draw_crosses = False
 
-        self.response_type = 0   # 0 = too late, 1 = correct, 2 = incorrect response
+        self.response_type = 0   # 0 = no response, 1 = correct, 2 = wrong, 3 = too early
+        self.feedback_type = 0   # 0 = too late, 1 = correct, 2 = wrong, 3 = too early
         self.stimulus = self.session.stimulus
         self.stimulus.trial_evidence_arrays = parameters['trial_evidence_arrays']
         self.evidence_shown = np.repeat([0], self.session.n_flashers)
         self.total_increments = 0
+        self.cuetext = None
 
         # keep track of number of TRs recorded. Only end trial if at least 2 TRs are recorded (3 TRs per trial).
         self.n_TRs = 0
@@ -160,11 +163,11 @@ class FlashTrial(Trial):
                 self.session.crosses[0].draw()
                 self.session.crosses[1].draw()
         elif self.phase == 6:  # feedback
-            self.session.feedback_text_objects[self.response_type].draw()
+            self.session.feedback_text_objects[self.feedback_type].draw()
             if self.draw_crosses:
                 self.session.crosses[0].draw()
                 self.session.crosses[1].draw()
-            # fb_name = self.session.feedback_text_objects[self.response_type].text
+            # fb_name = self.session.feedback_text_objects[self.feedback_type].text
             # if not os.path.isfile('screenshot_trial_feedback_' + fb_name[0] + fb_name[-2] + '.png'):
             #     self.session.screen.flip()
             #     self.session.screen.getMovieFrame()
@@ -324,44 +327,37 @@ class FlashTrialSaccade(FlashTrial):
 
                     # Check for early response
                     if self.response_time < 0.150:  # (seconds)
-                        self.response_type = 3  # Too fast
+                        self.feedback_type = 3  # Too fast
 
                         if saccade_direction == self.correct_direction:
+                            self.response_type = 1
                             self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response', 'correct'])
                         else:
+                            self.response_type = 2
                             self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response',
                                                 'incorrect'])
                     else:
-                        # Too slow for SPEED condition, fast enough for ACCURATE condition
-                        if self.session.sat_feedback_parameters['speed_max_time'] < self.response_time <= \
-                                self.session.sat_feedback_parameters['acc_max_time']:
-                            if saccade_direction == self.correct_direction:
-                                self.response_type = 6
-                                self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
-                                                    'correct'])
-                            else:
-                                self.response_type = 7
-                                self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
-                                                    'incorrect'])
-
-                        # Too slow for ACCURATE condition
-                        elif self.response_time > self.session.sat_feedback_parameters['acc_max_time']:
-                            if saccade_direction == self.correct_direction:
-                                self.response_type = 8
-                                self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
-                                                    'correct'])
-                            else:
-                                self.response_type = 9
-                                self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
-                                                    'incorrect'])
-                        else:
-                            # Fast enough for all conditions
+                        # In SPEED conditions, make "too slow"-feedback probabilistic
+                        if self.cuetext == 'SPD' and stats.norm.cdf(self.response_time, 1):
+                            self.feedback_type = 0
                             if saccade_direction == self.correct_direction:
                                 self.response_type = 1
+                                self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
+                                                    'correct, too slow feedback'])
+                            else:
+                                self.response_type = 2
+                                self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
+                                                    'incorrect, too slow feedback'])
+                        else:
+                            # If fast enough in speed condition, or in non-speed condition, normal feedback
+                            if saccade_direction == self.correct_direction:
+                                self.response_type = 1
+                                self.feedback_type = 1
                                 self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
                                                     'correct'])
                             else:
                                 self.response_type = 2
+                                self.feedback_type = 2
                                 self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
                                                     'incorrect'])
 
@@ -458,45 +454,43 @@ class FlashTrialKeyboard(FlashTrial):
 
                             # Check for early response
                             if self.response_time < 0.150:
-                                self.response_type = 3  # Too fast
+                                self.feedback_type = 3  # Too fast
 
                                 if ev == self.correct_key:
+                                    self.response_type = 1
                                     self.events.append([ev, ev_time, 'too fast response', 'correct',
                                                         self.response_time])
                                 else:
+                                    self.response_type = 2
                                     self.events.append([ev, ev_time, 'too fast response', 'incorrect',
                                                         self.response_time])
                             else:
-                                # Too slow for SPEED condition, fast enough for ACCURATE condition
-                                if self.session.sat_feedback_parameters['speed_max_time'] < self.response_time <= \
-                                        self.session.sat_feedback_parameters['acc_max_time']:
+                                # In SPEED conditions, make "too slow"-feedback probabilistic
+                                if self.cuetext == 'SPD' and np.random.binomial(n=1, p=stats.norm.cdf(
+                                        self.response_time, 1.25)):
+                                    self.feedback_type = 0
                                     if ev == self.correct_key:
-                                        self.events.append([ev, ev_time, 'first keypress', 'correct',
+                                        self.response_type = 1
+                                        self.events.append([ev, ev_time, 'first keypress', 'correct, too slow feedback',
                                                             self.response_time])
-                                        self.response_type = 6
                                     else:
-                                        self.events.append([ev, ev_time, 'first keypress', 'incorrect',
+                                        self.response_type = 2
+                                        self.events.append([ev, ev_time, 'first keypress', 'incorrect, '
+                                                                                           'too slow feedback',
                                                             self.response_time])
-                                        self.response_type = 7
-                                elif self.response_time > self.session.sat_feedback_parameters['acc_max_time']:
-                                    if ev == self.correct_key:
-                                        self.events.append([ev, ev_time, 'first keypress', 'correct',
-                                                            self.response_time])
-                                        self.response_type = 8
-                                    else:
-                                        self.events.append([ev, ev_time, 'first keypress', 'incorrect',
-                                                            self.response_time])
-                                        self.response_type = 9
                                 else:
                                     if ev == self.correct_key:
+                                        self.response_type = 1
+                                        self.feedback_type = 1
                                         self.events.append([ev, ev_time, 'first keypress', 'correct',
                                                             self.response_time])
-                                        self.response_type = 1
                                     else:
+                                        self.response_type = 2
+                                        self.feedback_type = 2
                                         self.events.append([ev, ev_time, 'first keypress', 'incorrect',
                                                             self.response_time])
-                                        self.response_type = 2
-                            self.phase_forward()  # End stimulus presentation upon keypress
+
+                            self.phase_forward()
                         else:
                             self.events.append([ev, ev_time, 'late keypress (during stimulus)'])
 

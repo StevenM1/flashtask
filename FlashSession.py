@@ -45,7 +45,8 @@ class FlashSession(EyelinkSession):
     language: str {'en', 'nl'}
         What language should we show instructions and feedback?
     mirror: bool
-        Horizontally flip everything? UNTESTED, AND NOT NECESSARY
+        Horizontally flip everything? UNTESTED, AND NOT NECESSARY. Built-in for a session at the mock scanner,
+        which will no longer be used.
     start_block: int [0-5]
         With which block should we start? 0 = Localizer, 1-4 are experimental blocks
     start_score: int
@@ -67,6 +68,7 @@ class FlashSession(EyelinkSession):
 
         # For logging: set-up output file name, experiment handler
         self.create_output_file_name(data_directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data'))
+
         # save a log file for detail verbose info
         logFile = logging.LogFile(self.output_file + '.log', level=logging.EXP)
 
@@ -261,21 +263,6 @@ class FlashSession(EyelinkSession):
                             height=visual_sizes['fb_text'], flipHoriz=self.mirror),
             # 4 = early phase
             visual.TextStim(win=self.screen, text=self.feedback_txt[4], color='darkred', units='deg',
-                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
-            # 5 = early phase
-            visual.TextStim(win=self.screen, text=self.feedback_txt[5], color='darkred', units='deg',
-                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
-            # 6 = too slow for SPD condition (but correct)
-            visual.TextStim(win=self.screen, text=self.feedback_txt[1], color='darkgreen', units='deg',
-                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
-            # 7 = too slow for SPD condition (but incorrect)
-            visual.TextStim(win=self.screen, text=self.feedback_txt[2], color='darkred', units='deg',
-                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
-            # 8 = too slow for ACC condition (but correct)
-            visual.TextStim(win=self.screen, text=self.feedback_txt[1], color='darkgreen', units='deg',
-                            height=visual_sizes['fb_text'], flipHoriz=self.mirror),
-            # 9 = too slow for ACC condition (but incorrect)
-            visual.TextStim(win=self.screen, text=self.feedback_txt[2], color='darkred', units='deg',
                             height=visual_sizes['fb_text'], flipHoriz=self.mirror),
         ]
 
@@ -606,33 +593,6 @@ class FlashSession(EyelinkSession):
                 self.feedback_text_objects[1].text = self.feedback_txt[1] + ' +2\n' + self.feedback_txt[6] + ' %d' % (
                     self.participant_score + 2)
 
-        # In cognitive trials, prepare feedback: sometimes, we give "Too slow" as feedback in the SPD condition with
-        # responses > 1.0 s.
-        if 'cognitive' in trial.block_type:
-            # On this trial, if ppn is too slow, give "too slow"-feedback? This is probabilistic
-            give_slow_feedback = np.random.choice([True, False], p=[self.sat_feedback_parameters['prob_too_slow_fb'],
-                                                                    1-self.sat_feedback_parameters['prob_too_slow_fb']])
-            if give_slow_feedback:
-                self.feedback_text_objects[8].text = self.feedback_txt[0]  # Too slow for SPD&ACC condition, corr
-                self.feedback_text_objects[8].color = 'darkred'
-                self.feedback_text_objects[9].text = self.feedback_txt[0]  # Too slow for SPD&ACC condition, incorr
-
-                if trial.trial_type in [0, 1]:
-                    self.feedback_text_objects[6].text = self.feedback_txt[0]  # Too slow for SPD condition, corr
-                    self.feedback_text_objects[6].color = 'darkred'
-                    self.feedback_text_objects[7].text = self.feedback_txt[0]  # Too slow for SPD condition, incorr
-                elif trial.trial_type in [2, 3]:
-                    self.feedback_text_objects[6].text = self.feedback_txt[1]  # Too slow for SPD&ACC condition, corr
-                    self.feedback_text_objects[6].color = 'darkgreen'
-                    self.feedback_text_objects[7].text = self.feedback_txt[2]  # Too slow for SPD&ACC condition, incorr
-            else:
-                self.feedback_text_objects[6].text = self.feedback_txt[1]   # Too slow for SPD condition, corr
-                self.feedback_text_objects[6].color = 'darkgreen'
-                self.feedback_text_objects[7].text = self.feedback_txt[2]   # Too slow for SPD condition, incorr
-                self.feedback_text_objects[8].text = self.feedback_txt[1]   # Too slow for SPD&ACC condition, corr
-                self.feedback_text_objects[8].color = 'darkred'
-                self.feedback_text_objects[9].text = self.feedback_txt[2]   # Too slow for SPD&ACC condition, incorr
-
         trial_object = trial_pointer(ID=trial.trial_ID,
                                      block_trial_ID=trial.block_trial_ID,
                                      parameters={'trial_evidence_arrays': self.trial_arrays[trial.trial_ID],
@@ -725,12 +685,6 @@ class FlashSession(EyelinkSession):
             # Reset all feedback objects of which the text is dynamically changed
             # text (SAT after limbic might otherwise show feedback points)
             self.feedback_text_objects[1].text = 'Correct!'
-            self.feedback_text_objects[6].text = self.feedback_txt[1]  # Too slow for SPD condition, corr
-            self.feedback_text_objects[6].color = 'darkgreen'
-            self.feedback_text_objects[7].text = self.feedback_txt[2]  # Too slow for SPD condition, incorr
-            self.feedback_text_objects[8].text = self.feedback_txt[1]  # Too slow for SPD&ACC condition, corr
-            self.feedback_text_objects[8].color = 'darkred'
-            self.feedback_text_objects[9].text = self.feedback_txt[2]  # Too slow for SPD&ACC condition, incorr
 
             # It is useful to save the last trial ID for the current block.
             self.last_ID_this_block = self.design.loc[self.design['block'] == block_n, 'block_trial_ID'].iloc[-1]
@@ -799,8 +753,9 @@ class FlashSession(EyelinkSession):
                     # Save all data (only in non-null trials)
                     trial_handler.addData('rt', trial_object.response_time)
                     trial_handler.addData('response', trial_object.response)
-                    trial_handler.addData('correct', trial_object.response_type in [1, 6, 8])
-                    trial_handler.addData('feedback', self.feedback_text_objects[trial_object.response_type].text)
+                    trial_handler.addData('response type', trial_object.response_type)
+                    trial_handler.addData('correct', trial_object.response_type == 1)
+                    trial_handler.addData('feedback', self.feedback_text_objects[trial_object.feedback_type].text)
                     trial_handler.addData('score', self.participant_score)
 
                 # Trial finished, so on to the next entry
@@ -1127,21 +1082,6 @@ class FlashPracticeSession(EyelinkSession):
             # 4 = early phase
             visual.TextStim(win=self.screen, text=self.feedback_txt[4], color='darkred', units='deg',
                             height=visual_sizes['fb_text']),
-            # 5 = early phase
-            visual.TextStim(win=self.screen, text=self.feedback_txt[5], color='darkred', units='deg',
-                            height=visual_sizes['fb_text']),
-            # 6 = too slow for SPD condition (but correct)
-            visual.TextStim(win=self.screen, text=self.feedback_txt[1], color='darkgreen', units='deg',
-                            height=visual_sizes['fb_text']),
-            # 7 = too slow for SPD condition (but incorrect)
-            visual.TextStim(win=self.screen, text=self.feedback_txt[2], color='darkred', units='deg',
-                            height=visual_sizes['fb_text']),
-            # 8 = too slow for ACC condition (but correct)
-            visual.TextStim(win=self.screen, text=self.feedback_txt[1], color='darkgreen', units='deg',
-                            height=visual_sizes['fb_text']),
-            # 9 = too slow for ACC condition (but incorrect)
-            visual.TextStim(win=self.screen, text=self.feedback_txt[2], color='darkred', units='deg',
-                            height=visual_sizes['fb_text']),
         ]
 
         # Prepare localizer stimuli
@@ -1465,33 +1405,6 @@ class FlashPracticeSession(EyelinkSession):
                 self.feedback_text_objects[1].text = self.feedback_txt[1] + ' +2\n' + self.feedback_txt[6] + ' %d' % (
                     self.participant_score + 2)
 
-        # In cognitive trials, prepare feedback: sometimes, we give "Too slow" as feedback in the SPD condition with
-        # responses > 1.0 s.
-        if 'cognitive' in trial.block_type:
-            # On this trial, if ppn is too slow, give "too slow"-feedback? This is probabilistic
-            give_slow_feedback = np.random.choice([True, False], p=[self.sat_feedback_parameters['prob_too_slow_fb'],
-                                                                    1-self.sat_feedback_parameters['prob_too_slow_fb']])
-            if give_slow_feedback:
-                self.feedback_text_objects[8].text = self.feedback_txt[0]  # Too slow for SPD&ACC condition, corr
-                self.feedback_text_objects[8].color = 'darkred'
-                self.feedback_text_objects[9].text = self.feedback_txt[0]  # Too slow for SPD&ACC condition, incorr
-
-                if trial.trial_type in [0, 1]:
-                    self.feedback_text_objects[6].text = self.feedback_txt[0]  # Too slow for SPD condition, corr
-                    self.feedback_text_objects[6].color = 'darkred'
-                    self.feedback_text_objects[7].text = self.feedback_txt[0]  # Too slow for SPD condition, incorr
-                elif trial.trial_type in [2, 3]:
-                    self.feedback_text_objects[6].text = self.feedback_txt[1]  # Too slow for SPD&ACC condition, corr
-                    self.feedback_text_objects[6].color = 'darkgreen'
-                    self.feedback_text_objects[7].text = self.feedback_txt[2]  # Too slow for SPD&ACC condition, incorr
-            else:
-                self.feedback_text_objects[6].text = self.feedback_txt[1]   # Too slow for SPD condition, corr
-                self.feedback_text_objects[6].color = 'darkgreen'
-                self.feedback_text_objects[7].text = self.feedback_txt[2]   # Too slow for SPD condition, incorr
-                self.feedback_text_objects[8].text = self.feedback_txt[1]   # Too slow for SPD&ACC condition, corr
-                self.feedback_text_objects[8].color = 'darkred'
-                self.feedback_text_objects[9].text = self.feedback_txt[2]   # Too slow for SPD&ACC condition, incorr
-
         trial_object = trial_pointer(ID=trial.trial_ID,
                                      block_trial_ID=trial.block_trial_ID,
                                      parameters={'trial_evidence_arrays': self.trial_arrays[trial.trial_ID],
@@ -1573,12 +1486,6 @@ class FlashPracticeSession(EyelinkSession):
             # Reset all feedback objects of which the text is dynamically changed
             # text (SAT after limbic might otherwise show feedback points)
             self.feedback_text_objects[1].text = 'Correct!'
-            self.feedback_text_objects[6].text = self.feedback_txt[1]  # Too slow for SPD condition, corr
-            self.feedback_text_objects[6].color = 'darkgreen'
-            self.feedback_text_objects[7].text = self.feedback_txt[2]  # Too slow for SPD condition, incorr
-            self.feedback_text_objects[8].text = self.feedback_txt[1]  # Too slow for SPD&ACC condition, corr
-            self.feedback_text_objects[8].color = 'darkred'
-            self.feedback_text_objects[9].text = self.feedback_txt[2]  # Too slow for SPD&ACC condition, incorr
 
             # It is useful to save the last trial ID for the current block.
             self.last_ID_this_block = self.design.loc[self.design['block'] == self.current_block, 'block_trial_ID'].iloc[-1]
@@ -1625,8 +1532,10 @@ class FlashPracticeSession(EyelinkSession):
                 # Save all data (only in non-null trials)
                 trial_handler.addData('rt', trial_object.response_time)
                 trial_handler.addData('response', trial_object.response)
+                trial_handler.addData('response type', trial_object.response_type)
                 trial_handler.addData('correct', trial_object.response_type == 1)
-                trial_handler.addData('feedback', self.feedback_text_objects[trial_object.response_type].text)
+                trial_handler.addData('feedback', self.feedback_text_objects[trial_object.feedback_type].text)
+                trial_handler.addData('score', self.participant_score)
 
                 # Trial finished, so on to the next entry
                 self.exp_handler.nextEntry()
