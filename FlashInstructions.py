@@ -144,7 +144,7 @@ class FlashEndBlockInstructions(FlashInstructions):
 
         self.session.block_end_instructions[0].draw()
 
-        super(FlashEndBlockInstructions, self).draw()
+        super(FlashInstructions, self).draw()
 
     def event(self):
         for i, (ev, ev_time) in enumerate(event.getKeys(timeStamped=self.session.clock)):

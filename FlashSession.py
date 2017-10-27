@@ -82,8 +82,8 @@ class FlashSession(EyelinkSession):
         if self.subject_initials == 'DEBUG':
             self.instructions_durations = [1]
         else:
-            # Otherwise show them for maximum 10 minutes (the user should skip screens).
-            self.instructions_durations = [600]
+            # Otherwise show them for maximum 30 minutes (the user should skip screens).
+            self.instructions_durations = [1800]
 
         # Set-up eye tracker OR dummy
         if tracker_on:
@@ -337,6 +337,13 @@ class FlashSession(EyelinkSession):
                                                    text=scanner_wait_txt,
                                                    units='pix', font='Helvetica Neue', pos=(0, 0),
                                                    italic=True, height=30, alignHoriz='center', flipHoriz=self.mirror)
+
+        self.recalibration_error_screen = [
+            visual.TextStim(win=self.screen,
+                            text='Could not recalibrate: not connected to tracker...\n\nPress space to proceed with '
+                                 'the experiment.',
+                            italic=True, height=30, color='darkred', alignHoriz='center', flipHoriz=self.mirror)
+        ]
 
         # Keep debug screen at hand
         self.debug_screen = visual.TextStim(win=self.screen,
@@ -689,15 +696,16 @@ class FlashSession(EyelinkSession):
         for block_n in range(self.start_block, 5):
 
             # If this is not the first block that is run, let operator check if we need to recalibrate.
-            if block_n > self.start_block:
+            if block_n > self.start_block-1:
                 # ToDo: show instruction screen here with recalibrate option
-                end_block_instr = FlashEndBlockInstructions(ID=-99, parameters={},
-                                                            phase_durations=[100],
+                end_block_instr = FlashEndBlockInstructions(ID=-98, parameters={},
+                                                            phase_durations=[1800],
                                                             session=self,
                                                             screen=self.screen,
                                                             tracker=self.tracker)
                 end_block_instr.run()
 
+                # Does the operator want to recalibrate or not? If 'r' was pressed: yes, otherwise: no.
                 if end_block_instr.stop_key == 'r':
                     if self.tracker is not None:
                         if self.tracker.connected():
@@ -708,6 +716,8 @@ class FlashSession(EyelinkSession):
                         self.tracker.close()
                     else:
                         print('I would recalibrate, but no tracker is connected...')
+                        self.instructions_to_show = self.recalibration_error_screen
+                        self.show_instructions()
 
             # Get the trial handler of the current block
             trial_handler = self.trial_handlers[block_n]
@@ -823,7 +833,7 @@ class FlashSession(EyelinkSession):
         self.exp_handler.saveAsWideText(output_fn_dat + '.csv')
 
         if block_n is not None:
-            with open(self.output_fn_frames + '_outputDict.pickle', 'wb') as f:
+            with open(output_fn_frames + '_outputDict.pickle', 'wb') as f:
                 pickle.dump(self.outputDict, f)
 
         if self.screen.recordFrameIntervals:

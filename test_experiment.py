@@ -25,7 +25,7 @@ if sysErr:
     print('Warning: Failed to renice, probably you arent authorized as superuser')
 
 # Initialize Session
-sess = FlashSession(subject_initials='DEBUG', index_number=1, scanner='n', tracker_on=True, language='nl',
+sess = FlashSession(subject_initials='SM', index_number=1, scanner='n', tracker_on=True, language='nl',
                     mirror=False, start_block=1, start_score=0)
 
 # Launch dummy scanner
