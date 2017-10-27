@@ -66,7 +66,7 @@ class FlashSession(EyelinkSession):
         self.mouse = event.Mouse(win=screen, visible=False)
 
         # For logging: set-up output file name, experiment handler
-        self.create_output_file_name()
+        self.create_output_file_name(data_directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data'))
         # save a log file for detail verbose info
         logFile = logging.LogFile(self.output_file + '.log', level=logging.EXP)
 
@@ -916,7 +916,7 @@ class FlashPracticeSession(EyelinkSession):
         self.mouse = event.Mouse(win=screen, visible=False)
 
         # For logging: set-up output file name, experiment handler
-        self.create_output_file_name(data_directory=os.path.dirname(os.path.abspath(__file__)))
+        self.create_output_file_name(data_directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data'))
         self.output_file = self.output_file + 'PRACTICE'
 
         # save a log file for detail verbose info
