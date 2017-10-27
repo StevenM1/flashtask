@@ -165,7 +165,7 @@ class Session(object):
         pygame.mixer.quit()
         self.screen.close()
         with open(self.output_file + '_outputDict.pickle', 'wb') as f:
-            pickle.dump(f, self.outputDict)
+            pickle.dump(self.outputDict, f)
         # parsopf = open(self.output_file + '_outputDict.pickle', 'a')
         # pickle.dump(self.outputDict, parsopf)
         # parsopf.close()

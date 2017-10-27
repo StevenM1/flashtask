@@ -336,7 +336,7 @@ class FlashSession(EyelinkSession):
         self.scanner_wait_screen = visual.TextStim(win=self.screen,
                                                    text=scanner_wait_txt,
                                                    units='pix', font='Helvetica Neue', pos=(0, 0),
-                                                   italic=False, height=30, alignHoriz='center', flipHoriz=self.mirror)
+                                                   italic=True, height=30, alignHoriz='center', flipHoriz=self.mirror)
 
         # Keep debug screen at hand
         self.debug_screen = visual.TextStim(win=self.screen,
@@ -824,7 +824,7 @@ class FlashSession(EyelinkSession):
 
         if block_n is not None:
             with open(self.output_fn_frames + '_outputDict.pickle', 'wb') as f:
-                pickle.dump(f, self.outputDict)
+                pickle.dump(self.outputDict, f)
 
         if self.screen.recordFrameIntervals:
 
@@ -1166,7 +1166,7 @@ class FlashPracticeSession(EyelinkSession):
         self.scanner_wait_screen = visual.TextStim(win=self.screen,
                                                    text=scanner_wait_txt,
                                                    units='pix', font='Helvetica Neue', pos=(0, 0),
-                                                   italic=False, height=30, alignHoriz='center', )
+                                                   italic=True, height=30, alignHoriz='center', )
 
         # Keep debug screen at hand
         self.debug_screen = visual.TextStim(win=self.screen,
