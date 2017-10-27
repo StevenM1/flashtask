@@ -70,7 +70,7 @@ else:
     screen_res = (1920, 1080)
 
     # Create Monitor
-    cur_mon = Monitor(name='this_monitor', width=57.2, distance=60, notes='Dynamically created in standard_parameters. '
+    cur_mon = Monitor(name='this_monitor', width=57.2, distance=55, notes='Dynamically created in standard_parameters. '
                                                                           'You might read a warning if the monitor '
                                                                           'specification does not already exist.')
     cur_mon.setSizePix(screen_res)

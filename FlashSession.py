@@ -101,7 +101,7 @@ class FlashSession(EyelinkSession):
         # Ensure that relative paths start from the same directory as this script
         _thisDir = os.path.dirname(os.path.abspath(__file__)).decode(sys.getfilesystemencoding())
         self.exp_handler = data.ExperimentHandler(name='flashtask',
-                                                  version='0.3.0',
+                                                  version='0.9.0',
                                                   extraInfo={'subject_initials': subject_initials,
                                                              'index_number': index_number,
                                                              'scanner': scanner,
@@ -696,8 +696,8 @@ class FlashSession(EyelinkSession):
         for block_n in range(self.start_block, 5):
 
             # If this is not the first block that is run, let operator check if we need to recalibrate.
-            if block_n > self.start_block-1:
-                # ToDo: show instruction screen here with recalibrate option
+            # Also the time for a break!
+            if block_n > self.start_block:
                 end_block_instr = FlashEndBlockInstructions(ID=-98, parameters={},
                                                             phase_durations=[1800],
                                                             session=self,
