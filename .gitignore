@@ -107,6 +107,9 @@ ENV/
 *.DS_Store
 
 
+# PyCharm
+.idea
+
 # Ignore data, except for notebooks
 data/*
 !data/*.ipynb

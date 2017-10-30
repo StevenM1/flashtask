@@ -164,8 +164,8 @@ class FlashSession(EyelinkSession):
 
         self.response_keys = np.array(response_keys)
 
-        # Radius for eye movement detection: 3 cm?
-        self.eye_travel_threshold = 3
+        # Radius for eye movement detection: 1.5 degrees?
+        self.eye_travel_threshold = 1.5
 
         # Load design and prepare all trials
         self.block_types = []

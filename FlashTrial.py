@@ -303,7 +303,7 @@ class FlashTrialSaccade(FlashTrial):
             center = self.eye_pos_start_phase[self.phase]
             distance_from_center = np.divide(np.sqrt((eyepos[0]-center[0])**2 +
                                                      (eyepos[1]-center[1])**2),
-                                             self.session.pixels_per_centimeter)
+                                             self.session.pixels_per_degree)
 
             if distance_from_center >= self.session.eye_travel_threshold:
                 self.eye_movement_detected_in_phase = True
@@ -338,7 +338,8 @@ class FlashTrialSaccade(FlashTrial):
                                                 'incorrect'])
                     else:
                         # In SPEED conditions, make "too slow"-feedback probabilistic
-                        if self.cuetext == 'SPD' and stats.norm.cdf(self.response_time, 1):
+                        if self.cuetext == 'SPD' and np.random.binomial(n=1, p=stats.expon.cdf(
+                                self.response_time, loc=.75, scale=1 / 2.75)):
                             self.feedback_type = 0
                             if saccade_direction == self.correct_direction:
                                 self.response_type = 1
@@ -466,8 +467,8 @@ class FlashTrialKeyboard(FlashTrial):
                                                         self.response_time])
                             else:
                                 # In SPEED conditions, make "too slow"-feedback probabilistic
-                                if self.cuetext == 'SPD' and np.random.binomial(n=1, p=stats.norm.cdf(
-                                        self.response_time, 1.25)):
+                                if self.cuetext == 'SPD' and np.random.binomial(n=1, p=stats.expon.cdf(
+                                        self.response_time, loc=.75, scale=1/2.75)):
                                     self.feedback_type = 0
                                     if ev == self.correct_key:
                                         self.response_type = 1
