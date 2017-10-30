@@ -109,7 +109,12 @@ class FlashSession(EyelinkSession):
                                                              'scanner': scanner,
                                                              'tracker_on': tracker_on,
                                                              'frame_rate': self.screen.getActualFrameRate(),
-                                                             'eyelink_file_name': self.eyelink_temp_file},
+                                                             'eyelink_tmp_file_name': self.eyelink_temp_file,
+                                                             'language': language,
+                                                             'n_flashers': self.standard_parameters['n_flashers'],
+                                                             'radius flashers': self.standard_parameters[
+                                                                 'radius_deg'],
+                                                             'flasher size': self.standard_parameters['flasher_size']},
                                                   runtimeInfo=info.RunTimeInfo,
                                                   dataFileName=os.path.join(_thisDir, self.output_file),
                                                   autoLog=True)
@@ -533,13 +538,16 @@ class FlashSession(EyelinkSession):
     def run_null_trial(self, trial, phases, draw_crosses=False):
         """ Runs a single null trial """
 
-        NullTrial(ID=trial.trial_ID,
-                  block_trial_ID=trial.block_trial_ID,
-                  parameters={'draw_crosses': draw_crosses},
-                  phase_durations=phases,
-                  session=self,
-                  screen=self.screen,
-                  tracker=self.tracker).run()
+        trial_object = NullTrial(ID=trial.trial_ID,
+                                 block_trial_ID=trial.block_trial_ID,
+                                 parameters={'draw_crosses': draw_crosses},
+                                 phase_durations=phases,
+                                 session=self,
+                                 screen=self.screen,
+                                 tracker=self.tracker)
+        trial_object.run()
+
+        return trial_object
 
     def run_localizer_trial(self, trial, phases):
         """ Runs a single localizer trial """
@@ -659,7 +667,7 @@ class FlashSession(EyelinkSession):
             # Also the time for a break!
             if block_n > self.start_block:
                 end_block_instr = FlashEndBlockInstructions(ID=-98, parameters={},
-                                                            phase_durations=[1800],
+                                                            phase_durations=self.instructions_durations,
                                                             session=self,
                                                             screen=self.screen,
                                                             tracker=self.tracker)
@@ -732,15 +740,18 @@ class FlashSession(EyelinkSession):
                         draw_crosses = True
                     else:
                         draw_crosses = False
-                    self.run_null_trial(trial, phases=this_phases, draw_crosses=draw_crosses)          # RUN NULL TRIAL
 
+                    # Run null trial
+                    trial_object = self.run_null_trial(trial, phases=this_phases, draw_crosses=draw_crosses)
                 else:
-                    if block_n == 0:   # Localizer
-                        trial_object = self.run_localizer_trial(trial, phases=this_phases)   # RUN LOCALIZER
-                    else:              # Experiment
-                        trial_object = self.run_experimental_trial(trial, phases=this_phases, block_n=block_n)  # RUN
+                    if block_n == 0:
+                        # Run localizer
+                        trial_object = self.run_localizer_trial(trial, phases=this_phases)
+                    else:
+                        # Run decision-making trials
+                        trial_object = self.run_experimental_trial(trial, phases=this_phases, block_n=block_n)
 
-                        # Save evidence arrays (only in experimental trials)
+                        # Save evidence arrays (only in decision-making trials)
                         for flasher in range(self.n_flashers):
                             trial_handler.addData('evidence stream ' + str(flasher),
                                                   self.trial_arrays[trial.trial_ID][flasher][self.first_frame_idx])
@@ -750,13 +761,34 @@ class FlashSession(EyelinkSession):
                                               trial_object.total_increments / self.standard_parameters[
                                                   'increment_length'])
 
-                    # Save all data (only in non-null trials)
+                    # Save behavioral data (only in non-null trials)
                     trial_handler.addData('rt', trial_object.response_time)
                     trial_handler.addData('response', trial_object.response)
                     trial_handler.addData('response type', trial_object.response_type)
                     trial_handler.addData('correct', trial_object.response_type == 1)
                     trial_handler.addData('feedback', self.feedback_text_objects[trial_object.feedback_type].text)
                     trial_handler.addData('score', self.participant_score)
+
+                if trial.block_trial_ID == 0:
+                    block_start_time = trial_object.t_time
+
+                # Add timing for all trial types
+                trial_handler.addData('phase_0_measured', trial_object.t_time - trial_object.start_time)
+                trial_handler.addData('phase_1_measured', trial_object.fix1_time - trial_object.t_time)
+                trial_handler.addData('phase_2_measured', trial_object.cue_time - trial_object.fix1_time)
+                trial_handler.addData('phase_3_measured', trial_object.fix2_time - trial_object.cue_time)
+                trial_handler.addData('phase_4_measured', trial_object.stimulus_time - trial_object.fix2_time)
+                trial_handler.addData('phase_5_measured', trial_object.post_stimulus_time - trial_object.stimulus_time)
+                trial_handler.addData('phase_6_measured', trial_object.feedback_time - trial_object.post_stimulus_time)
+                trial_handler.addData('duration_measured', trial_object.run_time - (trial_object.t_time -
+                                                                                    trial_object.start_time))
+                # This is not the "actual" duration, because it does not include the full IIT!
+
+                trial_handler.addData('trial_start_time_block_measured', trial_object.t_time - block_start_time)
+                trial_handler.addData('cue_onset_time_block_measured', trial_object.fix1_time - block_start_time)
+                # Counter-intuitive, but fix1_time is the END of fixation cross 1 = beginning of cue
+                trial_handler.addData('stimulus_onset_time_block_measured', trial_object.fix2_time - block_start_time)
+                # Counter-intuitive, but fix2_time is END of fixation cross 2 = onset of stim
 
                 # Trial finished, so on to the next entry
                 self.exp_handler.nextEntry()
