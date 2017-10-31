@@ -219,9 +219,13 @@ class LocalizerTrialSaccade(LocalizerTrial):
         self.correct_direction = parameters['correct_answer']
         self.directions_verbose = ['left saccade', 'right saccade']
         self.eye_movement_detected_in_phase = False
+        self.eye_pos_start_phase = [None, None, None, None, None, None, None, None]
 
     def event(self):
         """ Checks for saccades as answers and keyboard responses for escape / scanner pulse """
+
+        if self.eye_pos_start_phase[self.phase] is None:
+            self.eye_pos_start_phase[self.phase] = self.session.eye_pos()
 
         if not self.eye_movement_detected_in_phase:
             # Get eye position
@@ -233,7 +237,10 @@ class LocalizerTrialSaccade(LocalizerTrial):
             #                                (eyepos[1]-self.session.screen_pix_size[1]/2)**2) / \
             #                        self.session.pixels_per_centimeter
 
-            distance_from_center = np.divide(np.sqrt(eyepos[0]**2 + eyepos[1]**2), self.session.pixels_per_centimeter)
+            center = self.eye_pos_start_phase[self.phase]
+            distance_from_center = np.divide(np.sqrt((eyepos[0]-center[0])**2 +
+                                                     (eyepos[1]-center[1])**2),
+                                             self.session.pixels_per_degree)
 
             if distance_from_center >= self.session.eye_travel_threshold:
                 self.eye_movement_detected_in_phase = True

@@ -111,10 +111,10 @@ class FlashSession(EyelinkSession):
                                                              'frame_rate': self.screen.getActualFrameRate(),
                                                              'eyelink_tmp_file_name': self.eyelink_temp_file,
                                                              'language': language,
-                                                             'n_flashers': self.standard_parameters['n_flashers'],
-                                                             'radius flashers': self.standard_parameters[
+                                                             'n_flashers': parameters['n_flashers'],
+                                                             'radius flashers': parameters[
                                                                  'radius_deg'],
-                                                             'flasher size': self.standard_parameters['flasher_size']},
+                                                             'flasher size': parameters['flasher_size']},
                                                   runtimeInfo=info.RunTimeInfo,
                                                   dataFileName=os.path.join(_thisDir, self.output_file),
                                                   autoLog=True)
