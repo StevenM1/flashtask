@@ -54,11 +54,6 @@ class FlashTrial(Trial):
         3 = Too fast
         4 = Too early (early phase response) - does not exist in FlashTrial, but exists for compatibility with
         LocalizerPractice
-        5 = Too early (idem)
-        6 = Too slow for SPEED trial (but fast enough for ACC). Answer was correct
-        7 = Too slow for SPEED trial (but fast enough for ACC). Answer was wrong
-        8 = Too slow for both SPEED & ACC (but during stim presentation). Answer was correct.
-        9 = Too slow for both SPEED & ACC (but during stim presentation). Answer was false.
     response_time: float
         Reaction time. Note that, for the child class FlashTrialSaccade, this is NOT ACCURATE!
     """

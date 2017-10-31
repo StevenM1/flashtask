@@ -47,7 +47,7 @@ design_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'designs'
 # Do you want to keep track of frame lengths? Recommended
 record_intervals = True
 
-# Check the following: if the current user is ME
+# Check the following: if the current user is ME, we assume that we're running on my laptop for programming
 if 'USER' in os.environ and os.environ['USER'] == 'steven':
     monitor_name = 'u2715h'
     screen_res = (2560, 1440)
@@ -68,9 +68,10 @@ else:
     # Assumes we are running on the actual, experimental set-up (i.e. 7T-MRI scanner)
     from psychopy.monitors import Monitor
     screen_res = (1920, 1080)
+    distance = 55
 
     # Create Monitor
-    cur_mon = Monitor(name='this_monitor', width=57.2, distance=55, notes='Dynamically created in standard_parameters. '
+    cur_mon = Monitor(name='this_monitor', width=57.2, distance=distance, notes='Dynamically created in standard_parameters. '
                                                                           'You might read a warning if the monitor '
                                                                           'specification does not already exist.')
     cur_mon.setSizePix(screen_res)

@@ -678,10 +678,19 @@ class FlashSession(EyelinkSession):
                     if self.tracker is not None:
                         if self.tracker.connected():
                             self.tracker.stop_recording()
+
                         # inject local file name into pygaze tracker and then close.
                         self.tracker.local_data_file = self.output_file + '_blocks_' + str(self.start_block) + '-' + \
                                                        str(block_n) + '.edf'
                         self.tracker.close()
+
+                        # And create new eye-tracking set-up.
+                        self.create_tracker(auto_trigger_calibration=1, calibration_type='HV9')
+
+                        if self.tracker_on:
+                            self.dummy_tracker = False
+                            self.tracker_setup()
+
                     else:
                         print('I would recalibrate, but no tracker is connected...')
                         self.instructions_to_show = self.recalibration_error_screen
