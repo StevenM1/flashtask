@@ -868,41 +868,8 @@ class FlashSession(EyelinkSession):
         """ Saves stuff and closes """
 
         self.save_data()
-
-        # self.exp_handler.saveAsPickle(self.exp_handler.dataFileName)
-        # self.exp_handler.saveAsWideText(self.exp_handler.dataFileName + '.csv')
-        #
-        # if self.screen.recordFrameIntervals:
-        #
-        #     # Save frame intervals to file
-        #     self.screen.saveFrameIntervals(fileName=self.output_file + '_frame_intervals.log', clear=False)
-        #
-        #     # Make a nice figure
-        #     intervals_ms = pylab.array(self.screen.frameIntervals) * 1000
-        #     m = pylab.mean(intervals_ms)
-        #     sd = pylab.std(intervals_ms)
-        #
-        #     msg = "Mean=%.1fms, s.d.=%.2f, 99%%CI(frame)=%.2f-%.2f"
-        #     dist_string = msg % (m, sd, m - 2.58 * sd, m + 2.58 * sd)
-        #     n_total = len(intervals_ms)
-        #     n_dropped = sum(intervals_ms > (1.5 * m))
-        #     msg = "Dropped/Frames = %i/%i = %.3f%%"
-        #     dropped_string = msg % (n_dropped, n_total, 100 * n_dropped / float(n_total))
-        #
-        #     # plot the frame intervals
-        #     pylab.figure(figsize=[12, 8])
-        #     pylab.subplot(1, 2, 1)
-        #     pylab.plot(intervals_ms, '-')
-        #     pylab.ylabel('t (ms)')
-        #     pylab.xlabel('frame N')
-        #     pylab.title(dropped_string)
-        #
-        #     pylab.subplot(1, 2, 2)
-        #     pylab.hist(intervals_ms, 50, normed=0, histtype='stepfilled')
-        #     pylab.xlabel('t (ms)')
-        #     pylab.ylabel('n frames')
-        #     pylab.title(dist_string)
-        #     pylab.savefig(self.output_file + '_frame_intervals.png')
+        print('Participant scored %d points, which corresponds to %.2f euro or %.2f participant points' % (
+            self.participant_score, self.participant_score * (10 / 560), self.participant_score * (1 / 560)))
 
         super(FlashSession, self).close()
 
