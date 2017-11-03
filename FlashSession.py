@@ -215,31 +215,32 @@ class FlashSession(EyelinkSession):
         """
 
         # Load all instruction texts
-        with open(os.path.join('instructions', self.language, 'feedback.txt'), 'rb') as f:
+        this_file = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(this_file, 'instructions', self.language, 'feedback.txt'), 'rb') as f:
             self.feedback_txt = f.read().split('\n\n\n')
 
-        with open(os.path.join('instructions', self.language, 'scanner_wait.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'scanner_wait.txt'), 'rb') as f:
             scanner_wait_txt = f.read().split('\n\n\n')[0]
 
-        with open(os.path.join('instructions', self.language, 'welcome_exp.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'welcome_exp.txt'), 'rb') as f:
             welcome_txt = f.read().split('\n\n\n')[0]
 
-        with open(os.path.join('instructions', self.language, 'localizer_eye.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'localizer_eye.txt'), 'rb') as f:
             localizer_eye_txt = f.read().split('\n\n\n')[0]
 
-        with open(os.path.join('instructions', self.language, 'localizer_hand.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'localizer_hand.txt'), 'rb') as f:
             localizer_hand_txt = f.read().split('\n\n\n')[0]
 
-        with open(os.path.join('instructions', self.language, 'cognitive_eye.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'cognitive_eye.txt'), 'rb') as f:
             cognitive_eye_txt = f.read().split('\n\n\n')
 
-        with open(os.path.join('instructions', self.language, 'cognitive_hand.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'cognitive_hand.txt'), 'rb') as f:
             cognitive_hand_txt = f.read().split('\n\n\n')
 
-        with open(os.path.join('instructions', self.language, 'limbic_eye.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'limbic_eye.txt'), 'rb') as f:
             limbic_eye_txt = f.read().split('\n\n\n')
 
-        with open(os.path.join('instructions', self.language, 'limbic_hand.txt'), 'rb') as f:
+        with open(os.path.join(this_file, 'instructions', self.language, 'limbic_hand.txt'), 'rb') as f:
             limbic_hand_txt = f.read().split('\n\n\n')
 
         # Prepare fixation cross
