@@ -9,15 +9,15 @@ from PIL import Image
 import array, string, pylink, psychopy
 
 class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
-    def __init__(self, libeyegaze, tracker):#
+    def __init__(self, win, tracker):#
         '''Initialize a Custom EyeLinkCoreGraphics  
         
         tracker: an eye-tracker instance
         win: the Psychopy display we plan to use for stimulus presentation  '''
         
         pylink.EyeLinkCustomDisplay.__init__(self)
-		self.display = libeyegaze.display.expDisplay  # SM: get the PsychoPy.window instance
-		#        self.display = win
+        self.display = win  # SM: get the PsychoPy.window instance
+#        win = self.display
         # Let's disable the beeps as the Psychopy "sound" module will bite our ass
         #self.__target_beep__ = sound.Sound('type.wav')
         #self.__target_beep__done__ = sound.Sound('qbeep.wav')

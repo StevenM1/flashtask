@@ -22,7 +22,7 @@
 from pygaze.py3compat import *
 from pygaze import settings
 from pygaze._misc.misc import copy_docstr
-from _eyetracker.baseeyetracker import BaseEyeTracker
+from ._eyetracker.baseeyetracker import BaseEyeTracker
 
 
 class EyeTracker(BaseEyeTracker):
@@ -61,7 +61,7 @@ class EyeTracker(BaseEyeTracker):
 		# EyeLink
 		if trackertype == u'eyelink':
 			# import libraries
-			from pygaze._eyetracker.libeyelink import libeyelink
+			from _eyetracker.libeyelink import libeyelink
 			# morph class
 			self.__class__ = libeyelink
 			# initialize
