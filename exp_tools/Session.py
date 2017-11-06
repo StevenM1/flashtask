@@ -33,7 +33,8 @@ from pylink import *
 
 import pygaze
 from pygaze import libscreen
-from pygaze import eyetracker
+#from pygaze import eyetracker
+from .eyelink import eyetracker
 from IPython import embed as shell
 
 
