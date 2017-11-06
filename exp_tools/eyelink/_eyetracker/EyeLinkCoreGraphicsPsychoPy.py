@@ -18,7 +18,8 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         win: the Psychopy display we plan to use for stimulus presentation  '''
         
         pylink.EyeLinkCustomDisplay.__init__(self)
-        self.display = win  # SM: get the PsychoPy.window instance
+        self.tracker = tracker
+        self.display = win
         self.libeyelink = libeyelink
 #        win = self.display
         # Let's disable the beeps as the Psychopy "sound" module will bite our ass
@@ -75,8 +76,8 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         self.esc_pressed = None
         self.display_open = True
 
-        self.xc = 0 #self.libeyelink.display.dispsize[0] / 2
-        self.yc = 0 #self.libeyelink.display.dispsize[1] / 2
+        self.xc = 0
+        self.yc = 0
         self.extra_info = True
         self.ld = 40  # line distance
         self.fontsize = libeyelink.fontsize
@@ -273,7 +274,6 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
                 cal_succ = visual.TextStim(self.display, text="Calibration succesful, press 'v' to validate",
                                            pos=(self.xc, self.yc), font='mono', height=self.fontsize, antialias=True)
                 cal_succ.draw()
-                self.display.flip()
                 # self.screen.draw_text(
                 #     text="Calibration succesfull, press 'v' to validate",
                 #     pos=(self.xc, self.yc), center=True, font='mono',
@@ -289,6 +289,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
             else:
                 ret = visual.TextStim(self.display, text="Press 'enter' to return to menu",
                                       pos=(self.xc, self.yc), font='mono', height=self.fontsize, antialias=True)
+                ret.draw()
                 # self.screen.draw_text(text="Press 'Enter' to return to menu",
                 #                       pos=(self.xc, self.yc), center=True, font='mono',
                 #                       fontsize=self.fontsize, antialias=True)
