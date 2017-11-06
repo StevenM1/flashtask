@@ -275,6 +275,7 @@ class FlashSession(EyelinkSession):
         self.block_end_instructions = [
             visual.TextStim(win=self.screen, text='End of block reached. Waiting for operator...\n\nPress R to '
                                                   'recalibrate, or space to proceed.',
+                            name='end_block_instr',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=True, height=30, alignHoriz='center', units='pix',
                             )
@@ -328,24 +329,29 @@ class FlashSession(EyelinkSession):
         # Prepare waiting for scanner-screen
         self.scanner_wait_screen = visual.TextStim(win=self.screen,
                                                    text=scanner_wait_txt,
+                                                   name='scanner_wait_screen',
                                                    units='pix', font='Helvetica Neue', pos=(0, 0),
-                                                   italic=True, height=30, alignHoriz='center', flipHoriz=self.mirror)
+                                                   italic=True,
+                                                   height=30, alignHoriz='center', flipHoriz=self.mirror)
 
         self.recalibration_error_screen = [
             visual.TextStim(win=self.screen,
                             text='Could not recalibrate: not connected to tracker...\n\nPress space to proceed with '
                                  'the experiment.',
+                            name='recalibration_error_screen',
                             italic=True, height=30, color='darkred', alignHoriz='center', flipHoriz=self.mirror)
         ]
 
         # Keep debug screen at hand
         self.debug_screen = visual.TextStim(win=self.screen,
                                             text='DEBUG MODE. DO NOT RUN AN ACTUAL EXPERIMENT',
+                                            name='debug_screen',
                                             color='darkred', height=1, units='cm', flipHoriz=self.mirror)
 
         # Prepare welcome screen
         self.welcome_screen = visual.TextStim(win=self.screen,
                                               text=welcome_txt,
+                                              name='welcome_screen',
                                               units='pix', font='Helvetica Neue', pos=(0, 0),
                                               italic=False, height=30, alignHoriz='center', flipHoriz=self.mirror)
 
@@ -353,6 +359,7 @@ class FlashSession(EyelinkSession):
         self.localizer_instructions_eye = [
             visual.TextStim(win=self.screen,
                             text=localizer_eye_txt,
+                            name='localizer_instructions_eye',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
         ]
@@ -360,6 +367,7 @@ class FlashSession(EyelinkSession):
         self.localizer_instructions_hand = [
             visual.TextStim(win=self.screen,
                             text=localizer_hand_txt,
+                            name='localizer_instructions_hand',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
         ]
@@ -367,8 +375,10 @@ class FlashSession(EyelinkSession):
         self.cognitive_eye_instructions = [
             visual.TextStim(win=self.screen, text=cognitive_eye_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
+                            name='cognitive_eye_screen_1',
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=cognitive_eye_txt[1],
+                            name='cognitive_eye_screen_2',
                             font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
                             units='pix', flipHoriz=self.mirror)
         ]
@@ -376,8 +386,10 @@ class FlashSession(EyelinkSession):
         self.cognitive_hand_instructions = [
             visual.TextStim(win=self.screen, text=cognitive_hand_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
+                            name='cognitive_hand_screen_1',
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=cognitive_hand_txt[1],
+                            name='cognitive_hand_screen_2',
                             font='Helvetica Neue', pos=(0, 0), italic=False, height=30, alignHoriz='center',
                             units='pix', flipHoriz=self.mirror)
         ]
@@ -385,14 +397,18 @@ class FlashSession(EyelinkSession):
         self.limbic_eye_instructions = [
             visual.TextStim(win=self.screen, text=limbic_eye_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
+                            name='limbic_eye_screen_1',
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_eye_txt[1],
                             font='Helvetica Neue', pos=(0, 0),
+                            name='limbic_eye_screen_2',
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_eye_txt[2],
+                            name='limbic_eye_screen_3',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_eye_txt[3],
+                            name='limbic_eye_screen_4',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror)
         ]
@@ -400,14 +416,18 @@ class FlashSession(EyelinkSession):
         self.limbic_hand_instructions = [
             visual.TextStim(win=self.screen, text=limbic_hand_txt[0],
                             font='Helvetica Neue', pos=(0, 0),
+                            name='limbic_hand_screen_1',
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_hand_txt[1],
                             font='Helvetica Neue', pos=(0, 0),
+                            name='limbic_hand_screen_2',
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_hand_txt[2],
+                            name='limbic_hand_screen_3',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
             visual.TextStim(win=self.screen, text=limbic_hand_txt[3],
+                            name='limbic_hand_screen_4',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror)
         ]
@@ -623,46 +643,49 @@ class FlashSession(EyelinkSession):
 
         return trial_object
 
-    def show_instructions(self):
+    def show_instructions(self, trial_handler, end_block=False, phase_durations=None):
         """ Shows current instructions """
+
+        if end_block:
+            instr_obj = FlashEndBlockInstructions
+            self.instructions_to_show = self.block_end_instructions
+        else:
+            instr_obj = FlashInstructions
+
+        if phase_durations is None:
+            phase_durations = self.instructions_durations
 
         # Loop over self.current_instructions
         for instruction_n in range(len(self.instructions_to_show)):
             self.current_instruction = self.instructions_to_show[instruction_n]
-            instr_trial = FlashInstructions(ID=self.n_instructions_shown,
-                                              parameters={},
-                                              phase_durations=self.instructions_durations,
-                                              session=self,
-                                              screen=self.screen,
-                                              tracker=self.tracker)
+            instr_trial = instr_obj(ID=self.n_instructions_shown,
+                                    parameters={},
+                                    phase_durations=phase_durations,
+                                    session=self,
+                                    screen=self.screen,
+                                    tracker=self.tracker)
             instr_trial.run()
+
+            trial_handler.addData('instr_screen_nr', self.n_instructions_shown)
+            trial_handler.addData('instr_start_time', instr_trial.start_time)
+            trial_handler.addData('instr_response_time', instr_trial.response_time - instr_trial.start_time)
+            trial_handler.addData('instr_end_time', instr_trial.end_time)
+            trial_handler.addData('instr_type', self.current_instruction.name)
+            trial_handler.addData('is_instruction', True)
+            self.exp_handler.nextEntry()
 
             # Check for kill flag
             if self.stopped:
                 break
 
-        # Variable to keep track of the number of instruction screens shown
-        # Instruction screen IDs are negative. The first shown is -1, the second -2, etc.
-        self.n_instructions_shown -= 1
+            # Variable to keep track of the number of instruction screens shown
+            # Instruction screen IDs are negative. The first shown is -1, the second -2, etc.
+            self.n_instructions_shown -= 1
 
         return instr_trial
 
     def run(self):
         """ Run the trials that were prepared. The experimental design must be loaded. """
-
-        # Show DEBUG screen first, if we're in debug mode.
-        if self.subject_initials == 'DEBUG':
-            self.current_instruction = self.debug_screen
-            FlashInstructions(ID=-99, parameters={},
-                              phase_durations=[100],
-                              session=self,
-                              screen=self.screen,
-                              tracker=self.tracker).run()
-
-        if self.start_block == 0:
-            # Show welcome screen (skip if this is a later block)
-            self.instructions_to_show = [self.welcome_screen]  # In list, so show_instructions() can iterate
-            _ = self.show_instructions()
 
         # Loop through blocks
         for block_n in range(self.start_block, 5):
@@ -670,49 +693,34 @@ class FlashSession(EyelinkSession):
             # Get the trial handler of the current block
             trial_handler = self.trial_handlers[block_n]
 
+            # Show DEBUG screen first, if we're in debug mode.
+            if block_n == self.start_block:
+                if self.subject_initials == 'DEBUG':
+                    self.instructions_to_show = [self.debug_screen]
+                    self.show_instructions(trial_handler=trial_handler, phase_durations=[
+                        100])
+
+                # Show welcome screen (only if session was started at block 0)
+                if self.start_block == 0:
+                    self.instructions_to_show = [self.welcome_screen]  # In list, so show_instructions() can iterate
+                    _ = self.show_instructions(trial_handler=trial_handler)
+
             # If this is not the first block that is run, let operator check if we need to recalibrate.
             # Also the time for a break!
             if block_n > self.start_block:
-                end_block_instr = FlashEndBlockInstructions(ID=self.n_instructions_shown, parameters={},
-                                                            phase_durations=self.instructions_durations,
-                                                            session=self,
-                                                            screen=self.screen,
-                                                            tracker=self.tracker)
-                end_block_instr.run()
-                trial_handler.addData('instr_screen_nr', self.n_instructions_shown)
-                trial_handler.addData('instr_start_time', end_block_instr.start_time)
-                trial_handler.addData('instr_response_time', end_block_instr.response_time)
-                trial_handler.addData('instr_end_time', end_block_instr.end_time)
-                trial_handler.addData('is_instruction', True)
-
-                # Trial finished, so on to the next entry
-                self.exp_handler.nextEntry()
-
-                self.n_instructions_shown -= 1
+                end_block_instr = self.show_instructions(trial_handler=trial_handler, end_block=True)
 
                 # Does the operator want to recalibrate or not? If 'r' was pressed: yes, otherwise: no.
                 if end_block_instr.stop_key == 'r':
                     if self.tracker is not None:
-                        print('Detected tracker, trying to stop recording...')
                         if self.tracker.connected():
-                            print('Detected tracker, trying to stop recording 2...')
                             self.tracker.stop_recording()
-
-                            # Trying to setup again
-                            self.tracker_setup()
+                            self.tracker_setup()    # Try to setup again
 
                     else:
                         print('I would recalibrate, but no tracker is connected...')
                         self.instructions_to_show = self.recalibration_error_screen
-                        instr_trial = self.show_instructions()
-                        trial_handler.addData('instr_screen_nr', self.n_instructions_shown)
-                        trial_handler.addData('instr_start_time', instr_trial.start_time)
-                        trial_handler.addData('instr_response_time', instr_trial.response_time)
-                        trial_handler.addData('instr_end_time', instr_trial.end_time)
-                        trial_handler.addData('is_instruction', True)
-
-                        # Trial finished, so on to the next entry
-                        self.exp_handler.nextEntry()
+                        _ = self.show_instructions(trial_handler=trial_handler)
 
             # Reset all feedback objects of which the text is dynamically changed
             # text (SAT after limbic might otherwise show feedback points)
@@ -742,15 +750,7 @@ class FlashSession(EyelinkSession):
                     elif block_type == 'localizer' and response_modality == 'eye':
                         self.instructions_to_show = self.localizer_instructions_eye
 
-                    instr_trial = self.show_instructions()
-                    trial_handler.addData('instr_screen_nr', self.n_instructions_shown)
-                    trial_handler.addData('instr_start_time', instr_trial.start_time)
-                    trial_handler.addData('instr_response_time', instr_trial.response_time)
-                    trial_handler.addData('instr_end_time', instr_trial.end_time)
-                    trial_handler.addData('is_instruction', True)
-
-                    # Trial finished, so on to the next entry
-                    self.exp_handler.nextEntry()
+                    _ = self.show_instructions(trial_handler=trial_handler)
 
                     # Check for kill flag
                     if self.stopped:

@@ -2,9 +2,9 @@ psychopy
 scipy
 numpy
 pandas
-python-pygaze  # pip install pygaze?
-pillow
-pygame  # pip install python-pygame
+python-pygaze
+pillow  # module Image
+pygame 
 configobj
 pyglet
 future
@@ -15,4 +15,4 @@ matplotlib
 wxPython
 psutil
 
-#pylink via SR-research
+pylink # Package created by SR-research, but not on pip: copy to python27/Lib/site-packages

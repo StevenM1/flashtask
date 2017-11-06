@@ -61,7 +61,7 @@ class FlashInstructions(Trial):
 
                 elif ev == 'space' or ev in self.session.response_keys:
                     self.response_time = ev_time
-                    self.events.append([0, ev_time - self.start_time])
+                    self.events.append([ev, ev_time - self.start_time])
                     self.stopped = True
 
                 elif ev == 't':  # Scanner pulse
@@ -111,7 +111,7 @@ class FlashInstructionsPractice(FlashInstructions):
                     print('Session stopped!')
 
                 elif ev == 'space' or ev in self.session.response_keys:
-                    self.events.append([0, ev_time - self.start_time])
+                    self.events.append([ev, ev_time - self.start_time])
                     self.session.stop_instructions = False
                     self.stopped = True
 
@@ -142,11 +142,11 @@ class FlashEndBlockInstructions(FlashInstructions):
 
         self.stop_key = None
 
-    def draw(self):
-
-        self.session.block_end_instructions[0].draw()
-
-        super(FlashInstructions, self).draw()
+    # def draw(self):
+    #
+    #     self.session.block_end_instructions[0].draw()
+    #
+    #     super(FlashInstructions, self).draw()
 
     def event(self):
         for i, (ev, ev_time) in enumerate(event.getKeys(timeStamped=self.session.clock)):
@@ -163,7 +163,7 @@ class FlashEndBlockInstructions(FlashInstructions):
                 elif ev == 'space' or ev == 'r':
                     self.stop_key = ev
                     self.response_time = ev_time
-                    self.events.append([0, ev_time - self.start_time])
+                    self.events.append([ev, ev_time - self.start_time])
                     self.stopped = True
 
                 elif ev == 't':  # Scanner pulse

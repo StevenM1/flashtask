@@ -69,7 +69,7 @@ class NullTrial(Trial):
                     print('Session stopped!')
 
                 elif ev == 'equal':
-                    self.events.append([-99, ev_time - self.start_time])
+                    self.events.append([-99, ev_time - self.start_time, 'user skipped trial'])
                     self.stopped = True
                     print('Trial canceled by user')
 
