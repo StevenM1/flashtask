@@ -6,10 +6,12 @@ from psychopy import visual, monitors, event, core, sound
 from numpy import linspace
 from math import sin, cos, pi
 from PIL import Image
-import array, string, pylink, psychopy
+import array, string, pylink, psychopy, pygaze
+from pygaze import settings
+from pygaze.screen import Screen
 
 class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
-    def __init__(self, win, tracker):#
+    def __init__(self, libeyelink, win, tracker):#
         '''Initialize a Custom EyeLinkCoreGraphics  
         
         tracker: an eye-tracker instance
@@ -17,6 +19,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         
         pylink.EyeLinkCustomDisplay.__init__(self)
         self.display = win  # SM: get the PsychoPy.window instance
+        self.libeyelink = libeyelink
 #        win = self.display
         # Let's disable the beeps as the Psychopy "sound" module will bite our ass
         #self.__target_beep__ = sound.Sound('type.wav')
@@ -67,7 +70,105 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         # lines
         self.line = visual.Line(self.display, start=(0, 0), end=(0,0),
                            lineWidth=2.0*self.cfX, lineColor=[0,0,0])
-        
+
+        # Stolen from PyGaze
+        self.esc_pressed = None
+        self.display_open = True
+
+        print('Is this not run then?')
+        self.xc = self.libeyelink.display.dispsize[0] / 2
+        self.yc = self.libeyelink.display.dispsize[1] / 2
+        self.extra_info = True
+        self.ld = 40  # line distance
+        self.fontsize = libeyelink.fontsize
+        self.title = ""
+
+        self.draw_menu_screen()
+
+    def draw_menu_screen(self):
+        """ Draws menu screen """
+        #
+        #
+        # title = visual.TextStim(text="Eyelink calibration menu",
+        #                         pos=(self.xc, self.yc - 6 * self.ld), font='mono',
+        #                         height=int(2 * self.fontsize), antialias=True)
+        #
+        # vers = visual.TextStim(text="%s (pygaze %s, pylink %s)" \
+        #                                % (self.libeyelink.eyelink_model, pygaze.version,
+        #                                   pylink.__version__), pos=(self.xc, self.yc - 5 * self.ld),
+        #                        font='mono', height=int(.8 * self.fontsize), antialias=True)
+        #
+        # cal = visual.TextStim(text="Press C to calibrate",
+        #                       pos=(self.xc, self.yc - 3 * self.ld), font='mono',
+        #                       height=self.fontsize, antialias=True)
+        #
+        # val = visual.TextStim(text="Press V to validate",
+        #                       pos=(self.xc, self.yc - 2 * self.ld), font='mono',
+        #                       height=self.fontsize, antialias=True)
+        #
+        # autothres = visual.TextStim(text="Press A to auto-threshold",
+        #                             pos=(self.xc, self.yc - 1 * self.ld), font='mono',
+        #                             height=self.fontsize, antialias=True)
+        #
+        # extra_info = visual.TextStim(text="Press I to toggle extra info in camera image",
+        #                              pos=(self.xc, self.yc - 0 * self.ld), font='mono',
+        #                              height=self.fontsize, antialias=True)
+        #
+        # cam = visual.TextStim(text="Press Enter to show camera image",
+        #                       pos=(self.xc, self.yc + 1 * self.ld), font='mono',
+        #                       height=self.fontsize, antialias=True)
+        #
+        # arrow_keys = visual.TextStim(text="(then change between images using the arrow keys)",
+        #     pos=(self.xc, self.yc + 2 * self.ld), font='mono',
+        #     height=self.fontsize, antialias=True)
+        #
+        # abort = visual.TextStim(text="Press Escape to abort experiment",
+        #                         pos=(self.xc, self.yc + 4 * self.ld), font='mono',
+        #                         height=self.fontsize, antialias=True)
+        #
+        # exit = visual.TextStim(text="Press Q to exit menu",
+        #                        pos=(self.xc, self.yc + 5 * self.ld), font='mono',
+        #                        height=self.fontsize, antialias=True)
+        #
+        # self.menuscreen = [title, vers, cal, val, autothres, extra_info, cam, arrow_keys, abort, exit]
+
+        self.menuscreen = Screen(disptype=settings.DISPTYPE, mousevisible=False)
+        self.menuscreen.draw_text(text="Eyelink calibration menu",
+                                  pos=(self.xc, self.yc - 6 * self.ld), center=True, font='mono',
+                                  fontsize=int(2 * self.fontsize), antialias=True)
+        self.menuscreen.draw_text(text="%s (pygaze %s, pylink %s)" \
+                                       % (self.libeyelink.eyelink_model, pygaze.version,
+                                          pylink.__version__), pos=(self.xc, self.yc - 5 * self.ld), center=True,
+                                  font='mono', fontsize=int(.8 * self.fontsize), antialias=True)
+        self.menuscreen.draw_text(text="Press C to calibrate",
+                                  pos=(self.xc, self.yc - 3 * self.ld), center=True, font='mono',
+                                  fontsize=self.fontsize, antialias=True)
+        self.menuscreen.draw_text(text="Press V to validate",
+                                  pos=(self.xc, self.yc - 2 * self.ld), center=True, font='mono',
+                                  fontsize=self.fontsize, antialias=True)
+        self.menuscreen.draw_text(text="Press A to auto-threshold",
+                                  pos=(self.xc, self.yc - 1 * self.ld), center=True, font='mono',
+                                  fontsize=self.fontsize, antialias=True)
+        self.menuscreen.draw_text(text="Press I to toggle extra info in camera image",
+                                  pos=(self.xc, self.yc - 0 * self.ld), center=True, font='mono',
+                                  fontsize=self.fontsize, antialias=True)
+        self.menuscreen.draw_text(text="Press Enter to show camera image",
+                                  pos=(self.xc, self.yc + 1 * self.ld), center=True, font='mono',
+                                  fontsize=self.fontsize, antialias=True)
+        self.menuscreen.draw_text(
+            text="(then change between images using the arrow keys)",
+            pos=(self.xc, self.yc + 2 * self.ld), center=True, font='mono',
+            fontsize=self.fontsize, antialias=True)
+        self.menuscreen.draw_text(text="Press Escape to abort experiment",
+                                  pos=(self.xc, self.yc + 4 * self.ld), center=True, font='mono',
+                                  fontsize=self.fontsize, antialias=True)
+        self.menuscreen.draw_text(text="Press Q to exit menu",
+                                  pos=(self.xc, self.yc + 5 * self.ld), center=True, font='mono',
+                                  fontsize=self.fontsize, antialias=True)
+
+    def close(self):
+        self.display_open = False
+
     def setTracker(self, tracker):
         ''' set proper tracker parameters '''
         
@@ -83,13 +184,24 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
     def setup_cal_display(self):
         '''Set up the calibration display before entering the calibration/validation routine'''
         
-        self.display.color = self.bg_color
-        self.title.autoDraw = False
-        self.display.flip()
+        # self.display.color = self.bg_color
+        # self.title.autoDraw = False
+        # for menu_screen_item in self.menuscreen:
+        #     menu_screen_item.setAutoDraw(True)
+        # self.display.flip()
+
+        # show instructions
+        self.libeyelink.display.fill(self.menuscreen)
+        self.libeyelink.display.show()
 
     def clear_cal_display(self):
         '''Clear the calibration display'''
-        
+
+        # for menu_screen_item in self.menuscreen:
+        #     menu_screen_item.setAutoDraw(False)
+        self.libeyelink.display.fill()
+
+        self.libeyelink.display.show()
         self.display.color = self.bg_color
         
     def exit_cal_display(self):
@@ -121,11 +233,10 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         cal_target_in.draw()
         self.display.flip()
 
-
     def play_beep(self, beepid):
         ''' Play a sound during calibration/drift correct.'''
 
-        pass
+        # pass
         # we need to disable the beeps to make this library work on all platforms
         #if beepid == pylink.CAL_TARG_BEEP or beepid == pylink.DC_TARG_BEEP:
         #    self.__target_beep__.play()
@@ -133,6 +244,48 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         #    self.__target_beep__error__.play()
         #if beepid in [pylink.CAL_GOOD_BEEP, pylink.DC_GOOD_BEEP]:
         #    self.__target_beep__done__.play()
+
+        if beepid == pylink.CAL_TARG_BEEP:
+            # For some reason, playing the beep here doesn't work, so we have
+            # to play it when the calibration target is drawn.
+            if settings.EYELINKCALBEEP:
+                self.__target_beep__.play()
+        elif beepid == pylink.CAL_ERR_BEEP or beepid == pylink.DC_ERR_BEEP:
+            # show a picture
+            self.screen.clear()
+            self.screen.draw_text(
+                text="calibration lost, press 'Enter' to return to menu",
+                pos=(self.xc, self.yc), center=True, font='mono',
+                fontsize=self.fontsize, antialias=True)
+            self.display.fill(self.screen)
+            self.display.show()
+            # play beep
+            if settings.EYELINKCALBEEP:
+                self.__target_beep__error__.play()
+        elif beepid == pylink.CAL_GOOD_BEEP:
+            self.screen.clear()
+            if self.state == "calibration":
+                self.screen.draw_text(
+                    text="Calibration succesfull, press 'v' to validate",
+                    pos=(self.xc, self.yc), center=True, font='mono',
+                    fontsize=self.fontsize, antialias=True)
+            elif self.state == "validation":
+                self.screen.draw_text(
+                    text="Validation succesfull, press 'Enter' to return to menu",
+                    pos=(self.xc, self.yc), center=True, font='mono',
+                    fontsize=self.fontsize, antialias=True)
+            else:
+                self.screen.draw_text(text="Press 'Enter' to return to menu",
+                                      pos=(self.xc, self.yc), center=True, font='mono',
+                                      fontsize=self.fontsize, antialias=True)
+            # show screen
+            self.display.fill(self.screen)
+            self.display.show()
+            # play beep
+            if settings.EYELINKCALBEEP:
+                self.__target_beep__done__.play()
+        else:  # DC_GOOD_BEEP	or DC_TARG_BEEP
+            pass
 
     def getColorFromIndex(self, colorindex):
          '''Return psychopy colors for elements in the camera image'''
@@ -224,7 +377,10 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
     def get_input_key(self):
         ''' this function will be constantly pools, update the stimuli here is you need
         dynamic calibration target '''
-        
+
+        if not self.display_open:
+            return None
+
         ky=[]
         for keycode, modifier in event.getKeys(modifiers=True):
             k= pylink.JUNK_KEY
@@ -247,7 +403,23 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
             elif keycode == 'backspace': k = ord('\b')
             elif keycode == 'return': k = pylink.ENTER_KEY
             elif keycode == 'space': k = ord(' ')
-            elif keycode == 'escape': k = pylink.ESC_KEY
+            elif keycode == 'escape':
+                k = 'q'
+                self.esc_pressed = True
+            elif keycode == 'q':
+                k = pylink.ESC_KEY
+                self.state = None
+            elif keycode == "c":
+                k = ord("c")
+                self.state = "calibration"
+            elif keycode == "v":
+                k = ord("v")
+                self.state = "validation"
+            elif keycode == "a":
+                k = ord("a")
+            elif keycode == "i":
+                self.extra_info = not self.extra_info
+                k = 0
             elif keycode == 'tab': k = ord('\t')
             elif keycode in string.ascii_letters: k = ord(keycode)
             elif k== pylink.JUNK_KEY: key = 0

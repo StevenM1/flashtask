@@ -175,7 +175,7 @@ class libeyelink(BaseEyeTracker):
             self.eyelink_model = 'EyeLink (model unknown)'
         # Open graphics
         win = pygaze.expdisplay
-        self.eyelink_graphics = EyelinkGraphics(win, _eyelink)
+        self.eyelink_graphics = EyelinkGraphics(self, win, _eyelink)
         pylink.openGraphicsEx(self.eyelink_graphics)
         # Optionally force drift correction. For some reason this must be done
         # as (one of) the first things, otherwise a segmentation fault occurs.
