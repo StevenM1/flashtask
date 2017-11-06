@@ -12,10 +12,10 @@ from pygaze.screen import Screen
 
 class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
     def __init__(self, libeyelink, win, tracker):#
-        '''Initialize a Custom EyeLinkCoreGraphics  
+        """Initialize a Custom EyeLinkCoreGraphics  
         
         tracker: an eye-tracker instance
-        win: the Psychopy display we plan to use for stimulus presentation  '''
+        win: the Psychopy display we plan to use for stimulus presentation  """
         
         pylink.EyeLinkCustomDisplay.__init__(self)
         self.tracker = tracker
@@ -36,9 +36,9 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
       
         # check the screen units of Psychopy and make all necessary conversions for the drawing functions
         self.units = win.units
-        self.monWidthCm  = win.monitor.getWidth()
+        self.monWidthCm = win.monitor.getWidth()
         self.monViewDist = win.monitor.getDistance()
-        self.monSizePix  = win.monitor.getSizePix()
+        self.monSizePix = win.monitor.getSizePix()
                 
         # a scaling factor to make the screen units right for Psychopy
         self.cfX = 1.0 
@@ -87,90 +87,56 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
     def draw_menu_screen(self):
         """ Draws menu screen """
 
-
         title = visual.TextStim(win=self.display, text="Eyelink calibration menu",
                                 pos=(self.xc, self.yc + 6 * self.ld), font='mono',
-                                height=int(2 * self.fontsize), antialias=True)
+                                height=int(2 * self.fontsize), antialias=True, color='black')
 
         vers = visual.TextStim(win=self.display, text="%s (pygaze %s, pylink %s)" \
                                        % (self.libeyelink.eyelink_model, pygaze.version,
                                           pylink.__version__),
                                pos=(self.xc, self.yc + 5 * self.ld),
-                               font='mono', height=int(.8 * self.fontsize), antialias=True)
+                               font='mono', height=int(.8 * self.fontsize), antialias=True,
+                               color='black')
 
         cal = visual.TextStim(win=self.display, text="Press C to calibrate",
                               pos=(self.xc, self.yc + 3 * self.ld), font='mono',
-                              height=self.fontsize, antialias=True)
+                              height=self.fontsize, antialias=True, color='black')
 
         val = visual.TextStim(win=self.display, text="Press V to validate",
                               pos=(self.xc, self.yc + 2 * self.ld), font='mono',
-                              height=self.fontsize, antialias=True)
+                              height=self.fontsize, antialias=True, color='black')
 
         autothres = visual.TextStim(win=self.display, text="Press A to auto-threshold",
                                     pos=(self.xc, self.yc + 1 * self.ld), font='mono',
-                                    height=self.fontsize, antialias=True)
+                                    height=self.fontsize, antialias=True, color='black')
 
         extra_info = visual.TextStim(win=self.display, text="Press I to toggle extra info in camera image",
                                      pos=(self.xc, self.yc - 0 * self.ld), font='mono',
-                                     height=self.fontsize, antialias=True)
+                                     height=self.fontsize, antialias=True, color='black')
 
         cam = visual.TextStim(win=self.display, text="Press Enter to show camera image",
                               pos=(self.xc, self.yc - 1 * self.ld), font='mono',
-                              height=self.fontsize, antialias=True)
+                              height=self.fontsize, antialias=True, color='black')
 
         arrow_keys = visual.TextStim(win=self.display, text="(then change between images using the arrow keys)",
             pos=(self.xc, self.yc - 2 * self.ld), font='mono',
-            height=self.fontsize, antialias=True)
+            height=self.fontsize, antialias=True, color='black')
 
         abort = visual.TextStim(win=self.display, text="Press Escape to abort experiment",
                                 pos=(self.xc, self.yc - 4 * self.ld), font='mono',
-                                height=self.fontsize, antialias=True)
+                                height=self.fontsize, antialias=True, color='black')
 
         exit = visual.TextStim(win=self.display, text="Press Q to exit menu",
                                pos=(self.xc, self.yc - 5 * self.ld), font='mono',
-                               height=self.fontsize, antialias=True)
+                               height=self.fontsize, antialias=True, color='black')
 
         self.menuscreen = [title, vers, cal, val, autothres, extra_info, cam, arrow_keys, abort, exit]
-
-        # self.menuscreen = Screen(disptype=settings.DISPTYPE, mousevisible=False)
-        # self.menuscreen.draw_text(text="Eyelink calibration menu",
-        #                           pos=(self.xc, self.yc - 6 * self.ld), center=True, font='mono',
-        #                           fontsize=int(2 * self.fontsize), antialias=True)
-        # self.menuscreen.draw_text(text="%s (pygaze %s, pylink %s)" \
-        #                                % (self.libeyelink.eyelink_model, pygaze.version,
-        #                                   pylink.__version__), pos=(self.xc, self.yc - 5 * self.ld), center=True,
-        #                           font='mono', fontsize=int(.8 * self.fontsize), antialias=True)
-        # self.menuscreen.draw_text(text="Press C to calibrate",
-        #                           pos=(self.xc, self.yc - 3 * self.ld), center=True, font='mono',
-        #                           fontsize=self.fontsize, antialias=True)
-        # self.menuscreen.draw_text(text="Press V to validate",
-        #                           pos=(self.xc, self.yc - 2 * self.ld), center=True, font='mono',
-        #                           fontsize=self.fontsize, antialias=True)
-        # self.menuscreen.draw_text(text="Press A to auto-threshold",
-        #                           pos=(self.xc, self.yc - 1 * self.ld), center=True, font='mono',
-        #                           fontsize=self.fontsize, antialias=True)
-        # self.menuscreen.draw_text(text="Press I to toggle extra info in camera image",
-        #                           pos=(self.xc, self.yc - 0 * self.ld), center=True, font='mono',
-        #                           fontsize=self.fontsize, antialias=True)
-        # self.menuscreen.draw_text(text="Press Enter to show camera image",
-        #                           pos=(self.xc, self.yc + 1 * self.ld), center=True, font='mono',
-        #                           fontsize=self.fontsize, antialias=True)
-        # self.menuscreen.draw_text(
-        #     text="(then change between images using the arrow keys)",
-        #     pos=(self.xc, self.yc + 2 * self.ld), center=True, font='mono',
-        #     fontsize=self.fontsize, antialias=True)
-        # self.menuscreen.draw_text(text="Press Escape to abort experiment",
-        #                           pos=(self.xc, self.yc + 4 * self.ld), center=True, font='mono',
-        #                           fontsize=self.fontsize, antialias=True)
-        # self.menuscreen.draw_text(text="Press Q to exit menu",
-        #                           pos=(self.xc, self.yc + 5 * self.ld), center=True, font='mono',
-        #                           fontsize=self.fontsize, antialias=True)
 
     def close(self):
         self.display_open = False
 
     def setTracker(self, tracker):
-        ''' set proper tracker parameters '''
+        """ set proper tracker parameters """
         
         self.tracker = tracker
         self.tracker_version = tracker.getTrackerVersion()
@@ -182,7 +148,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
             self.tracker.sendCommand("enable_camera_position_detect=YES")
  
     def setup_cal_display(self):
-        '''Set up the calibration display before entering the calibration/validation routine'''
+        """Set up the calibration display before entering the calibration/validation routine"""
         
         self.display.color = self.bg_color
         self.title.autoDraw = False
@@ -195,33 +161,30 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         # self.libeyelink.display.show()
 
     def clear_cal_display(self):
-        '''Clear the calibration display'''
+        """Clear the calibration display"""
 
         for menu_screen_item in self.menuscreen:
             menu_screen_item.setAutoDraw(False)
-        # self.libeyelink.display.fill()
-        #
-        # self.libeyelink.display.show()
         self.display.color = self.bg_color
         
     def exit_cal_display(self):
-        '''Exit the calibration/validation routine'''
+        """Exit the calibration/validation routine"""
         
         self.clear_cal_display()
 
     def record_abort_hide(self):
-        '''This function is called if aborted'''
+        """This function is called if aborted"""
         
         pass
 
     def erase_cal_target(self):
-        '''Erase the calibration/validation & drift-check target'''
+        """Erase the calibration/validation & drift-check target"""
         
         self.display.color = self.bg_color
         self.display.flip()
 
     def draw_cal_target(self, x, y):#
-        '''Draw the calibration/validation & drift-check  target'''
+        """Draw the calibration/validation & drift-check  target"""
         
         xVis = (x - self.sizeX/2)*self.cfX
         yVis = (self.sizeY/2 - y)*self.cfY
@@ -234,7 +197,9 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         self.display.flip()
 
     def play_beep(self, beepid):
-        ''' Play a sound during calibration/drift correct.'''
+        """ Play a sound during calibration/drift correct.
+        SM: this method was taken from PyGaze's method and adjusted to use PsychoPy windows
+        """
 
         # pass
         # we need to disable the beeps to make this library work on all platforms
@@ -252,50 +217,37 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
                 self.__target_beep__.play()
         elif beepid == pylink.CAL_ERR_BEEP or beepid == pylink.DC_ERR_BEEP:
 
-            # show a picture
+            # Calibration lost
             cal_lost = visual.TextStim(self.display, text="Calibration lost, press 'enter' to return to menu",
                                        pos=(self.xc, self.yc), font='mono', height=self.fontsize, antialias=True)
             cal_lost.draw()
             self.display.flip()
-            # self.screen.clear()
-            # self.screen.draw_text(
-            #     text="calibration lost, press 'Enter' to return to menu",
-            #     pos=(self.xc, self.yc), center=True, font='mono',
-            #     fontsize=self.fontsize, antialias=True)
-            # self.display.fill(self.screen)
-            # self.display.show()
+
             # play beep
             if settings.EYELINKCALBEEP:
                 self.__target_beep__error__.play()
         elif beepid == pylink.CAL_GOOD_BEEP:
-            # self.screen.clear()
+
             if self.state == "calibration":
-                # show a picture
+                # Calibration was a success
                 cal_succ = visual.TextStim(self.display, text="Calibration succesful, press 'v' to validate",
                                            pos=(self.xc, self.yc), font='mono', height=self.fontsize, antialias=True)
                 cal_succ.draw()
-                # self.screen.draw_text(
-                #     text="Calibration succesfull, press 'v' to validate",
-                #     pos=(self.xc, self.yc), center=True, font='mono',
-                #     fontsize=self.fontsize, antialias=True)
+
             elif self.state == "validation":
+                # validation was successful
                 val_succ = visual.TextStim(self.display, text="Validation succesful, press 'enter' to return to menu",
                                            pos=(self.xc, self.yc), font='mono', height=self.fontsize, antialias=True)
                 val_succ.draw()
-                # self.screen.draw_text(
-                #     text="Validation succesfull, press 'Enter' to return to menu",
-                #     pos=(self.xc, self.yc), center=True, font='mono',
-                #     fontsize=self.fontsize, antialias=True)
             else:
+                # Cal + val done, return to menu
                 ret = visual.TextStim(self.display, text="Press 'enter' to return to menu",
                                       pos=(self.xc, self.yc), font='mono', height=self.fontsize, antialias=True)
                 ret.draw()
-                # self.screen.draw_text(text="Press 'Enter' to return to menu",
-                #                       pos=(self.xc, self.yc), center=True, font='mono',
-                #                       fontsize=self.fontsize, antialias=True)
-            # show screen
-            # self.display.fill(self.screen)
+
+            # Flip display
             self.display.flip()
+
             # play beep
             if settings.EYELINKCALBEEP:
                 self.__target_beep__done__.play()
@@ -303,7 +255,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
             pass
 
     def getColorFromIndex(self, colorindex):
-         '''Return psychopy colors for elements in the camera image'''
+         """Return psychopy colors for elements in the camera image"""
          
          if colorindex   ==  pylink.CR_HAIR_COLOR:          return (1, 1, 1)
          elif colorindex ==  pylink.PUPIL_HAIR_COLOR:       return (1, 1, 1)
@@ -313,7 +265,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
          else:                                              return (0,0,0)
 
     def draw_line(self, x1, y1, x2, y2, colorindex):
-        '''Draw a line. This is used for drawing crosshairs/squares'''
+        """Draw a line. This is used for drawing crosshairs/squares"""
 
         y1 = (y1 * -1 + self.size[1]/2)*self.cfY
         x1 = (x1 * 1  - self.size[0]/2)*self.cfX
@@ -327,7 +279,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         self.line.draw()
 
     def draw_lozenge(self, x, y, width, height, colorindex):
-        ''' draw a lozenge to show the defined search limits'''
+        """ draw a lozenge to show the defined search limits"""
         
         y = (y * -1 + self.size[1] - self.size[1]/2)*self.cfY
         x = (x * 1  - self.size[0]/2)*self.cfX
@@ -375,7 +327,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         line2.draw()
 
     def get_mouse_state(self):#
-        '''Get the current mouse position and status'''
+        """Get the current mouse position and status"""
         
         X, Y = self.mouse.getPos()
         mX = self.size[0]/2 + X*1.0/self.cfX  
@@ -390,8 +342,8 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
 
 
     def get_input_key(self):
-        ''' this function will be constantly pools, update the stimuli here is you need
-        dynamic calibration target '''
+        """ this function will be constantly pools, update the stimuli here is you need
+        dynamic calibration target """
 
         if not self.display_open:
             return None
@@ -447,25 +399,25 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         return ky
 
     def exit_image_display(self):
-        '''Clcear the camera image'''
+        """Clcear the camera image"""
         
         self.clear_cal_display()
         self.display.flip()
 
     def alert_printf(self,msg):
-        '''Print error messages.'''
+        """Print error messages."""
         
         print "Error: " + msg
 
     def setup_image_display(self, width, height): 
-        ''' set up the camera image, for newer APIs, the size is 384 x 320 pixels'''
+        """ set up the camera image, for newer APIs, the size is 384 x 320 pixels"""
         
         self.title.autoDraw = True
         self.last_mouse_state = -1
         self.size = (width, height)
 
     def image_title(self, text):
-        '''Draw title text below the camera image'''
+        """Draw title text below the camera image"""
         
         self.title.text = text
         title_pos = (0, 0-self.size[0]/2.0*self.cfY-self.msgHeight)
@@ -473,7 +425,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         
         
     def draw_image_line(self, width, line, totlines, buff):#
-        '''Display image pixel by pixel, line by line'''
+        """Display image pixel by pixel, line by line"""
         #self.size = (width, totlines)
         i =0
         while i <width:
@@ -497,8 +449,8 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
             self.imagebuffer = array.array(self.imgBuffInitType)
             
     def set_image_palette(self, r,g,b):
-        '''Given a set of RGB colors, create a list of 24bit numbers representing the pallet.
-        I.e., RGB of (1,64,127) would be saved as 82047, or the number 00000001 01000000 011111111'''
+        """Given a set of RGB colors, create a list of 24bit numbers representing the pallet.
+        I.e., RGB of (1,64,127) would be saved as 82047, or the number 00000001 01000000 011111111"""
         
         self.imagebuffer = array.array(self.imgBuffInitType)
         #self.clear_cal_display()
