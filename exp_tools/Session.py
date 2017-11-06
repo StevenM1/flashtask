@@ -247,7 +247,7 @@ class EyelinkSession(Session):
                 self.tracker_on = False
                 self.eye_measured, self.sample_rate, self.CR_mode, self.file_sample_filter, self.link_sample_filter = 'N', sample_rate, 1, 1, 1
 
-               return
+                return
         else:
             # not even create dummy tracker
             self.tracker = None

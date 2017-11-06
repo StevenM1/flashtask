@@ -75,13 +75,11 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         self.esc_pressed = None
         self.display_open = True
 
-        print('Is this not run then?')
         self.xc = 0 #self.libeyelink.display.dispsize[0] / 2
         self.yc = 0 #self.libeyelink.display.dispsize[1] / 2
         self.extra_info = True
         self.ld = 40  # line distance
         self.fontsize = libeyelink.fontsize
-        self.title = ""
 
         self.draw_menu_screen()
 
@@ -186,7 +184,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         '''Set up the calibration display before entering the calibration/validation routine'''
         
         self.display.color = self.bg_color
-        # self.title.autoDraw = False
+        self.title.autoDraw = False
         for menu_screen_item in self.menuscreen:
             menu_screen_item.draw()
         self.display.flip()
@@ -398,7 +396,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
             return None
 
         ky=[]
-        for keycode, modifier in event.getKeys(modifiers=True):
+        for keycode in event.getKeys(modifiers=False):
             k= pylink.JUNK_KEY
             if keycode == 'f1': k = pylink.F1_KEY
             elif keycode == 'f2': k = pylink.F2_KEY
@@ -440,10 +438,10 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
             elif keycode in string.ascii_letters: k = ord(keycode)
             elif k== pylink.JUNK_KEY: key = 0
 
-            if modifier['alt']==True: mod = 256
-            else: mod = 0
+            # if modifier['alt']==True: mod = 256
+            # else: mod = 0
             
-            ky.append(pylink.KeyInput(k, mod))
+            ky.append(pylink.KeyInput(k, 0))
             #event.clearEvents()
         return ky
 

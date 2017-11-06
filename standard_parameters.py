@@ -55,14 +55,29 @@ if 'USER' in os.environ and os.environ['USER'] == 'steven':
     # monitor_name = 'boldscreen'
     # screen_res = (1920, 1080)
 
-    # monitor_name = 'laptop'
-    # screen_res = (1280, 800)
+    monitor_name = 'laptop'
+    screen_res = (1280, 800)
 
     # monitor_name = '2208WFP'
     # screen_res = (1680, 1050)
 
     # Keyboard response keys
     response_keys = ['z', 'm']  # Order: left, right.
+
+elif 'HOMEPATH' in os.environ and os.environ['HOMEPATH'] == '\Users\Users':
+    # Settings for Roeterseiland computers
+    from psychopy.monitors import Monitor
+    screen_res = (1920, 1080)
+    distance = 55
+
+    # Create Monitor
+    cur_mon = Monitor(name='this_monitor', width=53.1, distance=distance, notes='Dynamically created in standard_parameters. '
+                                                                          'You might read a warning if the monitor '
+                                                                          'specification does not already exist.')
+    cur_mon.setSizePix(screen_res)
+    cur_mon.saveMon()
+    monitor_name = 'this_monitor'
+    response_keys = ['z', '/']
 
 else:
     # Assumes we are running on the actual, experimental set-up (i.e. 7T-MRI scanner)

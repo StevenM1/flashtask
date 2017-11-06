@@ -349,18 +349,19 @@ class libeyelink(BaseEyeTracker):
                                               self.pixpercm) / 1000.0  # in pixels per millisecond**2
                     return
                 else:  # if nothing recorded, display message saying so
-                    self.display.fill()
-                    self.scr.draw_text(text= \
-                                           "Noise calibration failed.\n\nPress r to retry,\nor press space to return to calibration screen.", \
-                                       pos=(self.resolution[0] / 2, int(self.resolution[1] * 0.2)), \
-                                       center=True, fontsize=self.fontsize)
-                    self.display.fill(self.scr)
-                    self.display.show()
-                    self.scr.clear()
-                    # wait for space or r press, if r restart noise calibration, if space return to calibration menu
-                    keypressed = self.kb.get_key(keylist=['space', 'r'], timeout=None)
-                    if keypressed[0] == 'space':
-                        break
+                    return
+                    # self.display.fill()
+                    # self.scr.draw_text(text= \
+                    #                        "Noise calibration failed.\n\nPress r to retry,\nor press space to return to calibration screen.", \
+                    #                    pos=(self.resolution[0] / 2, int(self.resolution[1] * 0.2)), \
+                    #                    center=True, fontsize=self.fontsize)
+                    # self.display.fill(self.scr)
+                    # self.display.show()
+                    # self.scr.clear()
+                    # # wait for space or r press, if r restart noise calibration, if space return to calibration menu
+                    # keypressed = self.kb.get_key(keylist=['space', 'r'], timeout=None)
+                    # if keypressed[0] == 'space':
+                    #     break
 
     def drift_correction(self, pos=None, fix_triggered=False):
 
