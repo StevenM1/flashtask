@@ -716,7 +716,7 @@ class FlashSession(EyelinkSession):
                     if self.tracker is not None:
                         if self.tracker.connected():
                             self.tracker.stop_recording()
-                            pylink.openGraphicsEx(self.tracker.eyelink_graphics)
+                            # pylink.openGraphicsEx(self.tracker.eyelink_graphics)
                             self.tracker_setup()    # Try to setup again
 
                     else:
