@@ -37,6 +37,7 @@ class FlashInstructions(Trial):
         self.ID = ID
         self.phase_durations = phase_durations
         self.start_time = self.end_time = 0
+        self.response_time = 0
 
     def draw(self):
 
@@ -59,6 +60,7 @@ class FlashInstructions(Trial):
                     print('Session stopped!')
 
                 elif ev == 'space' or ev in self.session.response_keys:
+                    self.response_time = ev_time
                     self.events.append([0, ev_time - self.start_time])
                     self.stopped = True
 
@@ -151,6 +153,7 @@ class FlashEndBlockInstructions(FlashInstructions):
             # ev_time is the event timestamp relative to the Session Clock
 
             if len(ev) > 0:
+
                 if ev in ['esc', 'escape']:
                     self.events.append([-99, ev_time, 'escape: user killed session'])
                     self.stopped = True
@@ -159,6 +162,7 @@ class FlashEndBlockInstructions(FlashInstructions):
 
                 elif ev == 'space' or ev == 'r':
                     self.stop_key = ev
+                    self.response_time = ev_time
                     self.events.append([0, ev_time - self.start_time])
                     self.stopped = True
 

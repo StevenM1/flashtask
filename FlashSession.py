@@ -629,12 +629,13 @@ class FlashSession(EyelinkSession):
         # Loop over self.current_instructions
         for instruction_n in range(len(self.instructions_to_show)):
             self.current_instruction = self.instructions_to_show[instruction_n]
-            FlashInstructions(ID=self.n_instructions_shown,
-                              parameters={},
-                              phase_durations=self.instructions_durations,
-                              session=self,
-                              screen=self.screen,
-                              tracker=self.tracker).run()
+            instr_trial = FlashInstructions(ID=self.n_instructions_shown,
+                                              parameters={},
+                                              phase_durations=self.instructions_durations,
+                                              session=self,
+                                              screen=self.screen,
+                                              tracker=self.tracker)
+            instr_trial.run()
 
             # Check for kill flag
             if self.stopped:
@@ -643,6 +644,8 @@ class FlashSession(EyelinkSession):
         # Variable to keep track of the number of instruction screens shown
         # Instruction screen IDs are negative. The first shown is -1, the second -2, etc.
         self.n_instructions_shown -= 1
+
+        return instr_trial
 
     def run(self):
         """ Run the trials that were prepared. The experimental design must be loaded. """
@@ -659,46 +662,57 @@ class FlashSession(EyelinkSession):
         if self.start_block == 0:
             # Show welcome screen (skip if this is a later block)
             self.instructions_to_show = [self.welcome_screen]  # In list, so show_instructions() can iterate
-            self.show_instructions()
+            _ = self.show_instructions()
 
         # Loop through blocks
         for block_n in range(self.start_block, 5):
 
+            # Get the trial handler of the current block
+            trial_handler = self.trial_handlers[block_n]
+
             # If this is not the first block that is run, let operator check if we need to recalibrate.
             # Also the time for a break!
             if block_n > self.start_block:
-                end_block_instr = FlashEndBlockInstructions(ID=-98, parameters={},
+                end_block_instr = FlashEndBlockInstructions(ID=self.n_instructions_shown, parameters={},
                                                             phase_durations=self.instructions_durations,
                                                             session=self,
                                                             screen=self.screen,
                                                             tracker=self.tracker)
                 end_block_instr.run()
+                trial_handler.addData('instr_screen_nr', self.n_instructions_shown)
+                trial_handler.addData('instr_start_time', end_block_instr.start_time)
+                trial_handler.addData('instr_response_time', end_block_instr.response_time)
+                trial_handler.addData('instr_end_time', end_block_instr.end_time)
+                trial_handler.addData('is_instruction', True)
+
+                # Trial finished, so on to the next entry
+                self.exp_handler.nextEntry()
+
+                self.n_instructions_shown -= 1
 
                 # Does the operator want to recalibrate or not? If 'r' was pressed: yes, otherwise: no.
                 if end_block_instr.stop_key == 'r':
                     if self.tracker is not None:
+                        print('Detected tracker, trying to stop recording...')
                         if self.tracker.connected():
+                            print('Detected tracker, trying to stop recording 2...')
                             self.tracker.stop_recording()
 
-                        # inject local file name into pygaze tracker and then close.
-                        self.tracker.local_data_file = self.output_file + '_blocks_' + str(self.start_block) + '-' + \
-                                                       str(block_n) + '.edf'
-                        self.tracker.close()
-
-                        # And create new eye-tracking set-up.
-                        self.create_tracker(auto_trigger_calibration=1, calibration_type='HV9')
-
-                        if self.tracker_on:
-                            self.dummy_tracker = False
+                            # Trying to setup again
                             self.tracker_setup()
 
                     else:
                         print('I would recalibrate, but no tracker is connected...')
                         self.instructions_to_show = self.recalibration_error_screen
-                        self.show_instructions()
+                        instr_trial = self.show_instructions()
+                        trial_handler.addData('instr_screen_nr', self.n_instructions_shown)
+                        trial_handler.addData('instr_start_time', instr_trial.start_time)
+                        trial_handler.addData('instr_response_time', instr_trial.response_time)
+                        trial_handler.addData('instr_end_time', instr_trial.end_time)
+                        trial_handler.addData('is_instruction', True)
 
-            # Get the trial handler of the current block
-            trial_handler = self.trial_handlers[block_n]
+                        # Trial finished, so on to the next entry
+                        self.exp_handler.nextEntry()
 
             # Reset all feedback objects of which the text is dynamically changed
             # text (SAT after limbic might otherwise show feedback points)
@@ -728,7 +742,15 @@ class FlashSession(EyelinkSession):
                     elif block_type == 'localizer' and response_modality == 'eye':
                         self.instructions_to_show = self.localizer_instructions_eye
 
-                    self.show_instructions()
+                    instr_trial = self.show_instructions()
+                    trial_handler.addData('instr_screen_nr', self.n_instructions_shown)
+                    trial_handler.addData('instr_start_time', instr_trial.start_time)
+                    trial_handler.addData('instr_response_time', instr_trial.response_time)
+                    trial_handler.addData('instr_end_time', instr_trial.end_time)
+                    trial_handler.addData('is_instruction', True)
+
+                    # Trial finished, so on to the next entry
+                    self.exp_handler.nextEntry()
 
                     # Check for kill flag
                     if self.stopped:
@@ -757,6 +779,7 @@ class FlashSession(EyelinkSession):
                     if block_n == 0:
                         # Run localizer
                         trial_object = self.run_localizer_trial(trial, phases=this_phases)
+                        trial_handler.addData('wrong_modality_answers', trial_object.wrong_modality_answers)
                     else:
                         # Run decision-making trials
                         trial_object = self.run_experimental_trial(trial, phases=this_phases, block_n=block_n)
@@ -770,6 +793,7 @@ class FlashSession(EyelinkSession):
                         trial_handler.addData('total increments shown at rt',
                                               trial_object.total_increments / self.standard_parameters[
                                                   'increment_length'])
+                        trial_handler.addData('late responses', trial_object.late_responses)
 
                     # Save behavioral data (only in non-null trials)
                     trial_handler.addData('rt', trial_object.response_time)

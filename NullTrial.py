@@ -68,7 +68,7 @@ class NullTrial(Trial):
                     self.session.stopped = True
                     print('Session stopped!')
 
-                elif ev == 'space':
+                elif ev == 'equal':
                     self.events.append([-99, ev_time - self.start_time])
                     self.stopped = True
                     print('Trial canceled by user')

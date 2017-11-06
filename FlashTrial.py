@@ -75,6 +75,7 @@ class FlashTrial(Trial):
         self.evidence_shown = np.repeat([0], self.session.n_flashers)
         self.total_increments = 0
         self.cuetext = None
+        self.late_responses = []
 
         # keep track of number of TRs recorded. Only end trial if at least 2 TRs are recorded (3 TRs per trial).
         self.n_TRs = 0
@@ -360,14 +361,17 @@ class FlashTrialSaccade(FlashTrial):
                     self.phase_forward()  # End stimulus presentation when saccade is detected (this will be removed)
 
                 elif self.phase == 5:
+                    self.late_responses.append((saccade_direction, eyepos_time - self.fix2_time))
                     self.events.append([saccade_direction_verbose, eyepos_time, 'during post-stimulus fill time'])  #
                     # This will probably always be detected: drift correction?
 
                 elif self.phase == 6:
+                    self.late_responses.append((saccade_direction, eyepos_time - self.fix2_time))
                     self.events.append([saccade_direction_verbose, eyepos_time, 'during feedback'])  # This will
                     # probably always be detected: drift correction?
 
                 elif self.phase == 7:
+                    self.late_responses.append((saccade_direction, eyepos_time - self.fix2_time))
                     self.events.append([saccade_direction_verbose, eyepos_time, 'during ITI'])  # This will
                     # probably always be detected: drift correction?
 
@@ -491,12 +495,15 @@ class FlashTrialKeyboard(FlashTrial):
                             self.events.append([ev, ev_time, 'late keypress (during stimulus)'])
 
                     elif self.phase == 5:
+                        self.late_responses.append((ev, ev_time-self.fix2_time))
                         self.events.append([ev, ev_time, 'late keypress (during post-stimulus fill time)'])
 
                     elif self.phase == 6:
+                        self.late_responses.append((ev, ev_time-self.fix2_time))
                         self.events.append([ev, ev_time, 'late keypress (during feedback)'])
 
                     elif self.phase == 7:
+                        self.late_responses.append((ev, ev_time-self.fix2_time))
                         self.events.append([ev, ev_time, 'late keypress (during ITI)'])
 
                 elif ev == 't':  # Scanner pulse

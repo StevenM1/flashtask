@@ -220,6 +220,7 @@ class LocalizerTrialSaccade(LocalizerTrial):
         self.directions_verbose = ['left saccade', 'right saccade']
         self.eye_movement_detected_in_phase = False
         self.eye_pos_start_phase = [None, None, None, None, None, None, None, None]
+        self.wrong_modality_answers = []
 
     def event(self):
         """ Checks for saccades as answers and keyboard responses for escape / scanner pulse """
@@ -314,6 +315,11 @@ class LocalizerTrialSaccade(LocalizerTrial):
                     self.stopped = True
                     print('Trial canceled by user')
 
+                # Check for wrong modality responses!
+                elif ev in self.session.response_keys:
+                    self.wrong_modality_answers.append((ev, ev_time, ev_time-self.fix2_time))
+                    self.events.append([ev, ev_time, 'key response (wrong modality)'])
+
                 elif ev == 't':  # Scanner pulse
                     self.events.append([99, ev_time, 'pulse'])
                     self.n_TRs += 1
@@ -346,6 +352,10 @@ class LocalizerTrialKeyboard(LocalizerTrial):
 
         self.correct_answer = parameters['correct_answer']
         self.correct_key = self.session.response_keys[self.correct_answer]
+
+        self.wrong_modality_answers = []
+        self.eye_movement_detected_in_phase = False
+        self.eye_pos_start_phase = [None, None, None, None, None, None, None, None]
 
     def event(self):
         """ Checks for the keyboard responses only """
@@ -431,3 +441,27 @@ class LocalizerTrialKeyboard(LocalizerTrial):
 
                     if self.phase == 0:
                         self.phase_forward()
+
+        # Check for eye movements!
+        if self.eye_pos_start_phase[self.phase] is None:
+            self.eye_pos_start_phase[self.phase] = self.session.eye_pos()
+
+        if not self.eye_movement_detected_in_phase:
+            # Get eye position
+            eyepos = self.session.eye_pos()
+            eyepos_time = self.session.clock.getTime()
+
+            center = self.eye_pos_start_phase[self.phase]
+            distance_from_center = np.divide(np.sqrt((eyepos[0] - center[0]) ** 2 +
+                                                     (eyepos[1] - center[1]) ** 2),
+                                             self.session.pixels_per_degree)
+
+            if distance_from_center >= self.session.eye_travel_threshold:
+                self.eye_movement_detected_in_phase = True
+
+                # Is the final xpos left or right from center?  left = 0, right = 1
+                #                saccade_direction = 0 if eyepos[0] < self.session.screen_pix_size[0]/2 else 1
+                saccade_direction = 0 if eyepos[0] < 0 else 1
+                # saccade_direction_verbose = self.directions_verbose[saccade_direction]
+                self.wrong_modality_answers.append((saccade_direction, eyepos_time, eyepos_time-self.fix2_time))
+                self.events.append([saccade_direction, eyepos_time, 'eye movement (wrong modality)'])
