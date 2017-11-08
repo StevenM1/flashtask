@@ -168,3 +168,36 @@ class FlashEndBlockInstructions(FlashInstructions):
 
                 elif ev == 't':  # Scanner pulse
                     self.events.append([99, ev_time, 'pulse'])
+
+class FlashInstructionsNoResp(FlashInstructions):
+    """
+    Same as FlashInstructions but participant cannot respond / skip
+    """
+
+    def __init__(self, ID, parameters={}, phase_durations=[], session=None, screen=None, tracker=None):
+        super(FlashInstructionsNoResp, self).__init__(ID=ID, parameters=parameters,
+                                                      phase_durations=phase_durations, session=session,
+                                                      screen=screen, tracker=tracker)
+
+    def event(self):
+        """
+        Only listen for space (skip instructions), escape (kill session), and scanner pulses
+        """
+
+        for i, (ev, ev_time) in enumerate(event.getKeys(timeStamped=self.session.clock)):
+            # ev_time is the event timestamp relative to the Session Clock
+
+            if len(ev) > 0:
+                if ev in ['esc', 'escape']:
+                    self.events.append([-99, ev_time, 'escape: user killed session'])
+                    self.stopped = True
+                    self.session.stopped = True
+                    print('Session stopped!')
+
+                elif ev == 'equal':
+                    self.events.append([ev, ev_time - self.start_time])
+                    self.session.stop_instructions = False
+                    self.stopped = True
+
+                elif ev == 't':  # Scanner pulse
+                    self.events.append([99, ev_time, 'pulse'])

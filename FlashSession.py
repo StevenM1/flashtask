@@ -229,8 +229,14 @@ class FlashSession(EyelinkSession):
         with open(os.path.join(this_file, 'instructions', self.language, 'localizer_eye.txt'), 'rb') as f:
             localizer_eye_txt = f.read().split('\n\n\n')[0]
 
+        with open(os.path.join(this_file, 'instructions', self.language, 'localizer_eye_start.txt'), 'rb') as f:
+            localizer_eye_start_txt = f.read().split('\n\n\n')[0]
+
         with open(os.path.join(this_file, 'instructions', self.language, 'localizer_hand.txt'), 'rb') as f:
             localizer_hand_txt = f.read().split('\n\n\n')[0]
+
+        with open(os.path.join(this_file, 'instructions', self.language, 'localizer_hand_start.txt'), 'rb') as f:
+            localizer_hand_start_txt = f.read().split('\n\n\n')[0]
 
         with open(os.path.join(this_file, 'instructions', self.language, 'cognitive_eye.txt'), 'rb') as f:
             cognitive_eye_txt = f.read().split('\n\n\n')
@@ -361,6 +367,22 @@ class FlashSession(EyelinkSession):
             visual.TextStim(win=self.screen,
                             text=localizer_eye_txt,
                             name='localizer_instructions_eye',
+                            font='Helvetica Neue', pos=(0, 0),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
+        ]
+
+        self.localizer_instructions_eye_start = [
+            visual.TextStim(win=self.screen,
+                            text=localizer_eye_start_txt,
+                            name='localizer_instructions_eye_start',
+                            font='Helvetica Neue', pos=(0, 0),
+                            italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
+        ]
+
+        self.localizer_instructions_hand_start = [
+            visual.TextStim(win=self.screen,
+                            text=localizer_hand_start_txt,
+                            name='localizer_instructions_hand_start',
                             font='Helvetica Neue', pos=(0, 0),
                             italic=False, height=30, alignHoriz='center', units='pix', flipHoriz=self.mirror),
         ]
@@ -644,7 +666,7 @@ class FlashSession(EyelinkSession):
 
         return trial_object
 
-    def show_instructions(self, trial_handler, end_block=False, phase_durations=None):
+    def show_instructions(self, trial_handler, end_block=False, phase_durations=None, respond_possible=True):
         """ Shows current instructions """
 
         if end_block:
@@ -655,6 +677,10 @@ class FlashSession(EyelinkSession):
 
         if phase_durations is None:
             phase_durations = self.instructions_durations
+
+        if not respond_possible:
+            instr_obj = FlashInstructionsNoResp
+            phase_durations = [11.5]
 
         # Loop over self.current_instructions
         for instruction_n in range(len(self.instructions_to_show)):
@@ -738,6 +764,7 @@ class FlashSession(EyelinkSession):
                 if trial.block_trial_ID == 0:
                     block_type = trial.block_type
                     response_modality = trial.response_modality
+                    respond_possible = True
 
                     if block_type == 'cognitive_hand':
                         self.instructions_to_show = self.cognitive_hand_instructions
@@ -748,11 +775,19 @@ class FlashSession(EyelinkSession):
                     elif block_type == 'limbic_eye':
                         self.instructions_to_show = self.limbic_eye_instructions
                     elif block_type == 'localizer' and response_modality == 'hand':
-                        self.instructions_to_show = self.localizer_instructions_hand
+                        if trial.trial_ID == 0:
+                            self.instructions_to_show = self.localizer_instructions_hand_start
+                        else:
+                            self.instructions_to_show = self.localizer_instructions_hand
+                            respond_possible = False
                     elif block_type == 'localizer' and response_modality == 'eye':
-                        self.instructions_to_show = self.localizer_instructions_eye
+                        if trial.trial_ID == 0:
+                            self.instructions_to_show = self.localizer_instructions_eye_start
+                        else:
+                            self.instructions_to_show = self.localizer_instructions_eye
+                            respond_possible = False
 
-                    _ = self.show_instructions(trial_handler=trial_handler)
+                    _ = self.show_instructions(trial_handler=trial_handler, respond_possible=respond_possible)
 
                     # Check for kill flag
                     if self.stopped:

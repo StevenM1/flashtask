@@ -3,12 +3,13 @@
 
 from __future__ import division
 from psychopy.monitors import Monitor
-from standard_parameters import monitor_name
+from standard_parameters import monitor_name, background_color
 
 mon = Monitor(monitor_name)
 mon_width = mon.getWidth()
 mon_size_pix = mon.getSizePix()
 mon_height = mon_size_pix[1] * mon_width / mon_size_pix[0]
 
+BGC = background_color
 SCREENSIZE = (int(mon_width), int(mon_height))
 DISPSIZE = (int(mon_size_pix[0]), int(mon_size_pix[1]))
