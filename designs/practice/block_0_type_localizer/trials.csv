@@ -1,7 +1,7 @@
 trial_ID,block_trial_ID,block,block_type,null_trial,correct_answer,cue,response_modality,trial_type,phase_0,phase_1,phase_2,phase_3,phase_4,phase_5,phase_6,phase_7,trial_duration,trial_start_time,cue_onset_time,stimulus_onset_time,trial_start_time_block,cue_onset_time_block,stimulus_onset_time_block
-0,0,0,localizer,False,0,LEFT,hand,0,0,0.75,1,0.0,0.8,0,1.0,2.45,6.0,0.0,0.75,1.75,0.0,0.75,1.75
-1,1,0,localizer,False,0,LEFT,hand,0,0,1.5,1,0.0,0.8,0,1.0,1.7,6.0,6.0,7.5,8.5,6.0,7.5,8.5
-2,2,0,localizer,False,1,RIGHT,hand,1,0,0.75,1,0.0,0.8,0,1.0,2.45,6.0,12.0,12.75,13.75,12.0,12.75,13.75
-3,3,0,localizer,False,0,LEFT,hand,0,0,1.5,1,0.0,0.8,0,1.0,1.7,6.0,18.0,19.5,20.5,18.0,19.5,20.5
+0,0,0,localizer,False,0,LEFT,hand,0,0,1.5,1,0.0,0.8,0,1.0,1.7,6.0,0.0,1.5,2.5,0.0,1.5,2.5
+1,1,0,localizer,False,1,RIGHT,hand,1,0,0.75,1,0.0,0.8,0,1.0,2.45,6.0,6.0,6.75,7.75,6.0,6.75,7.75
+2,2,0,localizer,False,0,LEFT,hand,0,0,0.75,1,0.0,0.8,0,1.0,2.45,6.0,12.0,12.75,13.75,12.0,12.75,13.75
+3,3,0,localizer,False,0,LEFT,hand,0,0,0.75,1,0.0,0.8,0,1.0,2.45,6.0,18.0,18.75,19.75,18.0,18.75,19.75
 4,4,0,localizer,False,1,RIGHT,hand,1,0,2.25,1,0.0,0.8,0,1.0,0.95,6.0,24.0,26.25,27.25,24.0,26.25,27.25
-5,5,0,localizer,False,1,RIGHT,hand,1,0,1.5,1,0.0,0.8,0,1.0,1.7,6.0,30.0,31.5,32.5,30.0,31.5,32.5
+5,5,0,localizer,False,1,RIGHT,hand,1,0,0.75,1,0.0,0.8,0,1.0,2.45,6.0,30.0,30.75,31.75,30.0,30.75,31.75

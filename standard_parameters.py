@@ -62,7 +62,7 @@ if 'USER' in os.environ and os.environ['USER'] == 'steven':
     # screen_res = (1680, 1050)
 
     # Keyboard response keys
-    response_keys = ['z', 'm']  # Order: left, right.
+    response_keys = ['z', 'slash']  # Order: left, right.
 
 # Settings for Roeterseiland computers
 elif 'HOMEPATH' in os.environ and os.environ['HOMEPATH'] == '\Users\Users':
@@ -77,7 +77,7 @@ elif 'HOMEPATH' in os.environ and os.environ['HOMEPATH'] == '\Users\Users':
     cur_mon.setSizePix(screen_res)
     cur_mon.saveMon()
     monitor_name = 'this_monitor'
-    response_keys = ['z', '/']
+    response_keys = ['z', 'slash']
 
 else:
     # Assumes we are running on the actual, experimental set-up (i.e. 7T-MRI scanner)

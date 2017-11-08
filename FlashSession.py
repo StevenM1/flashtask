@@ -735,20 +735,42 @@ class FlashSession(EyelinkSession):
             # If this is not the first block that is run, let operator check if we need to recalibrate.
             # Also the time for a break!
             if block_n > self.start_block:
-                end_block_instr = self.show_instructions(trial_handler=trial_handler, end_block=True)
 
-                # Does the operator want to recalibrate or not? If 'r' was pressed: yes, otherwise: no.
-                if end_block_instr.stop_key == 'r':
-                    if self.tracker is not None:
-                        if self.tracker.connected():
-                            self.tracker.stop_recording()
-                            # pylink.openGraphicsEx(self.tracker.eyelink_graphics)
-                            self.tracker_setup()    # Try to setup again
+                if self.tracker is not None:
+                    if self.tracker.connected():
+                        self.tracker.stop_recording()
+                        end_block_instr = self.show_instructions(trial_handler=trial_handler, end_block=True)
 
-                    else:
-                        print('I would recalibrate, but no tracker is connected...')
-                        self.instructions_to_show = self.recalibration_error_screen
-                        _ = self.show_instructions(trial_handler=trial_handler)
+                        if end_block_instr.stop_key == 'r':
+                            self.tracker_setup()
+                        else:
+                            self.tracker.start_recording()
+
+                # # Does the operator want to recalibrate or not? If 'r' was pressed: yes, otherwise: no.
+                # if self.tracker is not None:
+                #     if self.tracker.connected():
+                #         self.tracker.stop_recording()
+                #
+                #     if end_block_instr.stop_key == 'r':
+                #         self.tracker_setup()
+                #     else:
+                #         self.tracker.start_recording()
+                else:
+                    print('I would recalibrate, but no tracker is connected...')
+                    self.instructions_to_show = self.recalibration_error_screen
+                    _ = self.show_instructions(trial_handler=trial_handler)
+
+                # if end_block_instr.stop_key == 'r':
+                #     if self.tracker is not None:
+                #         if self.tracker.connected():
+                #             self.tracker.stop_recording()
+                #             # pylink.openGraphicsEx(self.tracker.eyelink_graphics)
+                #             self.tracker_setup()    # Try to setup again
+                #
+                #     else:
+                #         print('I would recalibrate, but no tracker is connected...')
+                #         self.instructions_to_show = self.recalibration_error_screen
+                #         _ = self.show_instructions(trial_handler=trial_handler)
 
             # Reset all feedback objects of which the text is dynamically changed
             # text (SAT after limbic might otherwise show feedback points)
@@ -1090,8 +1112,10 @@ class FlashPracticeSession(EyelinkSession):
             self.trial_handlers.append(data.TrialHandler(data.importConditions(path), nReps=1, method='sequential'))
 
         # Make sure to add all trial handlers to the experiment handler
-        for trial_handler in self.trial_handlers:
-            self.exp_handler.addLoop(trial_handler)
+        # for trial_handler in self.trial_handlers:
+        #     self.exp_handler.addLoop(trial_handler)
+
+        # print(self.exp_handler.__dict__)
 
     def prepare_visual_objects(self):
 
@@ -1552,6 +1576,7 @@ class FlashPracticeSession(EyelinkSession):
 
             # Create trial handler, and append to experiment handler
             trial_handler = data.TrialHandler(data.importConditions(path), nReps=1, method='sequential')
+            self.exp_handler.addLoop(trial_handler)
 
             # Reset all feedback objects of which the text is dynamically changed
             # text (SAT after limbic might otherwise show feedback points)
@@ -1636,15 +1661,18 @@ class FlashPracticeSession(EyelinkSession):
 
         self.close()
 
-    def close(self):
-        """ Saves stuff and closes """
-        self.exp_handler.saveAsPickle(self.exp_handler.dataFileName)
-        self.exp_handler.saveAsWideText(self.exp_handler.dataFileName + '.csv')
+    def save_data(self):
+
+        output_fn_dat = self.exp_handler.dataFileName + '_PRACTICE'
+        output_fn_frames = self.output_file + '_PRACTICE'
+
+        self.exp_handler.saveAsPickle(output_fn_dat)
+        self.exp_handler.saveAsWideText(output_fn_dat + '.csv')
 
         if self.screen.recordFrameIntervals:
 
             # Save frame intervals to file
-            self.screen.saveFrameIntervals(fileName=self.output_file + '_frame_intervals.log', clear=False)
+            self.screen.saveFrameIntervals(fileName=output_fn_frames + '_frame_intervals.log', clear=False)
 
             # Make a nice figure
             intervals_ms = pylab.array(self.screen.frameIntervals) * 1000
@@ -1671,6 +1699,10 @@ class FlashPracticeSession(EyelinkSession):
             pylab.xlabel('t (ms)')
             pylab.ylabel('n frames')
             pylab.title(dist_string)
-            pylab.savefig(self.output_file + '_frame_intervals.png')
+            pylab.savefig(output_fn_frames + '_frame_intervals.png')
 
+    def close(self):
+        """ Saves stuff and closes """
+
+        self.save_data()
         super(FlashPracticeSession, self).close()
