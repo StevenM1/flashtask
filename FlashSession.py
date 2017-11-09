@@ -755,10 +755,10 @@ class FlashSession(EyelinkSession):
                 #         self.tracker_setup()
                 #     else:
                 #         self.tracker.start_recording()
-                else:
-                    print('I would recalibrate, but no tracker is connected...')
-                    self.instructions_to_show = self.recalibration_error_screen
-                    _ = self.show_instructions(trial_handler=trial_handler)
+                # else:
+                #     print('I would recalibrate, but no tracker is connected...')
+                #     self.instructions_to_show = self.recalibration_error_screen
+                #     _ = self.show_instructions(trial_handler=trial_handler)
 
                 # if end_block_instr.stop_key == 'r':
                 #     if self.tracker is not None:

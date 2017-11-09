@@ -65,18 +65,18 @@ if 'USER' in os.environ and os.environ['USER'] == 'steven':
     response_keys = ['z', 'slash']  # Order: left, right.
 
 # Settings for Roeterseiland computers
-elif 'HOMEPATH' in os.environ and os.environ['HOMEPATH'] == '\Users\Users':
+elif 'HOMEPATH' in os.environ and os.environ['HOMEPATH'] == '\\Users\\User':
     from psychopy.monitors import Monitor
     screen_res = (1920, 1080)
     distance = 55
 
     # Create Monitor
-    cur_mon = Monitor(name='this_monitor', width=53.1, distance=distance, notes='Dynamically created in standard_parameters. '
+    cur_mon = Monitor(name='benq', width=53.1, distance=distance, notes='Dynamically created in standard_parameters. '
                                                                           'You might read a warning if the monitor '
                                                                           'specification does not already exist.')
     cur_mon.setSizePix(screen_res)
     cur_mon.saveMon()
-    monitor_name = 'this_monitor'
+    monitor_name = 'benq'
     response_keys = ['z', 'slash']
 
 else:
@@ -86,12 +86,12 @@ else:
     distance = 55
 
     # Create Monitor
-    cur_mon = Monitor(name='this_monitor', width=57.2, distance=distance, notes='Dynamically created in standard_parameters. '
+    cur_mon = Monitor(name='boldscreen', width=57.2, distance=distance, notes='Dynamically created in standard_parameters. '
                                                                           'You might read a warning if the monitor '
                                                                           'specification does not already exist.')
     cur_mon.setSizePix(screen_res)
     cur_mon.saveMon()
-    monitor_name = 'this_monitor'
+    monitor_name = 'boldscreen'
     response_keys = ['e', 'b']  # Button box keys
 
     # Adjust for 120Hz
