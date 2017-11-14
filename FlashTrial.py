@@ -140,6 +140,7 @@ class FlashTrial(Trial):
                 self.session.crosses[0].draw()
                 self.session.crosses[1].draw()
         elif self.phase == 4:  # stimulus
+            self.session.fixation_cross.draw()
             shown_opacities = self.stimulus.draw(frame_n=self.frame_n)
             self.evidence_shown = self.evidence_shown + shown_opacities
             self.total_increments += 1
@@ -154,6 +155,7 @@ class FlashTrial(Trial):
             #         self.session.screen.saveMovieFrames('screenshot_trial_stim.png')
 
         elif self.phase == 5:  # post-stimulus fill time
+            self.session.fixation_cross.draw()
             self.stimulus.draw(frame_n=self.frame_n, continuous=False)  # Continuous creates constant streams of flashes
             if self.draw_crosses:
                 self.session.crosses[0].draw()
@@ -281,7 +283,7 @@ class FlashTrialSaccade(FlashTrial):
         self.directions_verbose = ['left saccade', 'right saccade']
         self.eye_movement_detected_in_phase = False
         self.eye_pos_start_phase = [None, None, None, None, None, None, None, None]
-        self.draw_crosses = True
+        self.draw_crosses = False
 
     def event(self):
         """ Checks for saccades as answers and keyboard responses for escape / scanner pulse """

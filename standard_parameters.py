@@ -16,7 +16,7 @@ parameters = {
 # Parameters of the fixation cross. See
 fix_cross_parameters = {
     'outer_radius_degrees': 0.3,
-    'inner_radius_degrees': 0.15
+    'inner_radius_degrees': 0.1
 }
 
 visual_sizes = {

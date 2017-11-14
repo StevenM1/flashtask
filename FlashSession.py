@@ -770,7 +770,7 @@ class FlashSession(EyelinkSession):
                 #     else:
                 #         print('I would recalibrate, but no tracker is connected...')
                 #         self.instructions_to_show = self.recalibration_error_screen
-                #         _ = self.show_instructions(trial_handler=trial_handler)
+                #         _ = self.show_instructions(trial_handler=trial_handler)
 
             # Reset all feedback objects of which the text is dynamically changed
             # text (SAT after limbic might otherwise show feedback points)
@@ -828,7 +828,7 @@ class FlashSession(EyelinkSession):
                 # What trial type to run?
                 if trial.null_trial:  # True or false
                     if 'eye' in trial.block_type:
-                        draw_crosses = True
+                        draw_crosses = False  # True
                     else:
                         draw_crosses = False
 
@@ -1509,6 +1509,8 @@ class FlashPracticeSession(EyelinkSession):
                                      session=self,
                                      screen=self.screen,
                                      tracker=self.tracker)
+
+        trial_object.n_TRs = 3 # Allow skipping of ITI (not really necessary in practice)
         trial_object.run()
 
         # If the response given is correct, update scores
