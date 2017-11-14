@@ -30,7 +30,7 @@ set fmri(featwatcher_yn) 1
 set fmri(sscleanup_yn) 0
 
 # Output directory
-set fmri(outputdir) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye"
+set fmri(outputdir) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye"
 
 # TR(s)
 set fmri(tr) 3.0
@@ -300,7 +300,7 @@ set fmri(tempfilt_yn1) 1
 set fmri(deriv_yn1) 0
 
 # Custom EV file (EV 1)
-set fmri(custom1) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_cue_ACC.txt"
+set fmri(custom1) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_cue_ACC.txt"
 
 # Orthogonalise EV 1 wrt EV 0
 set fmri(ortho1.0) 0
@@ -355,7 +355,7 @@ set fmri(tempfilt_yn2) 1
 set fmri(deriv_yn2) 0
 
 # Custom EV file (EV 2)
-set fmri(custom2) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_cue_SPD.txt"
+set fmri(custom2) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_cue_SPD.txt"
 
 # Orthogonalise EV 2 wrt EV 0
 set fmri(ortho2.0) 0
@@ -410,7 +410,7 @@ set fmri(tempfilt_yn3) 1
 set fmri(deriv_yn3) 0
 
 # Custom EV file (EV 3)
-set fmri(custom3) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_stimulus_0_ACC.txt"
+set fmri(custom3) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_stimulus_0_ACC.txt"
 
 # Orthogonalise EV 3 wrt EV 0
 set fmri(ortho3.0) 0
@@ -465,7 +465,7 @@ set fmri(tempfilt_yn4) 1
 set fmri(deriv_yn4) 0
 
 # Custom EV file (EV 4)
-set fmri(custom4) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_stimulus_0_SPD.txt"
+set fmri(custom4) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_stimulus_0_SPD.txt"
 
 # Orthogonalise EV 4 wrt EV 0
 set fmri(ortho4.0) 0
@@ -520,7 +520,7 @@ set fmri(tempfilt_yn5) 1
 set fmri(deriv_yn5) 0
 
 # Custom EV file (EV 5)
-set fmri(custom5) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_stimulus_1_ACC.txt"
+set fmri(custom5) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_stimulus_1_ACC.txt"
 
 # Orthogonalise EV 5 wrt EV 0
 set fmri(ortho5.0) 0
@@ -575,7 +575,7 @@ set fmri(tempfilt_yn6) 1
 set fmri(deriv_yn6) 0
 
 # Custom EV file (EV 6)
-set fmri(custom6) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_stimulus_1_SPD.txt"
+set fmri(custom6) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_099/block_3_type_cognitive_eye/evs/ev_stimulus_1_SPD.txt"
 
 # Orthogonalise EV 6 wrt EV 0
 set fmri(ortho6.0) 0

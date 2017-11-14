@@ -30,7 +30,7 @@ set fmri(featwatcher_yn) 1
 set fmri(sscleanup_yn) 0
 
 # Output directory
-set fmri(outputdir) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks"
+set fmri(outputdir) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks"
 
 # TR(s)
 set fmri(tr) 3.0
@@ -263,7 +263,7 @@ set fmri(paradigm_hp) 100
 set fmri(ncopeinputs) 0
 
 # 4D AVW data or FEAT directory (1)
-set feat_files(1) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks"
+set feat_files(1) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks"
 
 # Add confound EVs text file
 set fmri(confoundevs) 0
@@ -300,7 +300,7 @@ set fmri(tempfilt_yn1) 1
 set fmri(deriv_yn1) 0
 
 # Custom EV file (EV 1)
-set fmri(custom1) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_eye_LEFT.txt"
+set fmri(custom1) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_eye_LEFT.txt"
 
 # Orthogonalise EV 1 wrt EV 0
 set fmri(ortho1.0) 0
@@ -406,7 +406,7 @@ set fmri(tempfilt_yn2) 1
 set fmri(deriv_yn2) 0
 
 # Custom EV file (EV 2)
-set fmri(custom2) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_eye_RIGHT.txt"
+set fmri(custom2) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_eye_RIGHT.txt"
 
 # Orthogonalise EV 2 wrt EV 0
 set fmri(ortho2.0) 0
@@ -512,7 +512,7 @@ set fmri(tempfilt_yn3) 1
 set fmri(deriv_yn3) 0
 
 # Custom EV file (EV 3)
-set fmri(custom3) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_hand_LEFT.txt"
+set fmri(custom3) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_hand_LEFT.txt"
 
 # Orthogonalise EV 3 wrt EV 0
 set fmri(ortho3.0) 0
@@ -618,7 +618,7 @@ set fmri(tempfilt_yn4) 1
 set fmri(deriv_yn4) 0
 
 # Custom EV file (EV 4)
-set fmri(custom4) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_hand_RIGHT.txt"
+set fmri(custom4) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_hand_RIGHT.txt"
 
 # Orthogonalise EV 4 wrt EV 0
 set fmri(ortho4.0) 0
@@ -724,7 +724,7 @@ set fmri(tempfilt_yn5) 1
 set fmri(deriv_yn5) 0
 
 # Custom EV file (EV 5)
-set fmri(custom5) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_resp_hand_LEFT.txt"
+set fmri(custom5) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_resp_hand_LEFT.txt"
 
 # Orthogonalise EV 5 wrt EV 0
 set fmri(ortho5.0) 0
@@ -830,7 +830,7 @@ set fmri(tempfilt_yn6) 1
 set fmri(deriv_yn6) 0
 
 # Custom EV file (EV 6)
-set fmri(custom6) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_resp_hand_RIGHT.txt"
+set fmri(custom6) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_resp_hand_RIGHT.txt"
 
 # Orthogonalise EV 6 wrt EV 0
 set fmri(ortho6.0) 0
@@ -936,7 +936,7 @@ set fmri(tempfilt_yn7) 1
 set fmri(deriv_yn7) 0
 
 # Custom EV file (EV 7)
-set fmri(custom7) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_resp_eye_LEFT.txt"
+set fmri(custom7) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_resp_eye_LEFT.txt"
 
 # Orthogonalise EV 7 wrt EV 0
 set fmri(ortho7.0) 0
@@ -1042,7 +1042,7 @@ set fmri(tempfilt_yn8) 1
 set fmri(deriv_yn8) 0
 
 # Custom EV file (EV 8)
-set fmri(custom8) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_resp_eye_RIGHT.txt"
+set fmri(custom8) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_resp_eye_RIGHT.txt"
 
 # Orthogonalise EV 8 wrt EV 0
 set fmri(ortho8.0) 0
@@ -1148,7 +1148,7 @@ set fmri(tempfilt_yn9) 1
 set fmri(deriv_yn9) 0
 
 # Custom EV file (EV 9)
-set fmri(custom9) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_SPD.txt"
+set fmri(custom9) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_SPD.txt"
 
 # Orthogonalise EV 9 wrt EV 0
 set fmri(ortho9.0) 0
@@ -1254,7 +1254,7 @@ set fmri(tempfilt_yn10) 1
 set fmri(deriv_yn10) 0
 
 # Custom EV file (EV 10)
-set fmri(custom10) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_ACC.txt"
+set fmri(custom10) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_ACC.txt"
 
 # Orthogonalise EV 10 wrt EV 0
 set fmri(ortho10.0) 0
@@ -1360,7 +1360,7 @@ set fmri(tempfilt_yn11) 1
 set fmri(deriv_yn11) 0
 
 # Custom EV file (EV 11)
-set fmri(custom11) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_LEFT.txt"
+set fmri(custom11) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_LEFT.txt"
 
 # Orthogonalise EV 11 wrt EV 0
 set fmri(ortho11.0) 0
@@ -1466,7 +1466,7 @@ set fmri(tempfilt_yn12) 1
 set fmri(deriv_yn12) 0
 
 # Custom EV file (EV 12)
-set fmri(custom12) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_NEU.txt"
+set fmri(custom12) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_NEU.txt"
 
 # Orthogonalise EV 12 wrt EV 0
 set fmri(ortho12.0) 0
@@ -1572,7 +1572,7 @@ set fmri(tempfilt_yn13) 1
 set fmri(deriv_yn13) 0
 
 # Custom EV file (EV 13)
-set fmri(custom13) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_RIGHT.txt"
+set fmri(custom13) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_cue_RIGHT.txt"
 
 # Orthogonalise EV 13 wrt EV 0
 set fmri(ortho13.0) 0
@@ -1678,7 +1678,7 @@ set fmri(tempfilt_yn14) 1
 set fmri(deriv_yn14) 0
 
 # Custom EV file (EV 14)
-set fmri(custom14) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_SPD.txt"
+set fmri(custom14) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_SPD.txt"
 
 # Orthogonalise EV 14 wrt EV 0
 set fmri(ortho14.0) 0
@@ -1784,7 +1784,7 @@ set fmri(tempfilt_yn15) 1
 set fmri(deriv_yn15) 0
 
 # Custom EV file (EV 15)
-set fmri(custom15) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_ACC.txt"
+set fmri(custom15) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_ACC.txt"
 
 # Orthogonalise EV 15 wrt EV 0
 set fmri(ortho15.0) 0
@@ -1890,7 +1890,7 @@ set fmri(tempfilt_yn16) 1
 set fmri(deriv_yn16) 0
 
 # Custom EV file (EV 16)
-set fmri(custom16) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_LEFT.txt"
+set fmri(custom16) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_LEFT.txt"
 
 # Orthogonalise EV 16 wrt EV 0
 set fmri(ortho16.0) 0
@@ -1996,7 +1996,7 @@ set fmri(tempfilt_yn17) 1
 set fmri(deriv_yn17) 0
 
 # Custom EV file (EV 17)
-set fmri(custom17) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_NEU.txt"
+set fmri(custom17) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_NEU.txt"
 
 # Orthogonalise EV 17 wrt EV 0
 set fmri(ortho17.0) 0
@@ -2102,7 +2102,7 @@ set fmri(tempfilt_yn18) 1
 set fmri(deriv_yn18) 0
 
 # Custom EV file (EV 18)
-set fmri(custom18) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_RIGHT.txt"
+set fmri(custom18) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_0_RIGHT.txt"
 
 # Orthogonalise EV 18 wrt EV 0
 set fmri(ortho18.0) 0
@@ -2208,7 +2208,7 @@ set fmri(tempfilt_yn19) 1
 set fmri(deriv_yn19) 0
 
 # Custom EV file (EV 19)
-set fmri(custom19) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_SPD.txt"
+set fmri(custom19) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_SPD.txt"
 
 # Orthogonalise EV 19 wrt EV 0
 set fmri(ortho19.0) 0
@@ -2314,7 +2314,7 @@ set fmri(tempfilt_yn20) 1
 set fmri(deriv_yn20) 0
 
 # Custom EV file (EV 20)
-set fmri(custom20) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_ACC.txt"
+set fmri(custom20) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_ACC.txt"
 
 # Orthogonalise EV 20 wrt EV 0
 set fmri(ortho20.0) 0
@@ -2420,7 +2420,7 @@ set fmri(tempfilt_yn21) 1
 set fmri(deriv_yn21) 0
 
 # Custom EV file (EV 21)
-set fmri(custom21) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_LEFT.txt"
+set fmri(custom21) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_LEFT.txt"
 
 # Orthogonalise EV 21 wrt EV 0
 set fmri(ortho21.0) 0
@@ -2526,7 +2526,7 @@ set fmri(tempfilt_yn22) 1
 set fmri(deriv_yn22) 0
 
 # Custom EV file (EV 22)
-set fmri(custom22) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_NEU.txt"
+set fmri(custom22) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_NEU.txt"
 
 # Orthogonalise EV 22 wrt EV 0
 set fmri(ortho22.0) 0
@@ -2632,7 +2632,7 @@ set fmri(tempfilt_yn23) 1
 set fmri(deriv_yn23) 0
 
 # Custom EV file (EV 23)
-set fmri(custom23) "/Users/steven/Documents/Syncthing/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_RIGHT.txt"
+set fmri(custom23) "/Users/steven/Sync/PhDprojects/subcortex/flashtask/designs/pp_018/all_blocks/evs/ev_stimulus_1_RIGHT.txt"
 
 # Orthogonalise EV 23 wrt EV 0
 set fmri(ortho23.0) 0

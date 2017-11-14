@@ -1,7 +1,7 @@
 trial_ID,block_trial_ID,block,block_type,null_trial,correct_answer,cue,response_modality,trial_type,phase_0,phase_1,phase_2,phase_3,phase_4,phase_5,phase_6,phase_7,trial_duration,trial_start_time,cue_onset_time,stimulus_onset_time,trial_start_time_block,cue_onset_time_block,stimulus_onset_time_block
-48,0,7,limbic_eye,False,0,RIGHT,eye,4,0,0.0,1,1.5,2.0,0,0.0,4.5,9.0,339.5,339.5,342.0,0.0,0.0,2.5
-49,1,7,limbic_eye,False,1,NEU,eye,1,0,1.5,1,3.0,2.0,0,0.0,1.5,9.0,348.5,350.0,354.0,9.0,10.5,14.5
-50,2,7,limbic_eye,False,0,LEFT,eye,2,0,0.75,1,2.25,2.0,0,0.0,3.0,9.0,357.5,358.25,361.5,18.0,18.75,22.0
-51,3,7,limbic_eye,False,0,NEU,eye,0,0,2.25,1,3.0,2.0,0,0.0,0.75,9.0,366.5,368.75,372.75,27.0,29.25,33.25
-52,4,7,limbic_eye,False,1,RIGHT,eye,5,0,0.0,1,1.5,2.0,0,0.0,4.5,9.0,375.5,375.5,378.0,36.0,36.0,38.5
-53,5,7,limbic_eye,False,1,LEFT,eye,3,0,1.5,1,3.0,2.0,0,0.0,1.5,9.0,384.5,386.0,390.0,45.0,46.5,50.5
+48,0,7,limbic_eye,False,0,NEU,eye,0,0,1.5,1.0,3.0,2.0,0,0.0,1.5,9.0,341.0,342.5,346.5,0.0,1.5,5.5
+49,1,7,limbic_eye,False,1,NEU,eye,1,0,0.75,1.0,1.5,2.0,0,0.0,3.75,9.0,350.0,350.75,353.25,9.0,9.75,12.25
+50,2,7,limbic_eye,False,1,RIGHT,eye,5,0,0.75,1.0,2.25,2.0,0,0.0,3.0,9.0,359.0,359.75,363.0,18.0,18.75,22.0
+51,3,7,limbic_eye,False,0,LEFT,eye,2,0,0.75,1.0,0.75,2.0,0,0.0,4.5,9.0,368.0,368.75,370.5,27.0,27.75,29.5
+52,4,7,limbic_eye,False,0,RIGHT,eye,4,0,2.25,1.0,3.0,2.0,0,0.0,0.75,9.0,377.0,379.25,383.25,36.0,38.25,42.25
+53,5,7,limbic_eye,False,1,LEFT,eye,3,0,0.75,1.0,1.5,2.0,0,0.0,3.75,9.0,386.0,386.75,389.25,45.0,45.75,48.25

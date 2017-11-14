@@ -1,5 +1,6 @@
 # FSL stuff that's not interesting to sync
 *.ppm
+*.feat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
