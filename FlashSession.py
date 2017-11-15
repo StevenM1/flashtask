@@ -1510,7 +1510,7 @@ class FlashPracticeSession(EyelinkSession):
                                      screen=self.screen,
                                      tracker=self.tracker)
 
-        trial_object.n_TRs = 3 # Allow skipping of ITI (not really necessary in practice)
+        trial_object.n_TRs = 3  # Allow skipping of ITI (not really necessary in practice sess)
         trial_object.run()
 
         # If the response given is correct, update scores
