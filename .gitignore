@@ -115,8 +115,7 @@ ENV/
 data/*
 !data/*.ipynb
 
-# Include designs
+# Include designs, but only the csv files and the fsfs
 designs/*
 !designs/*/*.csv
-!designs/*/*.txt
-!designs/**/*.csv
+!designs/*/*.fsf

@@ -1,9 +1,0 @@
-trial_ID,block_trial_ID,block,block_type,null_trial,correct_answer,cue,response_modality,trial_type,phase_0,phase_1,phase_2,phase_3,phase_4,phase_5,phase_6,phase_7,trial_duration,trial_start_time,cue_onset_time,stimulus_onset_time,trial_start_time_block,cue_onset_time_block,stimulus_onset_time_block
-26,0,4,cognitive_hand,False,0,ACC,hand,2,0,2.25,1.0,1.5,2.0,0,0.5,1.75,9.0,143.0,145.25,147.75,0.0,2.25,4.75
-27,1,4,cognitive_hand,False,0,SPD,hand,0,0,0.75,1.0,1.5,2.0,0,0.5,3.25,9.0,152.0,152.75,155.25,9.0,9.75,12.25
-28,2,4,cognitive_hand,False,0,SPD,hand,0,0,2.25,1.0,2.25,2.0,0,0.5,1.0,9.0,161.0,163.25,166.5,18.0,20.25,23.5
-29,3,4,cognitive_hand,False,1,ACC,hand,3,0,0.0,1.0,0.75,2.0,0,0.5,4.75,9.0,170.0,170.0,171.75,27.0,27.0,28.75
-30,4,4,cognitive_hand,False,1,ACC,hand,3,0,2.25,1.0,0.75,2.0,0,0.5,2.5,9.0,179.0,181.25,183.0,36.0,38.25,40.0
-31,5,4,cognitive_hand,False,1,SPD,hand,1,0,2.25,1.0,0.75,2.0,0,0.5,2.5,9.0,188.0,190.25,192.0,45.0,47.25,49.0
-32,6,4,cognitive_hand,False,1,SPD,hand,1,0,0.75,1.0,2.25,2.0,0,0.5,2.5,9.0,197.0,197.75,201.0,54.0,54.75,58.0
-33,7,4,cognitive_hand,False,0,ACC,hand,2,0,0.0,1.0,0.75,2.0,0,0.5,4.75,9.0,206.0,206.0,207.75,63.0,63.0,64.75

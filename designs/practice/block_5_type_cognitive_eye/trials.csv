@@ -1,9 +1,0 @@
-trial_ID,block_trial_ID,block,block_type,null_trial,correct_answer,cue,response_modality,trial_type,phase_0,phase_1,phase_2,phase_3,phase_4,phase_5,phase_6,phase_7,trial_duration,trial_start_time,cue_onset_time,stimulus_onset_time,trial_start_time_block,cue_onset_time_block,stimulus_onset_time_block
-34,0,5,cognitive_eye,False,1,SPD,eye,1,0,0.0,1.0,0.75,2.0,0,0.0,5.25,9.0,215.0,215.0,216.75,0.0,0.0,1.75
-35,1,5,cognitive_eye,False,0,ACC,eye,2,0,0.75,1.0,0.75,2.0,0,0.0,4.5,9.0,224.0,224.75,226.5,9.0,9.75,11.5
-36,2,5,cognitive_eye,False,0,ACC,eye,2,0,2.25,1.0,1.5,2.0,0,0.0,2.25,9.0,233.0,235.25,237.75,18.0,20.25,22.75
-37,3,5,cognitive_eye,False,1,ACC,eye,3,0,2.25,1.0,3.0,2.0,0,0.0,0.75,9.0,242.0,244.25,248.25,27.0,29.25,33.25
-38,4,5,cognitive_eye,False,0,SPD,eye,0,0,0.0,1.0,1.5,2.0,0,0.0,4.5,9.0,251.0,251.0,253.5,36.0,36.0,38.5
-39,5,5,cognitive_eye,False,0,SPD,eye,0,0,0.0,1.0,3.0,2.0,0,0.0,3.0,9.0,260.0,260.0,264.0,45.0,45.0,49.0
-40,6,5,cognitive_eye,False,1,ACC,eye,3,0,2.25,1.0,0.75,2.0,0,0.0,3.0,9.0,269.0,271.25,273.0,54.0,56.25,58.0
-41,7,5,cognitive_eye,False,1,SPD,eye,1,0,1.5,1.0,3.0,2.0,0,0.0,1.5,9.0,278.0,279.5,283.5,63.0,64.5,68.5
