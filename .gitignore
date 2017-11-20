@@ -117,5 +117,5 @@ data/*
 
 # Include designs, but only the csv files and the fsfs
 designs/*
-!designs/*/*.csv
-!designs/*/*.fsf
+!designs/*.csv
+!designs/*.fsf
