@@ -17,7 +17,7 @@ build/
 develop-eggs/
 dist/
 downloads/
-eggs/
+ggs/
 .eggs/
 lib/
 lib64/
@@ -116,6 +116,6 @@ data/*
 !data/*.ipynb
 
 # Include designs, but only the csv files and the fsfs
-designs/*
-!designs/*.csv
-!designs/*.fsf
+designs/**/*.*
+!designs/**/*.csv
+!designs/**/*.fsf
