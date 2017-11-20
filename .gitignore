@@ -115,4 +115,8 @@ ENV/
 data/*
 !data/*.ipynb
 
-# Include designs?
+# Include designs
+designs/*
+!designs/*/*.csv
+!designs/*/*.txt
+!designs/**/*.csv

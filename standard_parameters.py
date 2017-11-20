@@ -83,7 +83,7 @@ else:
     # Assumes we are running on the actual, experimental set-up (i.e. 7T-MRI scanner)
     from psychopy.monitors import Monitor
     screen_res = (1920, 1080)
-    distance = 55
+    distance = 225  # 225cm from eyes in bore to screen
 
     # Create Monitor
     cur_mon = Monitor(name='boldscreen', width=57.2, distance=distance, notes='Dynamically created in standard_parameters. '
