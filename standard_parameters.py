@@ -79,6 +79,20 @@ elif 'HOMEPATH' in os.environ and os.environ['HOMEPATH'] == '\\Users\\User':
     monitor_name = 'benq'
     response_keys = ['z', 'slash']
 
+elif 'HOMEPATH' in os.environ and os.environ['USERNAME'] == 'psyuser':
+    from psychopy.monitors import Monitor
+    screen_res = (1920, 1080)
+    distance = 55
+
+    # Create Monitor
+    cur_mon = Monitor(name='asus', width=55, distance=distance, notes='Dynamically created in standard_parameters. '
+                                                                          'You might read a warning if the monitor '
+                                                                          'specification does not already exist.')
+    cur_mon.setSizePix(screen_res)
+    cur_mon.saveMon()
+    monitor_name = 'asus'
+    response_keys = ['z', 'slash']
+
 else:
     # Assumes we are running on the actual, experimental set-up (i.e. 7T-MRI scanner)
     from psychopy.monitors import Monitor
