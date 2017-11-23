@@ -82,7 +82,7 @@ elif 'HOMEPATH' in os.environ and os.environ['HOMEPATH'] == '\\Users\\User':
 elif 'HOMEPATH' in os.environ and os.environ['USERNAME'] == 'psyuser':
     from psychopy.monitors import Monitor
     screen_res = (1920, 1080)
-    distance = 55
+    distance = 86
 
     # Create Monitor
     cur_mon = Monitor(name='asus', width=55, distance=distance, notes='Dynamically created in standard_parameters. '
@@ -92,6 +92,10 @@ elif 'HOMEPATH' in os.environ and os.environ['USERNAME'] == 'psyuser':
     cur_mon.saveMon()
     monitor_name = 'asus'
     response_keys = ['z', 'slash']
+
+    # Adjust for 120Hz
+    parameters['increment_length'] = parameters['increment_length'] * 2
+    parameters['flash_length'] = parameters['flash_length'] * 2
 
 else:
     # Assumes we are running on the actual, experimental set-up (i.e. 7T-MRI scanner)
