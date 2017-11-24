@@ -31,7 +31,7 @@ def main():
             print('Number must be between 1 and 100. What is the participant number?: ')
 
     scanner = 'y'
-    tracker_on = True
+    tracker_on = False
 
     language = ''
     while language not in ['en', 'nl']:
