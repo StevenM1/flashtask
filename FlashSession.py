@@ -953,7 +953,7 @@ class FlashSession(EyelinkSession):
 
         self.save_data()
         print('Participant scored %d points, which corresponds to %.2f euro or %.2f participant points' % (
-            self.participant_score, self.participant_score * (10 / 560), self.participant_score * (1 / 560)))
+            self.participant_score, self.participant_score * (10 / 400), self.participant_score * (1 / 400)))
 
         super(FlashSession, self).close()
 
