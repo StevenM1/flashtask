@@ -1,7 +1,9 @@
 trial_ID,block_trial_ID,block,block_type,null_trial,correct_answer,cue,response_modality,trial_type,phase_0,phase_1,phase_2,phase_3,phase_4,phase_5,phase_6,phase_7,trial_duration,trial_start_time,cue_onset_time,stimulus_onset_time,trial_start_time_block,cue_onset_time_block,stimulus_onset_time_block
-42,0,6,limbic_hand,False,1,LEFT,hand,3,0,2.25,1.0,0.75,2.0,0,0.5,2.5,9.0,287.0,289.25,291.0,0.0,2.25,4.0
-43,1,6,limbic_hand,False,0,NEU,hand,0,0,1.5,1.0,0.75,2.0,0,0.5,3.25,9.0,296.0,297.5,299.25,9.0,10.5,12.25
-44,2,6,limbic_hand,False,1,NEU,hand,1,0,0.0,1.0,3.0,2.0,0,0.5,2.5,9.0,305.0,305.0,309.0,18.0,18.0,22.0
-45,3,6,limbic_hand,False,0,LEFT,hand,2,0,1.5,1.0,2.25,2.0,0,0.5,1.75,9.0,314.0,315.5,318.75,27.0,28.5,31.75
-46,4,6,limbic_hand,False,1,RIGHT,hand,5,0,2.25,1.0,3.0,2.0,0,0.5,0.25,9.0,323.0,325.25,329.25,36.0,38.25,42.25
-47,5,6,limbic_hand,False,0,RIGHT,hand,4,0,2.25,1.0,0.75,2.0,0,0.5,2.5,9.0,332.0,334.25,336.0,45.0,47.25,49.0
+38,0,6,limbic_hand,False,0,RIGHT,hand,4,0,0.75,1.0,2.25,2.0,0,0.5,2.5,9.0,249.5,250.25,253.5,0.0,0.75,4.0
+39,1,6,limbic_hand,False,0,NEU,hand,0,0,2.25,1.0,1.5,2.0,0,0.5,1.75,9.0,258.5,260.75,263.25,9.0,11.25,13.75
+40,2,6,limbic_hand,False,1,NEU,hand,1,0,0.75,1.0,1.5,2.0,0,0.5,3.25,9.0,267.5,268.25,270.75,18.0,18.75,21.25
+41,3,6,limbic_hand,False,1,RIGHT,hand,5,0,2.25,1.0,3.0,2.0,0,0.5,0.25,9.0,276.5,278.75,282.75,27.0,29.25,33.25
+42,4,6,limbic_hand,False,0,LEFT,hand,2,0,1.5,1.0,1.5,2.0,0,0.5,2.5,9.0,285.5,287.0,289.5,36.0,37.5,40.0
+43,5,6,limbic_hand,False,1,NEU,hand,1,0,2.25,1.0,1.5,2.0,0,0.5,1.75,9.0,294.5,296.75,299.25,45.0,47.25,49.75
+44,6,6,limbic_hand,False,1,LEFT,hand,3,0,0.75,1.0,1.5,2.0,0,0.5,3.25,9.0,303.5,304.25,306.75,54.0,54.75,57.25
+45,7,6,limbic_hand,False,0,NEU,hand,0,0,2.25,1.0,3.0,2.0,0,0.5,0.25,9.0,312.5,314.75,318.75,63.0,65.25,69.25

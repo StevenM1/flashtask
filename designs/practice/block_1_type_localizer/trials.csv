@@ -1,7 +1,7 @@
 trial_ID,block_trial_ID,block,block_type,null_trial,correct_answer,cue,response_modality,trial_type,phase_0,phase_1,phase_2,phase_3,phase_4,phase_5,phase_6,phase_7,trial_duration,trial_start_time,cue_onset_time,stimulus_onset_time,trial_start_time_block,cue_onset_time_block,stimulus_onset_time_block
-6,0,1,localizer,False,0,LEFT,hand,0,0,1.5,0.808,0.0,0.8,0,0.0,2.892,6.0,36.0,37.5,38.308,0.0,1.5,2.308
-7,1,1,localizer,False,1,RIGHT,hand,1,0,1.5,0.954,0.0,0.8,0,0.0,2.746,6.0,42.0,43.5,44.454,6.0,7.5,8.454
-8,2,1,localizer,False,1,RIGHT,hand,1,0,1.5,0.845,0.0,0.8,0,0.0,2.855,6.0,48.0,49.5,50.345,12.0,13.5,14.345
-9,3,1,localizer,False,0,LEFT,hand,0,0,0.75,0.829,0.0,0.8,0,0.0,3.621,6.0,54.0,54.75,55.579,18.0,18.75,19.579
-10,4,1,localizer,False,0,LEFT,hand,0,0,0.0,0.894,0.0,0.8,0,0.0,4.306,6.0,60.0,60.0,60.894,24.0,24.0,24.894
-11,5,1,localizer,False,1,RIGHT,hand,1,0,0.0,0.949,0.0,0.8,0,0.0,4.251,6.0,66.0,66.0,66.949,30.0,30.0,30.949
+6,0,1,localizer,False,0,LEFT,hand,0,0,2.25,0.954,0.0,0.8,0,0.0,1.996,6.0,36.0,38.25,39.204,0.0,2.25,3.204
+7,1,1,localizer,False,0,LEFT,hand,0,0,0.0,0.836,0.0,0.8,0,0.0,4.364,6.0,42.0,42.0,42.836,6.0,6.0,6.836
+8,2,1,localizer,False,1,RIGHT,hand,1,0,2.25,0.904,0.0,0.8,0,0.0,2.046,6.0,48.0,50.25,51.154,12.0,14.25,15.154
+9,3,1,localizer,False,1,RIGHT,hand,1,0,0.0,1.466,0.0,0.8,0,0.0,3.734,6.0,54.0,54.0,55.466,18.0,18.0,19.466
+10,4,1,localizer,False,0,LEFT,hand,0,0,1.5,0.718,0.0,0.8,0,0.0,2.982,6.0,60.0,61.5,62.218,24.0,25.5,26.218
+11,5,1,localizer,False,1,RIGHT,hand,1,0,2.25,0.754,0.0,0.8,0,0.0,2.196,6.0,66.0,68.25,69.004,30.0,32.25,33.004
