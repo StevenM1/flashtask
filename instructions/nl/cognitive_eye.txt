@@ -1,4 +1,4 @@
-In de volgende trials moet u kiezen welke cirkel het vaakst flitst. Als u denkt dat de linker cirkel het vaakst flitst, MAAK een OOGBEWEGING naar links. Als u denkt dat de rechter cirkel het vaakst flitst, MAAK een OOGBEWEGING naar rechts.
+In de volgende trials moet u kiezen welke cirkel het vaakst flitst. Als u denkt dat de linker cirkel het vaakst flitst, MAAK een OOGBEWEGING naar de linker cirkel. Als u denkt dat de rechter cirkel het vaakst flitst, MAAK een OOGBEWEGING naar de rechter cirkel.
 
 Voor ieder trial leest u een aanwijzing. Deze aanwijzing vertelt of u zo snel (SPD) of zo accuraat (ACC) mogelijk moet reageren.
 

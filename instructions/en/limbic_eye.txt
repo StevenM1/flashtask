@@ -1,4 +1,4 @@
-In the next trials, you need to decide which of two circles flashes most often. If the left circle flashes most often, make an EYE MOVEMENT towards the left side of the screen. If the right circle flashes most often, make an EYE MOVEMENT the right side of the screen.
+In the next trials, you need to decide which of two circles flashes most often. If the left circle flashes most often, make an EYE MOVEMENT towards the left circle. If the right circle flashes most often, make an EYE MOVEMENT the right circle.
 
 Press a button to continue to next instruction screen
 

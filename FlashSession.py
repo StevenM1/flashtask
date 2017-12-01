@@ -1149,6 +1149,9 @@ class FlashPracticeSession(EyelinkSession):
         with open(os.path.join(this_file, 'instructions', self.language, 'feedback.txt'), 'rb') as f:
             self.feedback_txt = f.read().split('\n\n\n')
 
+        with open(os.path.join(this_file, 'instructions', self.language, 'respond_now.txt'), 'rb') as f:
+            respond_now_txt = f.read().split('\n')[0]
+
         # Prepare fixation cross
         self.fixation_cross = FixationCross(win=self.screen,
                                             inner_radius=fix_cross_parameters['inner_radius_degrees'],
@@ -1222,6 +1225,14 @@ class FlashPracticeSession(EyelinkSession):
                                               text=welcome_screen_txt,
                                               units='pix', font='Helvetica Neue', pos=(0, 0),
                                               italic=False, height=30, alignHoriz='center', )
+
+        # "Respond now" text
+        self.show_response_phase_txt = visual.TextStim(win=self.screen,
+                                                       text=respond_now_txt,
+                                                       units='deg',
+                                                       font='Helvetica Neue',
+                                                       pos=(0, 0),
+                                                       italic=True, height=.7, alignHoriz='center')
 
         self.practice_block_end_instruction = [
             visual.TextStim(win=self.screen,
@@ -1447,7 +1458,7 @@ class FlashPracticeSession(EyelinkSession):
         # Create new mask to select only first frame of every increment
         self.first_frame_idx = np.arange(0, mask_idx.shape[0], increment_length)
 
-    def run_localizer_trial(self, trial, phases):
+    def run_localizer_trial(self, trial, phases, show_response_phase=False):
         """ Runs a single localizer trial """
 
         if trial.response_modality == 'hand':
@@ -1463,7 +1474,8 @@ class FlashPracticeSession(EyelinkSession):
                                      block_trial_ID=trial.block_trial_ID,
                                      parameters={'correct_answer': trial.correct_answer,
                                                  'cue': trial.cue,
-                                                 'trial_type': trial.trial_type},
+                                                 'trial_type': trial.trial_type,
+                                                 'show_response_phase': show_response_phase},
                                      phase_durations=phases,
                                      session=self,
                                      screen=self.screen,
@@ -1614,7 +1626,13 @@ class FlashPracticeSession(EyelinkSession):
 
                 # What trial type to run?
                 if trial.block_type == 'localizer':   # Localizer
-                    trial_object = self.run_localizer_trial(trial, phases=this_phases)   # RUN LOCALIZER
+                    if self.current_block == 0:
+                        show_response_phase = True
+                    else:
+                        show_response_phase = False
+                    trial_object = self.run_localizer_trial(trial, phases=this_phases,
+                                                            show_response_phase=show_response_phase)   #
+                    # RUN LOCALIZER
                 else:              # Experiment
                     trial_object = self.run_experimental_trial(trial, phases=this_phases,
                                                                block_n=self.current_block)  # RUN

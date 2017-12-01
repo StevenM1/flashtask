@@ -54,6 +54,12 @@ class LocalizerTrial(Trial):
         self.feedback_type = 0   # 0 = too slow, 1 = correct, 2 = wrong, 3 = too fast, 4 = early phase
         self.cue = self.session.arrow_stimuli[parameters['correct_answer']]
 
+        # Should we indicate when a response should be made?
+        self.show_response_phase = False
+        if 'show_response_phase' in parameters:
+            if parameters['show_response_phase']:
+                self.show_response_phase = True
+
         # When do we stop the trial? If there is an acquisition volume during the ITI, actively hold the ITI (trial).
         # That is, stop the trial only after the final volume for this trial is obtained.
         # The remainder of the ITI is used to prepare next trial. The actual trial start only occurs when the next
@@ -96,9 +102,14 @@ class LocalizerTrial(Trial):
             self.session.fixation_cross.draw()
             self.session.crosses[0].draw()
             self.session.crosses[1].draw()
+
         elif self.phase == 4 or self.phase == 5:
             self.session.crosses[0].draw()
             self.session.crosses[1].draw()
+
+            if self.show_response_phase:
+                self.session.show_response_phase_txt.draw()
+
             # self.session.screen.getMovieFrame()
             # self.session.screen.saveMovieFrames('screenshot_localizer_blank_screen.png')
         elif self.phase == 6:
@@ -263,28 +274,28 @@ class LocalizerTrialSaccade(LocalizerTrial):
                 elif self.phase == 4:
                     self.response = saccade_direction_verbose
 
-                    # Check for early response
-                    if (eyepos_time - self.fix2_time) < 0.150:  # (seconds)
-                        self.feedback_type = 3
-
-                        if saccade_direction == self.correct_direction:
-                            self.response_type = 1
-                            self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response', 'correct'])
-                        else:
-                            self.response_type = 2
-                            self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response',
-                                                'incorrect'])
+                    # # Check for early response
+                    # if (eyepos_time - self.fix2_time) < 0.150:  # (seconds)
+                    #     self.feedback_type = 3
+                    #
+                    #     if saccade_direction == self.correct_direction:
+                    #         self.response_type = 1
+                    #         self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response', 'correct'])
+                    #     else:
+                    #         self.response_type = 2
+                    #         self.events.append([saccade_direction_verbose, eyepos_time, 'too fast response',
+                    #                             'incorrect'])
+                    # else:
+                    if saccade_direction == self.correct_direction:
+                        self.feedback_type = 1
+                        self.response_type = 1
+                        self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
+                                            'correct'])
                     else:
-                        if saccade_direction == self.correct_direction:
-                            self.feedback_type = 1
-                            self.response_type = 1
-                            self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
-                                                'correct'])
-                        else:
-                            self.feedback_type = 2
-                            self.response_type = 2
-                            self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
-                                                'incorrect'])
+                        self.feedback_type = 2
+                        self.response_type = 2
+                        self.events.append([saccade_direction_verbose, eyepos_time, 'response saccade',
+                                            'incorrect'])
 
                     self.phase_forward()  # End stimulus presentation when saccade is detected (this will be removed)
 
@@ -398,30 +409,30 @@ class LocalizerTrialKeyboard(LocalizerTrial):
                             self.response = ev
                             self.response_time = ev_time - self.fix2_time
 
-                            if self.response_time < 0.150 and self.response_type == 0:
-                                self.feedback_type = 3  # too early in phase
-
-                                if ev == self.correct_key:
+                            # if self.response_time < 0.150 and self.response_type == 0:
+                            #     self.feedback_type = 3  # too early in phase
+                            #
+                            #     if ev == self.correct_key:
+                            #         self.response_type = 1
+                            #         self.events.append([ev, ev_time, 'too fast response', 'correct',
+                            #                             self.response_time])
+                            #     else:
+                            #         self.response_type = 1
+                            #         self.events.append([ev, ev_time, 'too fast response', 'incorrect',
+                            #                             self.response_time])
+                            # else:
+                            if ev == self.correct_key:
+                                self.events.append([ev, ev_time, 'first keypress', 'correct',
+                                                    self.response_time])
+                                if self.response_type == 0:
                                     self.response_type = 1
-                                    self.events.append([ev, ev_time, 'too fast response', 'correct',
-                                                        self.response_time])
-                                else:
-                                    self.response_type = 1
-                                    self.events.append([ev, ev_time, 'too fast response', 'incorrect',
-                                                        self.response_time])
+                                    self.feedback_type = 1
                             else:
-                                if ev == self.correct_key:
-                                    self.events.append([ev, ev_time, 'first keypress', 'correct',
-                                                        self.response_time])
-                                    if self.response_type == 0:
-                                        self.response_type = 1
-                                        self.feedback_type = 1
-                                else:
-                                    self.events.append([ev, ev_time, 'first keypress', 'incorrect',
-                                                        self.response_time])
-                                    if self.response_type == 0:
-                                        self.response_type = 2
-                                        self.feedback_type = 2
+                                self.events.append([ev, ev_time, 'first keypress', 'incorrect',
+                                                    self.response_time])
+                                if self.response_type == 0:
+                                    self.response_type = 2
+                                    self.feedback_type = 2
                             self.phase_forward()  # End stimulus presentation upon keypress
                         else:
                             self.events.append([ev, ev_time, 'late keypress (during stimulus)'])
