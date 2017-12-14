@@ -288,9 +288,41 @@ class FlashTrialSaccade(FlashTrial):
     def event(self):
         """ Checks for saccades as answers and keyboard responses for escape / scanner pulse """
 
+        # First check keyboard responses for kill signals and/or scanner pulses
+        for i, (ev, ev_time) in enumerate(event.getKeys(timeStamped=self.session.clock)):
+
+            if len(ev) > 0:
+                if ev in ['esc', 'escape']:
+                    self.events.append([-99, ev_time, 'escape: user killed session'])
+                    self.stopped = True
+                    self.session.stopped = True
+                    print('Session stopped!')
+
+                elif ev == 'equal':
+                    self.events.append([-99, ev_time - self.start_time, 'user skipped trial'])
+                    self.stopped = True
+                    print('Trial canceled by user')
+
+                elif ev == 't':  # Scanner pulse
+                    self.events.append([99, ev_time, 'pulse'])
+                    self.n_TRs += 1
+
+                    if self.phase == 0:
+                        self.phase_forward()
+
         # Make sure to get eye position at the start of each phase
         if self.eye_pos_start_phase[self.phase] is None:
-            self.eye_pos_start_phase[self.phase] = self.session.eye_pos()
+            eyepos = self.session.eye_pos()
+            distance_from_center = np.divide(np.sqrt((eyepos[0])**2 +
+                                                     (eyepos[1])**2),
+                                             self.session.pixels_per_degree)
+            if distance_from_center < 6:
+                # If the distance from the center is less than 8 degrees, we are probably not in a blink. We can
+                # accept the current position as the start position
+                self.eye_pos_start_phase[self.phase] = self.session.eye_pos()
+            else:
+                # Distance from center > 8: subject is probably blinking. Do not accept, wait for next frame.
+                return
 
         if not self.eye_movement_detected_in_phase:
             # Get eye position
@@ -376,28 +408,6 @@ class FlashTrialSaccade(FlashTrial):
                     self.late_responses.append((saccade_direction, eyepos_time - self.fix2_time))
                     self.events.append([saccade_direction_verbose, eyepos_time, 'during ITI'])  # This will
                     # probably always be detected: drift correction?
-
-        # Don't forget to check keyboard responses for kill signals and/or scanner pulses!
-        for i, (ev, ev_time) in enumerate(event.getKeys(timeStamped=self.session.clock)):
-
-            if len(ev) > 0:
-                if ev in ['esc', 'escape']:
-                    self.events.append([-99, ev_time, 'escape: user killed session'])
-                    self.stopped = True
-                    self.session.stopped = True
-                    print('Session stopped!')
-
-                elif ev == 'equal':
-                    self.events.append([-99, ev_time - self.start_time, 'user skipped trial'])
-                    self.stopped = True
-                    print('Trial canceled by user')
-
-                elif ev == 't':  # Scanner pulse
-                    self.events.append([99, ev_time, 'pulse'])
-                    self.n_TRs += 1
-
-                    if self.phase == 0:
-                        self.phase_forward()
 
     def phase_forward(self):
         """ Do everything the superclass does, but also reset current phase eye movement detection """
