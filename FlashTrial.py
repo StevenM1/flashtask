@@ -313,11 +313,11 @@ class FlashTrialSaccade(FlashTrial):
         # Make sure to get eye position at the start of each phase
         if self.eye_pos_start_phase[self.phase] is None:
             eyepos = self.session.eye_pos()
-            distance_from_center = np.divide(np.sqrt((eyepos[0])**2 +
-                                                     (eyepos[1])**2),
+            distance_from_center = np.divide(np.sqrt((eyepos[0]-self.session.screen_pix_size[0]/2)**2 +
+                                                     (eyepos[1]-self.session.screen_pix_size[1]/2)**2),
                                              self.session.pixels_per_degree)
             if distance_from_center < 6:
-                # If the distance from the center is less than 8 degrees, we are probably not in a blink. We can
+                # If the distance from the center is less than 6 degrees, we are probably not in a blink. We can
                 # accept the current position as the start position
                 self.eye_pos_start_phase[self.phase] = self.session.eye_pos()
             else:
